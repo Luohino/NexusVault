@@ -1,0 +1,5 @@
+{
+  "name": "NexusVault",
+  "description": "A fully functional GitHub-like developer platform for hosting repositories, browsing code, and collaborating locally.",
+  "requestFramePermissions": []
+}
