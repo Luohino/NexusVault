@@ -38,7 +38,7 @@ const CodeBlock = ({ lang, codeString }: { lang: string, codeString: string }) =
   }
 
   return (
-    <div className="relative group my-6 rounded-sm bg-[#0d0d0d] border border-zinc-800 overflow-hidden shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+    <div className="relative group my-6 rounded-sm bg-[#0d0d0d] overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 bg-black border-b border-zinc-800">
         <span className="text-xs font-mono text-zinc-500 font-bold uppercase">{lang || 'text'}</span>
         <button

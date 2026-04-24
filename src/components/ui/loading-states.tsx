@@ -31,7 +31,7 @@ export const LoadingScreen = () => {
       {/* Branded Footer for Loading */}
       <div className="absolute bottom-12 left-0 w-full flex justify-center">
         <span className="text-[10px] font-bold text-zinc-700 animate-pulse">
-          Establishing Secure Local Environment
+          Powered by Luohino Inc.
         </span>
       </div>
     </div>

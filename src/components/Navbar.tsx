@@ -10,6 +10,8 @@ export const Navbar = () => {
   const { getToken } = useAuth();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
+  const [notifications, setNotifications] = React.useState<any[]>([]);
   const [searchQuery, setSearchQuery] = React.useState('');
 
   // Close dropdown on click outside
@@ -55,6 +57,19 @@ export const Navbar = () => {
     syncUser();
   }, [isSignedIn, user, getToken]);
 
+  const loadNotifications = async () => {
+    if (!isSignedIn) return;
+    const token = await getToken();
+    const res = await fetch('/api/notifications', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) setNotifications(await res.json());
+  };
+
+  React.useEffect(() => {
+    loadNotifications();
+  }, [isSignedIn, user?.id]);
+
   const handleLogout = async () => {
     await signOut();
     navigate('/');
@@ -64,6 +79,21 @@ export const Navbar = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const unreadCount = notifications.filter(notification => !notification.isRead).length;
+
+  const acceptNotificationInvite = async (notification: any) => {
+    const token = await getToken();
+    const res = await fetch(`/api/notifications/${notification.id}/accept`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      await loadNotifications();
+      if (notification.href) navigate(notification.href);
+      setIsNotificationsOpen(false);
     }
   };
 
@@ -97,10 +127,94 @@ export const Navbar = () => {
         <Link to="/new" className="text-zinc-400 hover:text-red-600 transition-colors">
           <Plus className="w-5 h-5" />
         </Link>
-        <button className="text-zinc-400 hover:text-red-600 transition-colors relative">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-0 right-0 w-2 h-2 bg-red-600 border border-black rounded-full"></span>
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => {
+              setIsNotificationsOpen(!isNotificationsOpen);
+              setIsDropdownOpen(false);
+              loadNotifications();
+            }}
+            className="text-zinc-400 hover:text-red-600 transition-colors relative"
+          >
+            <Bell className="w-5 h-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-4 h-4 bg-red-600 border border-black text-[8px] text-white font-black flex items-center justify-center px-1">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          {isNotificationsOpen && (
+            <div className="absolute right-0 mt-6 w-96 bg-white border-[3px] border-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)] text-black z-50 overflow-hidden">
+              <div className="bg-red-600 text-white border-b-[3px] border-black px-5 py-4">
+                <h3 className="text-sm font-black uppercase italic">Notifications</h3>
+              </div>
+              <div className="max-h-96 overflow-y-auto divide-y-[3px] divide-black">
+                {notifications.map(notification => (
+                  <div
+                    key={notification.id}
+                    className={`w-full text-left p-4 hover:bg-red-50 transition-colors ${notification.isRead ? 'bg-white' : 'bg-red-50'}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      {notification.actorAvatarUrl ? (
+                        <img src={notification.actorAvatarUrl} alt={notification.actorUsername || ''} className="w-10 h-10 border-2 border-black object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 bg-black text-white border-2 border-black flex items-center justify-center text-xs font-black">
+                          {(notification.actorUsername || 'N')[0].toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-xs font-black text-black">{notification.title}</p>
+                        {notification.body && <p className="text-[11px] font-bold text-zinc-600 mt-1">{notification.body}</p>}
+                        {notification.type === 'repository_invite' && notification.invitationStatus === 'pending' ? (
+                          <div className="flex gap-2 mt-3">
+                            <button
+                              onClick={() => acceptNotificationInvite(notification)}
+                              className="bg-red-600 text-white border-2 border-black px-3 py-1.5 text-[10px] font-black"
+                            >
+                              Accept invite
+                            </button>
+                            <button
+                              onClick={async () => {
+                                const token = await getToken();
+                                await fetch(`/api/notifications/${notification.id}/read`, {
+                                  method: 'PATCH',
+                                  headers: { Authorization: `Bearer ${token}` },
+                                });
+                                await loadNotifications();
+                              }}
+                              className="bg-white text-black border-2 border-black px-3 py-1.5 text-[10px] font-black"
+                            >
+                              Later
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={async () => {
+                              const token = await getToken();
+                              await fetch(`/api/notifications/${notification.id}/read`, {
+                                method: 'PATCH',
+                                headers: { Authorization: `Bearer ${token}` },
+                              });
+                              setIsNotificationsOpen(false);
+                              if (notification.href) navigate(notification.href);
+                            }}
+                            className="mt-3 text-[10px] font-black text-red-600 hover:text-black"
+                          >
+                            Open
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {notifications.length === 0 && (
+                  <div className="p-8 text-center text-xs font-black text-zinc-500">No notifications yet</div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
         
         <div className="relative" ref={dropdownRef}>
           <button 

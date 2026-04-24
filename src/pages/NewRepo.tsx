@@ -38,7 +38,7 @@ export const NewRepo = () => {
   const [description, setDescription] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const [addReadme, setAddReadme] = useState(false);
-  const [gitignore, setGitignore] = useState('');
+  const [addNvignore, setAddNvignore] = useState(false);
   const [license, setLicense] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -59,17 +59,36 @@ export const NewRepo = () => {
     try {
       const token = await getToken();
       
-      let gitignoreContent = '';
-      if (gitignore) {
-        try {
-          const res = await fetch(`https://api.github.com/gitignore/templates/${gitignore}`);
-          if (res.ok) {
-            const data = await res.json();
-            gitignoreContent = data.source;
-          }
-        } catch (err) {
-          console.error('Failed to fetch gitignore template', err);
-        }
+      let nvignoreContent = '';
+      if (addNvignore) {
+        // Default .nvignore content
+        nvignoreContent = `# Dependencies
+node_modules/
+bower_components/
+
+# Build output
+dist/
+build/
+*.min.js
+*.min.css
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+npm-debug.log
+yarn-error.log
+*.log`;
       }
 
       let licenseContent = '';
@@ -111,7 +130,7 @@ export const NewRepo = () => {
           description, 
           isPrivate,
           addReadme,
-          gitignoreContent,
+          nvignoreContent,
           licenseContent,
           licenseKey: license
         }),
@@ -281,23 +300,18 @@ export const NewRepo = () => {
                 </label>
               </div>
 
-              <div className="p-4 border-t border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-zinc-900/30 transition-colors">
-                <div>
-                  <p className="text-sm font-semibold">Add .NVignore</p>
-                  <p className="text-[12px] text-zinc-500">Choose which files not to track from a list of templates.</p>
+              <div className="p-4 border-t border-zinc-800 flex items-center justify-between hover:bg-zinc-900/30 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-zinc-900 rounded-md text-zinc-500"><FileText className="w-4 h-4" /></div>
+                  <div>
+                    <p className="text-sm font-semibold">Add .nvignore file</p>
+                    <p className="text-[12px] text-zinc-500">Files and folders to exclude from tracking.</p>
+                  </div>
                 </div>
-                <div className="relative">
-                  <select 
-                    className="appearance-none bg-zinc-900 border border-zinc-800 rounded-md text-sm font-medium px-4 py-1.5 pr-10 outline-none focus:border-red-600 cursor-pointer min-w-[140px] transition-colors"
-                    value={gitignore}
-                    onChange={(e) => setGitignore(e.target.value)}
-                  >
-                    {GITIGNORE_TEMPLATES.map(t => (
-                      <option key={t.value} value={t.value}>{t.name}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" checked={addNvignore} onChange={() => setAddNvignore(!addNvignore)} />
+                  <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600"></div>
+                </label>
               </div>
 
               <div className="p-4 border-t border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-zinc-900/30 transition-colors">

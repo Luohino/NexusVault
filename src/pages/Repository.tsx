@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { useParams, Link, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useUser, useAuth } from '@clerk/clerk-react';
-import { Book, Star, GitFork, Code, CircleDot, GitPullRequest, Settings, File as FileIcon, Folder as FolderIcon, GitBranch, ChevronDown, Tag, Activity, Eye, Pencil, Trash, Copy, Terminal, Monitor, UserPlus, Plus, Upload, History } from 'lucide-react';
+import { Book, Star, GitFork, Code, CircleDot, GitPullRequest, Settings, File as FileIcon, Folder as FolderIcon, GitBranch, ChevronDown, Tag, Activity, Eye, Pencil, Trash, Copy, Terminal, Monitor, UserPlus, Plus, Upload, History, Globe, TagIcon, Package, Download, FileArchive, X, BarChart3, Shield, Hash, BookOpen } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { MarkdownViewer } from '../components/ui/MarkdownViewer';
 import Prism from 'prismjs';
@@ -142,6 +142,11 @@ const IssueDetail = ({ username, repoName, issues, user, repo }: any) => {
 
 import { languageColors } from '../utils/languageColors';
 import { LoadingScreen } from '../components/ui/loading-states';
+import { CommitDiffPage } from '../components/repository/CommitDiffPage';
+import { PullRequestsPanel } from '../components/repository/PullRequestsPanel';
+import { RepositoryAdminPanel } from '../components/repository/RepositoryAdminPanel';
+import { WikiPanel } from '../components/repository/WikiPanel';
+import { ReleaseEditControls } from '../components/repository/ReleaseEditControls';
 
 const CommitDetailView = ({ username, repoName, commits }: { username: string, repoName: string, commits: any[] }) => {
   const { commitId } = useParams();
@@ -255,6 +260,298 @@ const CommitDetailView = ({ username, repoName, commits }: { username: string, r
   );
 };
 
+const TagDetailView = ({
+  username,
+  repoName,
+  tags,
+  loading
+}: {
+  username: string;
+  repoName: string;
+  tags: any[];
+  loading: boolean;
+}) => {
+  const { tagName } = useParams();
+  const normalizedTagName = decodeURIComponent(tagName || '');
+  const tag = tags.find((entry: any) => entry.name === normalizedTagName);
+
+  if (loading) {
+    return <div className="p-32 text-center text-zinc-500 font-black uppercase tracking-widest italic animate-pulse">Loading_Tag_Record...</div>;
+  }
+
+  if (!tag) {
+    return (
+      <div className="border-[4px] border-black bg-[#0d0d0d] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+        <div className="bg-zinc-900 border-b-[4px] border-black px-10 py-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <TagIcon className="w-5 h-5 text-red-600" />
+            <h2 className="text-[11px] font-black text-white uppercase tracking-[0.2em] italic">Tag_Record_Not_Found</h2>
+          </div>
+          <Link to={`/${username}/${repoName}/tags`} className="text-[10px] font-black text-zinc-400 hover:text-white uppercase tracking-widest">
+            Back to tags
+          </Link>
+        </div>
+        <div className="p-12">
+          <p className="text-sm text-zinc-400">No tag exists at <span className="text-white font-mono">{normalizedTagName}</span>.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8 max-w-5xl">
+      <div className="border-[3px] border-black bg-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)] overflow-hidden">
+        <div className="bg-red-600 border-b-[3px] border-black px-10 py-7 flex flex-col md:flex-row md:items-center md:justify-between gap-6 relative overflow-hidden">
+          <div className="absolute inset-y-0 right-0 w-96 bg-black/10 -skew-x-[35deg] translate-x-16"></div>
+          <div className="relative space-y-3">
+            <div className="flex items-center gap-4">
+              <span className="w-10 h-10 bg-black text-white flex items-center justify-center border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(255,255,255,0.25)]">
+                <TagIcon className="w-5 h-5 text-red-500" />
+              </span>
+              <h2 className="text-2xl font-black text-white italic">{tag.name}</h2>
+            </div>
+            <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-red-100">
+              <span>
+                Created <span className="text-white">{tag.createdAt ? format(new Date(tag.createdAt), 'MMM dd, yyyy') : 'Recently'}</span>
+              </span>
+              <span className="w-1 h-1 bg-black"></span>
+              <span>
+                Age <span className="text-white">{tag.createdAt ? formatDistanceToNow(new Date(tag.createdAt), { addSuffix: true }) : 'unknown'}</span>
+              </span>
+              {tag.creator && (
+                <>
+                  <span className="w-1 h-1 bg-black"></span>
+                  <span>
+                    Author <span className="text-white">{tag.creator.username}</span>
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="relative flex items-center gap-3">
+            <Link
+              to={`/${username}/${repoName}/tags`}
+              className="bg-white text-black border-[3px] border-black px-5 py-3 text-[11px] font-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all"
+            >
+              All Tags
+            </Link>
+            <Link
+              to={`/${username}/${repoName}/commits/${tag.commitId}`}
+              className="bg-black text-white border-[3px] border-black px-5 py-3 text-[11px] font-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black transition-all"
+            >
+              View Commit
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid gap-8 p-8 bg-[#050505] lg:grid-cols-[minmax(0,1fr)_300px]">
+          <div className="border-[3px] border-black bg-[#080808] text-white overflow-hidden shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
+            <div className="border-b-[3px] border-black bg-black px-6 py-4">
+              <h3 className="text-sm font-black text-white">Release notes</h3>
+            </div>
+            <div className="p-6">
+              {tag.message ? (
+                <MarkdownViewer content={tag.message} />
+              ) : (
+                <p className="text-sm text-zinc-500 italic">No release notes were attached to this tag.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="border-[3px] border-black bg-white text-black shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
+              <div className="border-b-[3px] border-black bg-black px-6 py-4">
+                <h3 className="text-sm font-black text-white">Reference</h3>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <p className="text-xs font-black text-red-600 mb-2">Tag URL</p>
+                  <p className="text-xs font-mono font-bold text-black break-all">{window.location.origin}/{username}/{repoName}/tags/{encodeURIComponent(tag.name)}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-black text-red-600 mb-2">Commit hash</p>
+                  <p className="text-xs font-mono font-bold text-black break-all">{tag.commitId}</p>
+                </div>
+                {tag.commit?.message && (
+                  <div>
+                    <p className="text-xs font-black text-red-600 mb-2">Commit message</p>
+                    <p className="text-sm font-bold text-black">{tag.commit.message}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const formatBytes = (bytes: number) => {
+  if (!bytes) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  return `${(bytes / Math.pow(1024, index)).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+};
+
+const ReleaseDetailView = ({
+  username,
+  repoName,
+  releases,
+  loading
+}: {
+  username: string;
+  repoName: string;
+  releases: any[];
+  loading: boolean;
+}) => {
+  const { releaseTag } = useParams();
+  const normalizedReleaseTag = decodeURIComponent(releaseTag || '');
+  const release = releases.find((entry: any) => entry.tagName === normalizedReleaseTag);
+
+  if (loading) {
+    return <div className="p-32 text-center text-zinc-500 font-black uppercase tracking-widest italic animate-pulse">Loading_Release_Record...</div>;
+  }
+
+  if (!release) {
+    return (
+      <div className="border-[4px] border-black bg-[#0d0d0d] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+        <div className="bg-zinc-900 border-b-[4px] border-black px-10 py-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Package className="w-5 h-5 text-red-600" />
+            <h2 className="text-[11px] font-black text-white uppercase tracking-[0.2em] italic">Release_Record_Not_Found</h2>
+          </div>
+          <Link to={`/${username}/${repoName}/releases`} className="text-[10px] font-black text-zinc-400 hover:text-white uppercase tracking-widest">
+            Back to releases
+          </Link>
+        </div>
+        <div className="p-12">
+          <p className="text-sm text-zinc-400">No release exists at <span className="text-white font-mono">{normalizedReleaseTag}</span>.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8 max-w-6xl">
+      <div className="border-[3px] border-black bg-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)] overflow-hidden">
+        <div className="bg-red-600 border-b-[3px] border-black px-10 py-7 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 relative overflow-hidden">
+          <div className="absolute inset-y-0 right-0 w-96 bg-black/10 -skew-x-[35deg] translate-x-16"></div>
+          <div className="relative space-y-4 min-w-0">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="w-10 h-10 bg-black text-white flex items-center justify-center border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(255,255,255,0.25)]">
+                <Package className="w-5 h-5 text-red-500" />
+              </span>
+              <h2 className="text-2xl font-black text-white italic break-words">{release.title}</h2>
+              {release.isDraft && (
+                <span className="border-2 border-black bg-white px-2 py-1 text-[10px] font-black text-black">Draft</span>
+              )}
+              {release.isPrerelease && (
+                <span className="border-2 border-black bg-black px-2 py-1 text-[10px] font-black text-white">Pre-release</span>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-red-100">
+              <Link to={`/${username}/${repoName}/tags/${encodeURIComponent(release.tagName)}`} className="inline-flex items-center gap-2 bg-black text-white px-2 py-1 hover:bg-white hover:text-black transition-colors">
+                <TagIcon className="w-4 h-4" />
+                {release.tagName}
+              </Link>
+              <span className="w-1 h-1 bg-black"></span>
+              <span>
+                {release.publishedAt ? 'Published' : 'Created'} <span className="text-white">{format(new Date(release.publishedAt || release.createdAt), 'MMM dd, yyyy')}</span>
+              </span>
+              {release.author?.username && (
+                <>
+                  <span className="w-1 h-1 bg-black"></span>
+                  <span>
+                    Author <span className="text-white">{release.author.username}</span>
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="relative flex items-center gap-3">
+            <Link
+              to={`/${username}/${repoName}/releases`}
+              className="bg-white text-black border-[3px] border-black px-5 py-3 text-[11px] font-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all"
+            >
+              All Releases
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid gap-8 p-8 bg-[#050505] lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="border-[3px] border-black bg-[#080808] text-white overflow-hidden shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
+            <div className="border-b-[3px] border-black bg-black px-6 py-4">
+              <h3 className="text-sm font-black text-white">Release notes</h3>
+            </div>
+            <div className="p-6">
+              {release.body ? (
+                <MarkdownViewer content={release.body} />
+              ) : (
+                <p className="text-sm text-zinc-500 italic">No release notes were provided.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <ReleaseEditControls
+              username={username}
+              repoName={repoName}
+              release={release}
+              onChanged={() => window.location.reload()}
+            />
+
+            <div className="border-[3px] border-black bg-white text-black shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
+              <div className="border-b-[3px] border-black bg-black px-6 py-4 flex items-center justify-between">
+                <h3 className="text-sm font-black text-white">Assets</h3>
+                <span className="bg-red-600 text-white px-2 py-1 text-[10px] font-black">{release.assets?.length || 0}</span>
+              </div>
+              <div className="divide-y-[3px] divide-black">
+                {release.assets?.length > 0 ? (
+                  release.assets.map((asset: any) => (
+                    <a
+                      key={asset.id}
+                      href={asset.downloadUrl}
+                      className="flex items-center gap-3 px-5 py-4 hover:bg-red-50 transition-colors"
+                    >
+                      <span className="w-8 h-8 bg-black text-white flex items-center justify-center flex-shrink-0">
+                        <FileArchive className="w-4 h-4 text-red-600" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-black text-black truncate">{asset.name}</p>
+                        <p className="text-[10px] font-bold text-zinc-500">{formatBytes(asset.size)}</p>
+                      </div>
+                      <Download className="w-4 h-4 text-black" />
+                    </a>
+                  ))
+                ) : (
+                  <p className="px-5 py-6 text-xs font-bold text-zinc-500 italic">No binaries attached.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="border-[3px] border-black bg-white text-black shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
+              <div className="border-b-[3px] border-black bg-black px-6 py-4">
+                <h3 className="text-sm font-black text-white">Reference</h3>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <p className="text-xs font-black text-red-600 mb-2">Release URL</p>
+                  <p className="text-xs font-mono font-bold text-black break-all">{window.location.origin}/{username}/{repoName}/releases/{encodeURIComponent(release.tagName)}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-black text-red-600 mb-2">Tag</p>
+                  <p className="text-xs font-mono font-bold text-black break-all">{release.tagName}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const Repository = () => {
   const { username, repoName } = useParams<{ username: string, repoName: string }>();
   const location = useLocation();
@@ -266,13 +563,26 @@ export const Repository = () => {
   const [files, setFiles] = useState<any[]>([]);
   const [issues, setIssues] = useState<any[]>([]);
   const [commits, setCommits] = useState<any[]>([]);
+  const [tags, setTags] = useState<any[]>([]);
+  const [releases, setReleases] = useState<any[]>([]);
+  const [branches, setBranches] = useState<any[]>([]);
+  const [pullRequests, setPullRequests] = useState<any[]>([]);
+  const [topics, setTopics] = useState<any[]>([]);
+  const [wikiPages, setWikiPages] = useState<any[]>([]);
+  const [repoSettings, setRepoSettings] = useState<any>(null);
+  const [contributors, setContributors] = useState<any[]>([]);
+  const [currentBranchName, setCurrentBranchName] = useState('main');
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [fileOffset, setFileOffset] = useState(0);
   const [hasMoreFiles, setHasMoreFiles] = useState(true);
   const [currentPath, setCurrentPath] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteFilePath, setDeleteFilePath] = useState('');
+  const [deleteCommitMsg, setDeleteCommitMsg] = useState('Delete file');
+  const [isDeletingFile, setIsDeletingFile] = useState(false);
   const [isAddFileOpen, setIsAddFileOpen] = useState(false);
+  const [isBranchMenuOpen, setIsBranchMenuOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzedCount, setAnalyzedCount] = useState(0);
   const [uploadFiles, setUploadFiles] = useState<{ file: File, path: string }[]>([]);
@@ -280,6 +590,27 @@ export const Repository = () => {
   const [commitSummary, setCommitSummary] = useState('Add files via upload');
   const [commitDescription, setCommitDescription] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+  const [isEditingAbout, setIsEditingAbout] = useState(false);
+  const [editAboutText, setEditAboutText] = useState(repo?.description || '');
+  const [editWebsiteUrl, setEditWebsiteUrl] = useState(repo?.websiteUrl || '');
+  const [isSavingAbout, setIsSavingAbout] = useState(false);
+  const [isCreatingTag, setIsCreatingTag] = useState(false);
+  const [newTagName, setNewTagName] = useState('');
+  const [newTagMessage, setNewTagMessage] = useState('');
+  const [selectedCommitForTag, setSelectedCommitForTag] = useState('');
+  const [isCreatingRelease, setIsCreatingRelease] = useState(false);
+  const [isSavingRelease, setIsSavingRelease] = useState(false);
+  const [isCreatingWikiPage, setIsCreatingWikiPage] = useState(false);
+  const [newWikiTitle, setNewWikiTitle] = useState('');
+  const [newWikiContent, setNewWikiContent] = useState('');
+  const [newReleaseTag, setNewReleaseTag] = useState('');
+  const [newReleaseCommit, setNewReleaseCommit] = useState('');
+  const [newReleaseTitle, setNewReleaseTitle] = useState('');
+  const [newReleaseBody, setNewReleaseBody] = useState('');
+  const [newReleaseDraft, setNewReleaseDraft] = useState(false);
+  const [newReleasePrerelease, setNewReleasePrerelease] = useState(false);
+  const [newReleaseAssets, setNewReleaseAssets] = useState<File[]>([]);
+  const [isDraggingReleaseAsset, setIsDraggingReleaseAsset] = useState(false);
   const addFileRef = React.useRef<HTMLDivElement>(null);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -419,7 +750,8 @@ export const Repository = () => {
             body: JSON.stringify({ 
               path: item.path, 
               content, 
-              message: commitSummary 
+              message: commitSummary,
+              branch: currentBranchName
             })
           });
 
@@ -466,11 +798,19 @@ export const Repository = () => {
 
   const currentTab = location.pathname.split('/')[3] || '';
 
+  useEffect(() => {
+    const routeBranch = location.pathname.match(/\/(blob|edit|new|upload)\/([^/]+)/)?.[2];
+    if (routeBranch) {
+      const decodedBranch = decodeURIComponent(routeBranch);
+      if (decodedBranch !== currentBranchName) setCurrentBranchName(decodedBranch);
+    }
+  }, [location.pathname]);
+
   const loadMoreFiles = async () => {
     if (loadingMore || !hasMoreFiles) return;
     setLoadingMore(true);
     try {
-      const res = await fetch(`/api/repos/${username}/${repoName}/files?limit=${FILE_LIMIT}&offset=${fileOffset}`);
+      const res = await fetch(`/api/repos/${username}/${repoName}/files?branch=${encodeURIComponent(currentBranchName)}&limit=${FILE_LIMIT}&offset=${fileOffset}`);
       if (res.ok) {
         const nextFiles = await res.json();
         setFiles(prev => [...prev, ...nextFiles]);
@@ -496,10 +836,18 @@ export const Repository = () => {
         if (repoRes.ok) {
           setRepo(await repoRes.json());
           
-          const [filesRes, issuesRes, commitsRes] = await Promise.all([
-            fetch(`/api/repos/${username}/${repoName}/files?limit=${FILE_LIMIT}&offset=0`),
+          const [filesRes, issuesRes, commitsRes, tagsRes, releasesRes, branchesRes, pullsRes, topicsRes, wikiRes, settingsRes, contributorsRes] = await Promise.all([
+            fetch(`/api/repos/${username}/${repoName}/files?branch=${encodeURIComponent(currentBranchName)}&limit=${FILE_LIMIT}&offset=0`),
             fetch(`/api/repos/${username}/${repoName}/issues`),
-            fetch(`/api/repos/${username}/${repoName}/commits`)
+            fetch(`/api/repos/${username}/${repoName}/commits`),
+            fetch(`/api/repos/${username}/${repoName}/tags`),
+            fetch(`/api/repos/${username}/${repoName}/releases`),
+            fetch(`/api/repos/${username}/${repoName}/branches`),
+            fetch(`/api/repos/${username}/${repoName}/pulls`),
+            fetch(`/api/repos/${username}/${repoName}/topics`),
+            fetch(`/api/repos/${username}/${repoName}/wiki`),
+            fetch(`/api/repos/${username}/${repoName}/settings`),
+            fetch(`/api/repos/${username}/${repoName}/contributors`)
           ]);
           
           if (filesRes.ok) {
@@ -510,6 +858,14 @@ export const Repository = () => {
           }
           if (issuesRes.ok) setIssues(await issuesRes.json());
           if (commitsRes.ok) setCommits(await commitsRes.json());
+          if (tagsRes.ok) setTags(await tagsRes.json());
+          if (releasesRes.ok) setReleases(await releasesRes.json());
+          if (branchesRes.ok) setBranches(await branchesRes.json());
+          if (pullsRes.ok) setPullRequests(await pullsRes.json());
+          if (topicsRes.ok) setTopics(await topicsRes.json());
+          if (wikiRes.ok) setWikiPages(await wikiRes.json());
+          if (settingsRes.ok) setRepoSettings(await settingsRes.json());
+          if (contributorsRes.ok) setContributors(await contributorsRes.json());
         }
       } catch (error) {
         console.error(error);
@@ -519,7 +875,7 @@ export const Repository = () => {
     };
 
     fetchRepoData();
-  }, [username, repoName]);
+  }, [username, repoName, currentBranchName]);
 
   if (loading || !isLoaded) return <LoadingScreen />;
   if (!user) {
@@ -566,8 +922,218 @@ export const Repository = () => {
     }
   };
 
-  const readmeFile = files.find(f => f.path.toLowerCase() === 'readme.md');
+  const resetReleaseForm = () => {
+    setNewReleaseTag('');
+    setNewReleaseCommit('');
+    setNewReleaseTitle('');
+    setNewReleaseBody('');
+    setNewReleaseDraft(false);
+    setNewReleasePrerelease(false);
+    setNewReleaseAssets([]);
+    setIsDraggingReleaseAsset(false);
+  };
 
+  const addReleaseAssetFiles = (files: File[]) => {
+    setNewReleaseAssets(prev => {
+      const combined = [...prev, ...files];
+      return combined.filter((file, index, all) => (
+        all.findIndex(candidate => (
+          candidate.name === file.name &&
+          candidate.size === file.size &&
+          candidate.lastModified === file.lastModified
+        )) === index
+      ));
+    });
+  };
+
+  const handleReleaseAssetDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingReleaseAsset(false);
+    addReleaseAssetFiles(Array.from(e.dataTransfer.files || []));
+  };
+
+  const fileToBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+  const handleCreateRelease = async () => {
+    if (!newReleaseTag.trim() || !newReleaseTitle.trim()) {
+      alert('Release tag and title are required');
+      return;
+    }
+
+    setIsSavingRelease(true);
+    try {
+      const token = await getToken();
+      const encodedAssets = await Promise.all(newReleaseAssets.map(async (file) => ({
+        name: file.name,
+        size: file.size,
+        contentType: file.type || 'application/octet-stream',
+        dataBase64: await fileToBase64(file),
+      })));
+
+      const res = await fetch(`/api/repos/${username}/${repoName}/releases`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          tagName: newReleaseTag.trim(),
+          targetCommitId: newReleaseCommit || undefined,
+          title: newReleaseTitle.trim(),
+          body: newReleaseBody || null,
+          isDraft: newReleaseDraft,
+          isPrerelease: newReleasePrerelease,
+          assets: encodedAssets,
+        })
+      });
+
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        alert(error.error || 'Failed to create release');
+        return;
+      }
+
+      const createdRelease = await res.json();
+      setReleases([createdRelease, ...releases]);
+      setIsCreatingRelease(false);
+      resetReleaseForm();
+      navigate(`/${username}/${repoName}/releases/${encodeURIComponent(createdRelease.tagName)}`);
+    } catch (err) {
+      console.error('Error creating release:', err);
+      alert('Error creating release');
+    } finally {
+      setIsSavingRelease(false);
+    }
+  };
+
+  const handleDeleteRelease = async (releaseId: string) => {
+    if (!confirm('Delete this release and all attached binaries?')) return;
+    const token = await getToken();
+    const res = await fetch(`/api/repos/${username}/${repoName}/releases/${releaseId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) setReleases(releases.filter((release: any) => release.id !== releaseId));
+  };
+
+  const handleCreateBranch = async () => {
+    const name = prompt('New branch name');
+    if (!name) return;
+    const token = await getToken();
+    const res = await fetch(`/api/repos/${username}/${repoName}/branches`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name, from: currentBranchName })
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      alert(error.error || 'Failed to create branch');
+      return;
+    }
+    const branch = await res.json();
+    setBranches([...branches, branch]);
+    setCurrentBranchName(branch.name);
+    setCurrentPath('');
+    setIsBranchMenuOpen(false);
+  };
+
+  const handleCreatePullRequest = async () => {
+    if (currentBranchName === 'main') {
+      alert('Create or switch to a feature branch before opening a pull request.');
+      return;
+    }
+    const title = prompt('Pull request title', `Merge ${currentBranchName} into main`);
+    if (!title) return;
+    const token = await getToken();
+    const res = await fetch(`/api/repos/${username}/${repoName}/pulls`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ title, sourceBranch: currentBranchName, targetBranch: 'main' })
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      alert(error.error || 'Failed to create pull request');
+      return;
+    }
+    const pr = await res.json();
+    setPullRequests([pr, ...pullRequests]);
+    navigate(`/${username}/${repoName}/pulls`);
+  };
+
+  const handleMergePullRequest = async (pullId: string) => {
+    const token = await getToken();
+    const compareRes = await fetch(`/api/repos/${username}/${repoName}/pulls/${pullId}/compare`);
+    const comparison = await compareRes.json();
+    if (comparison.conflicts?.length > 0) {
+      alert(`Merge blocked by conflicts in: ${comparison.conflicts.map((file: any) => file.path).join(', ')}`);
+      return;
+    }
+    const res = await fetch(`/api/repos/${username}/${repoName}/pulls/${pullId}/merge`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      alert(error.error || 'Failed to merge pull request');
+      return;
+    }
+    setPullRequests(pullRequests.map((pull: any) => pull.id === pullId ? { ...pull, status: 'merged' } : pull));
+    setCurrentBranchName('main');
+  };
+
+  const handleSaveTopics = async () => {
+    const raw = prompt('Topics separated by commas', topics.map((topic: any) => topic.name).join(', '));
+    if (raw === null) return;
+    const nextTopics = raw.split(',').map(topic => topic.trim()).filter(Boolean);
+    const token = await getToken();
+    const res = await fetch(`/api/repos/${username}/${repoName}/topics`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topics: nextTopics })
+    });
+    if (res.ok) setTopics(await res.json());
+  };
+
+  const handleSaveRepoSettings = async (nextSettings: any) => {
+    const token = await getToken();
+    const res = await fetch(`/api/repos/${username}/${repoName}/settings`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(nextSettings)
+    });
+    if (res.ok) setRepoSettings(await res.json());
+  };
+
+  const handleCreateWikiPage = async () => {
+    if (!newWikiTitle.trim() || !newWikiContent.trim()) return;
+    const token = await getToken();
+    const res = await fetch(`/api/repos/${username}/${repoName}/wiki`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: newWikiTitle, content: newWikiContent })
+    });
+    if (res.ok) {
+      const page = await res.json();
+      setWikiPages([page, ...wikiPages]);
+      setIsCreatingWikiPage(false);
+      setNewWikiTitle('');
+      setNewWikiContent('');
+    }
+  };
+
+  const readmeFile = files.find(f => f.path.toLowerCase() === 'readme.md');
   return (
     <div className="bg-[#080808] min-h-screen text-white flex-1">
       {/* Repo Header */}
@@ -613,7 +1179,9 @@ export const Repository = () => {
               { id: '', label: 'Code', icon: <Code className="w-4 h-4" /> },
               { id: 'issues', label: 'Issues', icon: <CircleDot className="w-4 h-4" />, count: issues.length },
               { id: 'commits', label: 'Commits', icon: <History className="w-4 h-4" />, count: commits.length },
-              { id: 'pulls', label: 'Pull requests', icon: <GitPullRequest className="w-4 h-4" /> },
+              { id: 'pulls', label: 'Pull requests', icon: <GitPullRequest className="w-4 h-4" />, count: pullRequests.filter((pull: any) => pull.status === 'open').length },
+              { id: 'insights', label: 'Insights', icon: <BarChart3 className="w-4 h-4" /> },
+              { id: 'wiki', label: 'Wiki', icon: <BookOpen className="w-4 h-4" />, count: wikiPages.length },
               { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" />, condition: user?.id === repo.ownerId }
             ].map(tab => (
               (tab.condition === undefined || tab.condition) && (
@@ -626,6 +1194,7 @@ export const Repository = () => {
                       : 'border-transparent text-zinc-500 hover:text-white hover:border-zinc-800'
                   }`}
                 >
+                  {tab.icon}
                   {tab.label}
                   {tab.count !== undefined && (
                     <span className={`px-2 py-0.5 text-[9px] font-bold ${currentTab === tab.id ? 'bg-red-600 text-white' : 'bg-zinc-900 text-zinc-500'}`}>
@@ -647,14 +1216,47 @@ export const Repository = () => {
                 {/* Action Bar */}
                  <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 bg-[#121212] border border-zinc-800 px-4 py-2 text-xs font-bold text-white hover:border-zinc-600 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group">
+                    <div className="relative">
+                    <button
+                      onClick={() => setIsBranchMenuOpen(!isBranchMenuOpen)}
+                      className="flex items-center gap-2 bg-[#121212] border border-zinc-800 px-4 py-2 text-xs font-bold text-white hover:border-zinc-600 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group"
+                    >
                       <GitBranch className="w-3.5 h-3.5 text-red-600" />
-                      <span className="group-hover:text-red-500 transition-colors">main</span>
+                      <span className="group-hover:text-red-500 transition-colors">{currentBranchName}</span>
                       <ChevronDown className="w-3.5 h-3.5 text-zinc-600" />
                     </button>
+                    {isBranchMenuOpen && (
+                      <div className="absolute left-0 top-full mt-2 w-72 bg-white border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(220,38,38,1)] z-50">
+                        <div className="bg-red-600 border-b-[3px] border-black px-4 py-2 text-[10px] font-black text-white uppercase tracking-widest">Branches</div>
+                        <div className="max-h-64 overflow-y-auto p-2">
+                          {branches.map((branch: any) => (
+                            <button
+                              key={branch.id}
+                              onClick={() => {
+                                setCurrentBranchName(branch.name);
+                                setCurrentPath('');
+                                setIsBranchMenuOpen(false);
+                              }}
+                              className={`w-full text-left px-3 py-2 text-xs font-black hover:bg-red-50 ${currentBranchName === branch.name ? 'text-red-600' : 'text-black'}`}
+                            >
+                              {branch.name}
+                            </button>
+                          ))}
+                        </div>
+                        {user?.id === repo.ownerId && (
+                          <button
+                            onClick={handleCreateBranch}
+                            className="w-full border-t-[3px] border-black px-4 py-3 text-xs font-black text-black hover:bg-black hover:text-white transition-colors"
+                          >
+                            Create new branch
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    </div>
                     <div className="hidden md:flex items-center gap-5 text-xs font-bold text-zinc-500">
                       <span className="flex items-center gap-1.5 hover:text-white cursor-pointer transition-colors">
-                        <GitBranch className="w-3.5 h-3.5" /> <strong>1</strong> Branch
+                        <GitBranch className="w-3.5 h-3.5" /> <strong>{branches.length || 1}</strong> Branch
                       </span>
                       <span className="flex items-center gap-1.5 hover:text-white cursor-pointer transition-colors">
                         <Tag className="w-3.5 h-3.5" /> <strong>0</strong> Tags
@@ -683,7 +1285,7 @@ export const Repository = () => {
                             </div>
                             <div className="p-1">
                               <Link 
-                                to={`/${username}/${repoName}/new/main`}
+                                to={`/${username}/${repoName}/new/${encodeURIComponent(currentBranchName)}`}
                                 className="flex items-center gap-3 w-full p-3 text-[11px] font-black text-black hover:bg-red-50 transition-colors group"
                                 onClick={() => setIsAddFileOpen(false)}
                               >
@@ -696,7 +1298,7 @@ export const Repository = () => {
                                 className="flex items-center gap-3 w-full p-3 text-[11px] font-black text-black hover:bg-red-50 transition-colors group border-t border-zinc-100"
                                 onClick={() => {
                                   setIsAddFileOpen(false);
-                                  navigate(`/${username}/${repoName}/upload/main`);
+                                  navigate(`/${username}/${repoName}/upload/${encodeURIComponent(currentBranchName)}`);
                                 }}
                               >
                                 <div className="w-6 h-6 bg-black text-white flex items-center justify-center group-hover:bg-red-600 transition-colors">
@@ -719,7 +1321,13 @@ export const Repository = () => {
                 <div className="border-[3px] border-black bg-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
                   <div className="bg-white border-b-[3px] border-black px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      {repo.owner?.avatarUrl ? (
+                      {commits.length > 0 ? (
+                        <img 
+                          src={commits[0].authorAvatarUrl} 
+                          alt={commits[0].authorUsername}
+                          className="w-10 h-10 border-[3px] border-black -rotate-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] object-cover"
+                        />
+                      ) : repo.owner?.avatarUrl ? (
                         <img 
                           src={repo.owner.avatarUrl} 
                           alt={username}
@@ -730,19 +1338,19 @@ export const Repository = () => {
                           {username[0].toUpperCase()}
                         </div>
                       )}
-                      <div className="font-outfit">
+                      <div className="font-outfit !not-italic">
                         <div className="flex items-center gap-2">
-                          <span className="text-[13px] font-bold text-black">{username}</span>
+                          <span className="text-[13px] font-bold text-black">{commits.length > 0 ? commits[0].authorUsername : username}</span>
                           <span className="text-[10px] font-semibold text-zinc-400">authorized operator</span>
                         </div>
-                        <div className="text-[10px] font-semibold text-zinc-500 flex items-center gap-2">
-                          <Activity className="w-3 h-3 text-red-600" /> Latest commit: <span>initial sync protocol</span>
+                        <div className="text-[10px] font-semibold text-zinc-500 flex items-center gap-2 !not-italic">
+                          <Activity className="w-3 h-3 text-red-600" /> Latest commit: <span className="!not-italic">{commits.length > 0 ? commits[0].message : 'initial sync protocol'}</span>
                         </div>
                       </div>
                     </div>
                     <div className="hidden md:flex items-center gap-3">
                       <div className="bg-black text-white px-3 py-1.5 text-[10px] font-bold border-2 border-black font-outfit">
-                        {repo.commits?.length || 1} commits
+                        {commits.length || 1} commits
                       </div>
                     </div>
                   </div>
@@ -877,31 +1485,6 @@ export const Repository = () => {
                           </div>
                         )}
                         
-                        {/* Latest Commit Bar */}
-                        {commits.length > 0 && (
-                          <div className="bg-[#121212] border-x-[3px] border-t-[3px] border-black p-6 flex items-center justify-between group hover:bg-[#161616] transition-all">
-                            <div className="flex items-center gap-5">
-                              <div className="w-8 h-8 bg-black border-2 border-zinc-800 flex items-center justify-center overflow-hidden shadow-[3px_3px_0px_0px_rgba(220,38,38,0.5)] group-hover:border-red-600 transition-colors">
-                                <img src={commits[0].authorAvatarUrl} className="w-full h-full object-cover opacity-80" />
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <span className="text-[11px] font-black text-white uppercase italic tracking-widest">{commits[0].authorUsername}</span>
-                                <span className="text-[11px] font-medium text-zinc-400 truncate max-w-[300px] md:max-w-md">{commits[0].message}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-6 text-[10px] font-black text-zinc-600 uppercase tracking-tighter">
-                              <Link to={`/${username}/${repoName}/commits`} className="hover:text-red-500 transition-colors flex items-center gap-2">
-                                <span className="bg-zinc-900 px-2 py-0.5 font-mono text-[9px] border border-zinc-800">{commits[0].id.substring(0, 7)}</span>
-                                <span>{formatDistanceToNow(new Date(commits[0].timestamp), { addSuffix: true })}</span>
-                              </Link>
-                              <Link to={`/${username}/${repoName}/commits`} className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors">
-                                <History className="w-3.5 h-3.5" />
-                                <span>{commits.length} commits</span>
-                              </Link>
-                            </div>
-                          </div>
-                        )}
-
                         <div className="divide-y divide-zinc-800/40 border-x-[3px] border-b-[3px] border-black bg-[#0d1117]/40">
                           {(() => {
                             // Folder Logic
@@ -968,7 +1551,7 @@ export const Repository = () => {
                                   <div className="w-1/3 flex items-center">
                                     <FileIcon className="w-4 h-4 text-zinc-500 mr-3 group-hover:text-red-500 transition-colors" />
                                     <Link 
-                                      to={`/${username}/${repoName}/blob/main/${file.path}`} 
+                                      to={`/${username}/${repoName}/blob/${encodeURIComponent(currentBranchName)}/${file.path}`} 
                                       className="text-[13px] font-bold text-white transition-colors truncate font-outfit group-hover:text-red-500"
                                     >
                                       {name}
@@ -1015,7 +1598,7 @@ export const Repository = () => {
                       </div>
                       {user && user.id === repo.ownerId && (
                         <Link 
-                          to={`/${username}/${repoName}/edit/main/${readmeFile.path}`} 
+                          to={`/${username}/${repoName}/edit/${encodeURIComponent(currentBranchName)}/${readmeFile.path}`} 
                           className="p-1.5 text-zinc-500 hover:text-red-500 transition-colors"
                         >
                           <Pencil className="w-4 h-4" />
@@ -1032,8 +1615,55 @@ export const Repository = () => {
                {/* Sidebar Info */}
               <div className="w-full lg:w-80 space-y-10">
                 <div className="border-b border-zinc-900 pb-8">
-                  <h3 className="text-sm font-bold text-zinc-400 mb-4">About</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-zinc-400">About</h3>
+                    {user && user.id === repo.ownerId && (
+                      <button 
+                        onClick={() => {
+                          setIsEditingAbout(true);
+                          setEditAboutText(repo.description || '');
+                          setEditWebsiteUrl(repo.websiteUrl || '');
+                        }}
+                        className="p-1.5 text-zinc-500 hover:text-red-500 transition-colors"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                   <p className="text-sm text-zinc-300 leading-relaxed mb-8">{repo.description || 'No description provided.'}</p>
+                  <div className="mb-8">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-bold text-zinc-400">Topics</h3>
+                      {user?.id === repo.ownerId && (
+                        <button onClick={handleSaveTopics} className="text-xs text-zinc-500 hover:text-red-500">
+                          Edit
+                        </button>
+                      )}
+                    </div>
+                    {topics.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {topics.map((topic: any) => (
+                          <span key={topic.id || topic.name} className="inline-flex items-center gap-1 bg-red-600 text-white px-2 py-1 text-[10px] font-black border-2 border-black">
+                            <Hash className="w-3 h-3" />
+                            {topic.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-zinc-600 italic">No topics yet</p>
+                    )}
+                  </div>
+                  {repo.websiteUrl && (
+                    <a 
+                      href={repo.websiteUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-red-500 hover:text-red-400 transition-colors mb-6 text-sm group"
+                    >
+                      <Globe className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                      <span className="underline">{repo.websiteUrl}</span>
+                    </a>
+                  )}
                   <div className="space-y-4 text-xs font-bold text-zinc-400">
                     <div className="flex items-center gap-3 hover:text-white cursor-pointer transition-colors group">
                       <Book className="w-4 h-4 text-red-600 group-hover:scale-110 transition-transform"/> Readme
@@ -1046,37 +1676,183 @@ export const Repository = () => {
                     </div>
                   </div>
                 </div>
+
+                <div className="border-b border-zinc-900 pb-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-zinc-400">Contributors</h3>
+                    <span className="text-[10px] font-black text-zinc-600">{contributors.length}</span>
+                  </div>
+                  <div className="space-y-3">
+                    {contributors.map((contributor: any) => (
+                      <Link
+                        key={contributor.username}
+                        to={`/${contributor.username}`}
+                        className="flex items-center justify-between gap-3 group"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          {contributor.avatarUrl ? (
+                            <img
+                              src={contributor.avatarUrl}
+                              alt={contributor.username}
+                              className="w-9 h-9 border-[3px] border-black object-cover shadow-[3px_3px_0px_0px_rgba(220,38,38,1)]"
+                            />
+                          ) : (
+                            <div className="w-9 h-9 bg-red-600 border-[3px] border-black flex items-center justify-center text-xs font-black text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                              {contributor.username?.[0]?.toUpperCase()}
+                            </div>
+                          )}
+                          <span className="text-sm font-black text-zinc-200 truncate group-hover:text-red-500 transition-colors">
+                            {contributor.username}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-black text-zinc-600">
+                          {contributor.count || 0}
+                        </span>
+                        {contributor.role === 'collaborator' && (
+                          <span className="text-[9px] font-black text-red-600 uppercase">collab</span>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
                 
+                {(releases.length > 0 || tags.length > 0) && (
+                  <div className="border-b border-zinc-900 pb-8">
+                    {releases.length > 0 && (
+                      <div className="mb-8">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-[10px] font-black text-red-500 uppercase tracking-[0.2em]">Latest release</h3>
+                          <Link to={`/${username}/${repoName}/releases`} className="text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest transition-colors">
+                            View all
+                          </Link>
+                        </div>
+                        <Link
+                          to={`/${username}/${repoName}/releases/${encodeURIComponent(releases[0].tagName)}`}
+                          className="group block border-[3px] border-black bg-white text-black shadow-[7px_7px_0px_0px_rgba(220,38,38,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] transition-all overflow-hidden"
+                        >
+                          <div className="bg-red-600 border-b-[3px] border-black px-4 py-3 relative overflow-hidden">
+                            <div className="absolute inset-y-0 right-0 w-28 bg-black/10 -skew-x-[35deg] translate-x-8"></div>
+                            <div className="relative flex items-center gap-2 min-w-0">
+                              <Package className="w-4 h-4 text-white flex-shrink-0" />
+                              <span className="text-sm font-black text-white italic truncate">{releases[0].title}</span>
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                              <span className="bg-black text-white px-2 py-1 text-[10px] font-black font-mono">{releases[0].tagName}</span>
+                              <span className="text-[9px] font-black text-red-600 uppercase tracking-widest">latest</span>
+                            </div>
+                            <p className="text-[10px] font-bold text-zinc-600">
+                              {releases[0].publishedAt ? formatDistanceToNow(new Date(releases[0].publishedAt), { addSuffix: true }) : 'Draft'}
+                              {` / ${releases[0].assets?.length || 0} ${(releases[0].assets?.length || 0) === 1 ? 'asset' : 'assets'}`}
+                            </p>
+                          </div>
+                        </Link>
+                      </div>
+                    )}
+
+                    {tags.length > 0 && (
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-[10px] font-black text-red-500 uppercase tracking-[0.2em]">Latest tag</h3>
+                          <Link to={`/${username}/${repoName}/tags`} className="text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest transition-colors">
+                            View all
+                          </Link>
+                        </div>
+                        <Link
+                          to={`/${username}/${repoName}/tags/${encodeURIComponent(tags[0].name)}`}
+                          className="group flex items-center justify-between gap-3 border-[3px] border-black bg-white text-black p-4 shadow-[7px_7px_0px_0px_rgba(220,38,38,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] transition-all"
+                        >
+                          <span className="flex items-center gap-2 min-w-0">
+                            <span className="w-7 h-7 bg-black text-white flex items-center justify-center flex-shrink-0">
+                              <TagIcon className="w-4 h-4 text-red-600" />
+                            </span>
+                            <span className="font-mono font-black text-black truncate">{tags[0].name}</span>
+                          </span>
+                          <span className="text-[10px] font-bold text-zinc-500 flex-shrink-0">
+                            {tags[0].createdAt ? formatDistanceToNow(new Date(tags[0].createdAt), { addSuffix: true }) : 'recently'}
+                          </span>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="pt-2">
                   <h3 className="text-sm font-bold text-zinc-400 mb-4">Languages</h3>
-                  <div className="w-full bg-zinc-900 h-2 mb-4 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                    <div 
-                      className="h-full shadow-[0_0_10px_rgba(0,0,0,0.3)]" 
-                      style={{ 
-                        width: '100%', 
-                        backgroundColor: repo.language ? (languageColors[repo.language] || '#dc2626') : '#dc2626',
-                        boxShadow: `0 0 10px ${repo.language ? (languageColors[repo.language] || '#dc2626') : '#dc2626'}44`
-                      }} 
-                    ></div>
-                  </div>
-                  <div className="space-y-4">
-                  {repo.language ? (
-                    <div className="text-xs font-bold text-white flex items-center justify-between">
-                      <span className="flex items-center gap-2.5">
-                        <span 
-                          className="w-2.5 h-2.5 rounded-full" 
-                          style={{ backgroundColor: languageColors[repo.language] || '#dc2626' }}
-                        /> {repo.language}
-                      </span>
-                      <span className="text-zinc-500 font-medium">100.0%</span>
-                    </div>
-                  ) : (
-                    <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest italic">
-                      No language detected
-                    </div>
-                  )}
+                  {(() => {
+                    // Calculate language breakdown from files
+                    const langMap = new Map<string, number>();
+                    const extToLang: { [key: string]: string } = {
+                      'ts': 'TypeScript',
+                      'tsx': 'TypeScript',
+                      'js': 'JavaScript',
+                      'jsx': 'JavaScript',
+                      'py': 'Python',
+                      'java': 'Java',
+                      'cpp': 'C++',
+                      'c': 'C',
+                      'html': 'HTML',
+                      'css': 'CSS',
+                      'scss': 'SCSS',
+                      'json': 'JSON',
+                      'yaml': 'YAML',
+                      'yml': 'YAML',
+                      'md': 'Markdown',
+                      'sql': 'SQL',
+                      'go': 'Go',
+                      'rb': 'Ruby',
+                      'php': 'PHP',
+                    };
+
+                    files.forEach(file => {
+                      const ext = file.path.split('.').pop()?.toLowerCase() || 'unknown';
+                      const lang = extToLang[ext] || (ext.charAt(0).toUpperCase() + ext.slice(1));
+                      langMap.set(lang, (langMap.get(lang) || 0) + 1);
+                    });
+
+                    const total = files.length;
+                    const sorted = Array.from(langMap.entries())
+                      .sort((a, b) => b[1] - a[1]); // Show ALL languages
+
+                    return (
+                      <div className="space-y-4">
+                        {sorted.length > 0 ? (
+                          <>
+                            <div className="w-full bg-zinc-900 h-2 mb-4 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                              {sorted.map(([lang, count]) => (
+                                <div
+                                  key={lang}
+                                  className="h-full inline-block"
+                                  style={{
+                                    width: `${(count / total) * 100}%`,
+                                    backgroundColor: languageColors[lang] || '#dc2626',
+                                    boxShadow: `0 0 10px ${languageColors[lang] || '#dc2626'}44`
+                                  }}
+                                />
+                              ))}
+                            </div>
+                            {sorted.map(([lang, count]) => (
+                              <div key={lang} className="text-xs font-bold text-white flex items-center justify-between">
+                                <span className="flex items-center gap-2.5">
+                                  <span 
+                                    className="w-2.5 h-2.5 rounded-full" 
+                                    style={{ backgroundColor: languageColors[lang] || '#dc2626' }}
+                                  /> {lang}
+                                </span>
+                                <span className="text-zinc-500 font-medium">{((count / total) * 100).toFixed(1)}%</span>
+                              </div>
+                            ))}
+                          </>
+                        ) : (
+                          <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest italic">
+                            No languages detected
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
-              </div>
             </div>
           </div>
           } />
@@ -1282,7 +2058,7 @@ export const Repository = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                   },
-                  body: JSON.stringify({ path, content, message })
+                  body: JSON.stringify({ path, content, message, branch: currentBranchName })
                 });
                 
                 if (res.ok) {
@@ -1328,7 +2104,7 @@ export const Repository = () => {
           <Route path="/edit/:branch/*" element={
             <div className="border-[3px] border-black bg-[#121212] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
               {(() => {
-                const filePath = location.pathname.split('/edit/main/')[1] || location.pathname.split('/edit/')[2];
+                const filePath = location.pathname.split('/edit/')[1]?.split('/').slice(1).join('/');
                 const file = files.find(f => f.path === filePath);
                 
                 if (!file) return <div className="p-24 text-center text-zinc-500 font-black uppercase italic tracking-tighter">Operational context lost: File not found.</div>;
@@ -1349,11 +2125,11 @@ export const Repository = () => {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                       },
-                      body: JSON.stringify({ path: file.path, content, message })
+                      body: JSON.stringify({ path: file.path, content, message, branch: currentBranchName })
                     });
                     
                     if (res.ok) {
-                      window.location.href = `/${username}/${repoName}/blob/main/${file.path}`;
+                      window.location.href = `/${username}/${repoName}/blob/${encodeURIComponent(currentBranchName)}/${file.path}`;
                     }
                   }}>
                     <div className="bg-zinc-900 border-b-[3px] border-black px-8 py-5 flex items-center justify-between">
@@ -1431,14 +2207,14 @@ export const Repository = () => {
                   </div>
                   <div className="flex items-center gap-4 text-[11px] font-black text-white uppercase tracking-[0.2em] italic">
                     <FileIcon className="w-4 h-4 text-red-600" />
-                    Vault_Archive: <span className="text-red-500">{location.pathname.split('/blob/main/')[1]}</span>
+                    Vault_Archive: <span className="text-red-500">{location.pathname.split('/blob/')[1]?.split('/').slice(1).join('/')}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  {user && user.id === repo.ownerId && (
-                    <div className="flex items-center bg-black border-2 border-zinc-800 px-4 py-2 gap-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              {user && user.id === repo.ownerId && (
+                <div className="flex items-center bg-black border-2 border-zinc-800 px-4 py-2 gap-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                       <Link 
-                        to={`/${username}/${repoName}/edit/main/${location.pathname.split('/blob/main/')[1]}`} 
+                        to={`/${username}/${repoName}/edit/${encodeURIComponent(currentBranchName)}/${location.pathname.split('/blob/')[1]?.split('/').slice(1).join('/')}`} 
                         className="flex items-center gap-2.5 text-[10px] font-black text-zinc-400 hover:text-white transition-colors uppercase tracking-widest group"
                       >
                         <Pencil className="w-3.5 h-3.5 text-red-600 group-hover:scale-110 transition-transform" />
@@ -1446,31 +2222,32 @@ export const Repository = () => {
                       </Link>
                       <div className="w-px h-4 bg-zinc-800"></div>
                       <button 
-                        onClick={async () => {
-                          if (confirm('Are you sure you want to delete this file?')) {
-                            const filePath = location.pathname.split('/blob/main/')[1];
-                            const token = await getToken();
-                            const res = await fetch(`/api/repos/${username}/${repoName}/files/${encodeURIComponent(filePath)}`, { 
-                              method: 'DELETE',
-                              headers: { 'Authorization': `Bearer ${token}` }
-                            });
-                            if (res.ok) {
-                              window.location.href = `/${username}/${repoName}`;
-                            }
-                          }
+                        onClick={() => {
+                          const filePath = location.pathname.split('/blob/')[1]?.split('/').slice(1).join('/');
+                          setDeleteFilePath(filePath);
+                          setDeleteCommitMsg('Delete file');
+                          setShowDeleteConfirm(true);
                         }}
                         className="flex items-center gap-2.5 text-[10px] font-black text-zinc-400 hover:text-red-600 transition-colors uppercase tracking-widest group"
                       >
                         <Trash className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
                         Delete
                       </button>
-                    </div>
-                  )}
+                </div>
+              )}
+              {user && user.id === repo.ownerId && currentBranchName !== 'main' && (
+                <button
+                  onClick={handleCreatePullRequest}
+                  className="bg-red-600 text-white px-4 py-2 text-[10px] font-black border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                >
+                  Open pull request
+                </button>
+              )}
                 </div>
               </div>
               <div className="p-0 overflow-auto bg-[#050505] min-h-[600px]">
                 {(() => {
-                  const filePath = location.pathname.split('/blob/main/')[1];
+                  const filePath = location.pathname.split('/blob/')[1]?.split('/').slice(1).join('/');
                   const file = files.find(f => f.path === filePath);
                   if (!file) return <div className="p-32 text-center text-zinc-700 font-black uppercase italic tracking-tighter text-2xl opacity-20">Operational failure: File stream severed.</div>;
                   
@@ -1501,7 +2278,7 @@ export const Repository = () => {
                            <span className="text-[9px] font-black bg-red-600 text-white px-3 py-1.5 uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">{ext}</span>
                            <span className="text-[9px] font-black bg-white text-black px-3 py-1.5 uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">{(file.content.length / 1024).toFixed(1)} KB</span>
                         </div>
-                        <pre className={`language-${lang} m-0 !bg-transparent !border-0 !p-12 !pt-12 selection:bg-red-600/30`}>
+                        <pre className={`language-${lang} m-0 !bg-transparent !border-0 !p-12 !pt-12 !shadow-none selection:bg-red-600/30`}>
                           <code dangerouslySetInnerHTML={{ __html: Prism.highlight(file.content, Prism.languages[lang] || Prism.languages.javascript, lang) }} />
                         </pre>
                       </div>
@@ -1555,10 +2332,123 @@ export const Repository = () => {
             </div>
           } />
 
+          <Route path="/pulls" element={
+            <PullRequestsPanel
+              username={username}
+              repoName={repoName}
+              repo={repo}
+              user={user}
+              getToken={getToken}
+              pullRequests={pullRequests}
+              currentBranchName={currentBranchName}
+              onCreate={handleCreatePullRequest}
+              onMerge={handleMergePullRequest}
+            />
+          } />
+
+          <Route path="/insights" element={
+            <div className="border-[3px] border-black bg-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)] overflow-hidden">
+              <div className="bg-red-600 border-b-[3px] border-black px-8 py-6 relative overflow-hidden">
+                <div className="absolute inset-y-0 right-0 w-72 bg-black/10 -skew-x-[35deg] translate-x-16"></div>
+                <h2 className="relative text-xl font-black text-white uppercase italic tracking-tight">Repository insights</h2>
+                <p className="relative text-sm text-red-100 mt-2 font-semibold">Pulse, contributors, and growth signals</p>
+              </div>
+              <div className="p-8 bg-[#050505] grid gap-6 md:grid-cols-3">
+                <div className="bg-white text-black border-[3px] border-black p-6 shadow-[7px_7px_0px_0px_rgba(220,38,38,1)]">
+                  <h3 className="text-sm font-black mb-2">Commits</h3>
+                  <p className="text-4xl font-black">{commits.length}</p>
+                  <p className="text-xs font-bold text-zinc-500 mt-2">Total repository activity</p>
+                </div>
+                <div className="bg-white text-black border-[3px] border-black p-6 shadow-[7px_7px_0px_0px_rgba(220,38,38,1)]">
+                  <h3 className="text-sm font-black mb-2">Contributors</h3>
+                  <p className="text-4xl font-black">{new Set(commits.map((commit: any) => commit.authorUsername)).size || 1}</p>
+                  <p className="text-xs font-bold text-zinc-500 mt-2">People with commits</p>
+                </div>
+                <div className="bg-white text-black border-[3px] border-black p-6 shadow-[7px_7px_0px_0px_rgba(220,38,38,1)]">
+                  <h3 className="text-sm font-black mb-2">Tracked files</h3>
+                  <p className="text-4xl font-black">{files.length}</p>
+                  <p className="text-xs font-bold text-zinc-500 mt-2">{(files.reduce((sum, file) => sum + (file.content?.length || 0), 0) / 1024).toFixed(1)} KB content</p>
+                </div>
+                <div className="md:col-span-3 bg-[#080808] border-[3px] border-black p-6 shadow-[7px_7px_0px_0px_rgba(220,38,38,1)]">
+                  <h3 className="text-sm font-black text-white mb-4">Recent pulse</h3>
+                  <div className="grid grid-cols-[repeat(30,minmax(0,1fr))] gap-1">
+                    {Array.from({ length: 30 }).map((_, index) => {
+                      const day = new Date();
+                      day.setDate(day.getDate() - (29 - index));
+                      const count = commits.filter((commit: any) => new Date(commit.timestamp).toDateString() === day.toDateString()).length;
+                      return <div key={index} title={`${count} commits`} className={`h-8 border border-black ${count > 0 ? 'bg-red-600' : 'bg-zinc-900'}`}></div>;
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          } />
+
+          <Route path="/wiki/*" element={
+            <WikiPanel
+              username={username}
+              repoName={repoName}
+              wikiPages={wikiPages}
+              user={user}
+              repo={repo}
+              getToken={getToken}
+              onCreate={() => setIsCreatingWikiPage(true)}
+              onChanged={() => window.location.reload()}
+            />
+          } />
+
           {/* ... Rest of the sub-pages like settings follow the same theme ... */}
-           <Route path="/settings" element={
+          <Route path="/settings" element={
+            user?.id !== repo.ownerId ? (
+              <Navigate to={`/${username}/${repoName}`} replace />
+            ) : (
             <div className="space-y-8">
               <h2 className="text-3xl font-bold tracking-tight mb-8">Settings</h2>
+
+              <div className="border-4 border-black bg-white text-black p-8 shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
+                <div className="flex items-center gap-3 mb-6">
+                  <Shield className="w-5 h-5 text-red-600" />
+                  <h3 className="text-lg font-black">Branch protection</h3>
+                </div>
+                <div className="space-y-4">
+                  <label className="flex items-center gap-3 text-sm font-bold">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(repoSettings?.protectMainBranch)}
+                      onChange={(e) => handleSaveRepoSettings({ ...repoSettings, protectMainBranch: e.target.checked })}
+                    />
+                    Protect main branch
+                  </label>
+                  <label className="flex items-center gap-3 text-sm font-bold">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(repoSettings?.requirePullRequest)}
+                      onChange={(e) => handleSaveRepoSettings({ ...repoSettings, requirePullRequest: e.target.checked })}
+                    />
+                    Require pull requests before merge
+                  </label>
+                  <label className="block text-sm font-bold">
+                    Required review count
+                    <input
+                      type="number"
+                      min={0}
+                      max={6}
+                      value={repoSettings?.requiredReviewCount || 0}
+                      onChange={(e) => handleSaveRepoSettings({ ...repoSettings, requiredReviewCount: Number(e.target.value) })}
+                      className="mt-2 block w-32 border-2 border-black px-3 py-2 bg-white"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <RepositoryAdminPanel
+                username={username}
+                repoName={repoName}
+                branches={branches}
+                settings={repoSettings}
+                getToken={getToken}
+                onRefresh={() => window.location.reload()}
+              />
               
               <div className="border-4 border-red-600/20 bg-red-600/[0.02] p-8 shadow-[8px_8px_0px_0px_rgba(220,38,38,0.1)]">
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -1604,6 +2494,7 @@ export const Repository = () => {
                 )}
               </div>
             </div>
+            )
           } />
           <Route path="/commits" element={
             <div className="border-[4px] border-black bg-[#0d0d0d] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
@@ -1655,9 +2546,746 @@ export const Repository = () => {
           } />
 
           <Route path="/commits/:commitId" element={
-            <CommitDetailView username={username!} repoName={repoName!} commits={commits} />
+            <CommitDiffPage username={username!} repoName={repoName!} commits={commits} />
+          } />
+
+          <Route path="/tags" element={
+            <div className="max-w-5xl">
+              <div className="border-[3px] border-black bg-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)]">
+                <div className="bg-red-600 border-b-[3px] border-black px-8 py-6 flex items-center justify-between relative overflow-hidden">
+                  <div className="absolute inset-y-0 right-0 w-72 bg-black/10 -skew-x-[35deg] translate-x-16"></div>
+                  <div className="relative">
+                    <h2 className="text-xl font-black text-white uppercase italic tracking-tight">Tags</h2>
+                    <p className="text-sm text-red-100 mt-2 font-semibold">Version releases and git tags for this repository</p>
+                  </div>
+                  {user?.id === repo?.ownerId && (
+                    <button 
+                      onClick={() => setIsCreatingTag(true)}
+                      className="relative bg-white text-black px-6 py-3 text-[11px] font-black border-[3px] border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all"
+                    >
+                      Create Tag
+                    </button>
+                  )}
+                </div>
+                <div className="p-8 bg-[#050505]">
+                  {tags.length > 0 ? (
+                    <div className="space-y-4">
+                      {Array.from(new Map(tags.map((tag: any) => [tag.id, tag])).values()).map((tag: any) => {
+                        // Strip HTML tags and markdown syntax from preview
+                        let previewText = tag.message?.replace(/<[^>]*>/g, '') || '';
+                        // Remove markdown headers (#, ##, etc)
+                        previewText = previewText.replace(/^#+\s+/gm, '');
+                        // Remove markdown bold/italic
+                        previewText = previewText.replace(/[*_]{1,2}/g, '');
+                        // Remove markdown links
+                        previewText = previewText.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1');
+                        // Trim and limit to 150 chars
+                        previewText = previewText.trim().slice(0, 150);
+                        
+                        return (
+                          <Link
+                            key={tag.id}
+                            to={`/${username}/${repoName}/tags/${tag.name}`}
+                            className="border-[3px] border-black bg-white p-6 group cursor-pointer hover:translate-x-0.5 hover:translate-y-0.5 shadow-[7px_7px_0px_0px_rgba(220,38,38,1)] hover:shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] transition-all block no-underline text-black"
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="w-8 h-8 bg-black text-white flex items-center justify-center">
+                                    <TagIcon className="w-4 h-4 text-red-600" />
+                                  </span>
+                                  <h3 className="text-base font-black text-black font-mono">{tag.name}</h3>
+                                </div>
+                                {previewText && (
+                                  <p className="text-sm text-zinc-700 mb-3 line-clamp-2 font-medium">{previewText}</p>
+                                )}
+                                <p className="text-xs text-zinc-500 font-semibold">
+                                  Created {tag.createdAt ? format(new Date(tag.createdAt), 'MMM dd, yyyy') : 'recently'}
+                                  {tag.creator && ` by ${tag.creator.username}`}
+                                </p>
+                              </div>
+                              {user?.id === repo?.ownerId && (
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (!confirm('Delete this tag?')) return;
+                                    (async () => {
+                                      try {
+                                        const token = await getToken();
+                                        const res = await fetch(`/api/repos/${username}/${repoName}/tags/${tag.id}`, {
+                                          method: 'DELETE',
+                                          headers: { 'Authorization': `Bearer ${token}` }
+                                        });
+                                        if (res.ok) {
+                                          setTags(tags.filter((t: any) => t.id !== tag.id));
+                                        }
+                                      } catch (err) {
+                                        console.error('Error deleting tag:', err);
+                                      }
+                                    })();
+                                  }}
+                                  className="p-2 text-zinc-500 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                                >
+                                  <Trash className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center py-16">
+                      <div className="text-center">
+                        <TagIcon className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
+                        <p className="text-zinc-400 text-sm">No tags yet</p>
+                        <p className="text-zinc-600 text-xs mt-2">Create a tag to mark release points in your repository history</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          } />
+
+          <Route path="/tags/:tagName" element={
+            <TagDetailView username={username!} repoName={repoName!} tags={tags} loading={loading} />
+          } />
+
+          <Route path="/releases" element={
+            <div className="max-w-5xl">
+              <div className="border-[3px] border-black bg-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)]">
+                <div className="bg-red-600 border-b-[3px] border-black px-8 py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative overflow-hidden">
+                  <div className="absolute inset-y-0 right-0 w-72 bg-black/10 -skew-x-[35deg] translate-x-16"></div>
+                  <div className="relative">
+                    <h2 className="text-xl font-black text-white uppercase italic tracking-tight">Releases</h2>
+                    <p className="text-sm text-red-100 mt-2 font-semibold">Versioned builds, notes, and downloadable binaries</p>
+                  </div>
+                  {user?.id === repo?.ownerId && (
+                    <button
+                      onClick={() => setIsCreatingRelease(true)}
+                      className="relative bg-white text-black px-6 py-3 text-[11px] font-black border-[3px] border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white transition-all"
+                    >
+                      Create Release
+                    </button>
+                  )}
+                </div>
+                <div className="p-8 bg-[#050505]">
+                  {releases.length > 0 ? (
+                    <div className="space-y-6">
+                      {releases.map((release: any) => {
+                        let previewText = release.body?.replace(/<[^>]*>/g, '') || '';
+                        previewText = previewText.replace(/^#+\s+/gm, '');
+                        previewText = previewText.replace(/[*_]{1,2}/g, '');
+                        previewText = previewText.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1');
+                        previewText = previewText.trim().slice(0, 180);
+
+                        return (
+                        <Link
+                          key={release.id}
+                          to={`/${username}/${repoName}/releases/${encodeURIComponent(release.tagName)}`}
+                          className="block border-[3px] border-black bg-white p-6 group hover:translate-x-0.5 hover:translate-y-0.5 shadow-[7px_7px_0px_0px_rgba(220,38,38,1)] hover:shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] transition-all no-underline text-black"
+                        >
+                          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                            <div className="min-w-0">
+                              <div className="flex flex-wrap items-center gap-3 mb-3">
+                                <span
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    navigate(`/${username}/${repoName}/tags/${encodeURIComponent(release.tagName)}`);
+                                  }}
+                                  className="inline-flex items-center gap-2 text-xs font-black text-red-600 hover:text-black transition-colors uppercase tracking-widest"
+                                >
+                                  <TagIcon className="w-4 h-4" />
+                                  {release.tagName}
+                                </span>
+                                {release.isDraft && (
+                                  <span className="border-2 border-black bg-zinc-100 px-2 py-1 text-[9px] font-black text-black uppercase tracking-widest">Draft</span>
+                                )}
+                                {release.isPrerelease && (
+                                  <span className="border-2 border-black bg-red-600 px-2 py-1 text-[9px] font-black text-white uppercase tracking-widest">Pre-release</span>
+                                )}
+                              </div>
+                              <h3 className="text-xl font-black text-black group-hover:text-red-600 uppercase tracking-tight mb-2 transition-colors">{release.title}</h3>
+                              {previewText && (
+                                <p className="text-sm text-zinc-700 mb-3 line-clamp-2 font-medium">{previewText}</p>
+                              )}
+                              <p className="text-xs text-zinc-500 font-semibold">
+                                {release.publishedAt ? `Published ${formatDistanceToNow(new Date(release.publishedAt), { addSuffix: true })}` : 'Unpublished draft'}
+                                {release.author?.username && ` by ${release.author.username}`}
+                                <span className="mx-2 text-zinc-400">/</span>
+                                {release.assets?.length || 0} {(release.assets?.length || 0) === 1 ? 'asset' : 'assets'}
+                              </p>
+                            </div>
+                            {user?.id === repo?.ownerId && (
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleDeleteRelease(release.id);
+                                }}
+                                className="self-start p-2 text-zinc-500 hover:text-red-600 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
+                                title="Delete release"
+                              >
+                                <Trash className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </Link>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center py-16">
+                      <div className="text-center">
+                        <Package className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
+                        <p className="text-zinc-400 text-sm">No releases yet</p>
+                        <p className="text-zinc-600 text-xs mt-2">Create a release to share production-ready versions of your code</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          } />
+          
+          <Route path="/releases/:releaseTag" element={
+            <ReleaseDetailView username={username!} repoName={repoName!} releases={releases} loading={loading} />
           } />
         </Routes>
+
+        {/* Delete File Modal */}
+        {showDeleteConfirm && deleteFilePath && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-[#0d0d0d] border-2 border-zinc-800 max-w-md w-full p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <h2 className="text-lg font-black text-white mb-2 uppercase tracking-tight">Delete file</h2>
+              <p className="text-[12px] text-zinc-400 mb-6">You are about to delete:</p>
+              <div className="bg-black px-4 py-3 border border-zinc-800 mb-6 text-[11px] font-mono text-zinc-300 break-all">
+                {deleteFilePath}
+              </div>
+              
+              <div className="mb-6">
+                <label className="block text-[11px] font-bold text-zinc-300 mb-2 uppercase tracking-widest">Commit message</label>
+                <input
+                  type="text"
+                  value={deleteCommitMsg}
+                  onChange={(e) => setDeleteCommitMsg(e.target.value)}
+                  placeholder="Delete file"
+                  className="w-full bg-[#080808] border border-zinc-800 px-4 py-2 text-sm text-white focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none"
+                />
+              </div>
+
+              <div className="flex gap-4 justify-end">
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setDeleteFilePath('');
+                  }}
+                  className="text-[11px] font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-widest"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    setIsDeletingFile(true);
+                    try {
+                      const token = await getToken();
+                      const res = await fetch(`/api/repos/${username}/${repoName}/files/${encodeURIComponent(deleteFilePath)}`, { 
+                        method: 'DELETE',
+                        headers: { 
+                          'Authorization': `Bearer ${token}`,
+                          'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ commitMessage: deleteCommitMsg })
+                      });
+                      if (res.ok) {
+                        window.location.href = `/${username}/${repoName}`;
+                      }
+                    } finally {
+                      setShowDeleteConfirm(false);
+                      setIsDeletingFile(false);
+                    }
+                  }}
+                  disabled={isDeletingFile}
+                  className={`text-[11px] px-6 py-2 border-b-2 border-r-2 border-black font-bold uppercase tracking-widest transition-all ${isDeletingFile ? 'bg-red-600/50 text-white/50 cursor-wait border-black/50' : 'bg-red-600 text-white hover:bg-red-700'}`}
+                >
+                  {isDeletingFile ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit About Modal */}
+        {isEditingAbout && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-[#0d0d0d] border-2 border-zinc-800 max-w-md w-full p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <h2 className="text-lg font-black text-white mb-4 uppercase tracking-tight">Edit About</h2>
+              
+              <div className="mb-6">
+                <label className="block text-[11px] font-bold text-zinc-300 mb-2 uppercase tracking-widest">Description</label>
+                <textarea
+                  value={editAboutText}
+                  onChange={(e) => setEditAboutText(e.target.value)}
+                  placeholder="Add a description for your repository"
+                  rows={4}
+                  maxLength={255}
+                  className="w-full bg-[#080808] border border-zinc-800 px-4 py-2 text-sm text-white focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none resize-none"
+                />
+                <div className="text-[10px] text-zinc-500 mt-2">{editAboutText.length}/255</div>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-[11px] font-bold text-zinc-300 mb-2 uppercase tracking-widest">Website URL</label>
+                <input
+                  type="url"
+                  value={editWebsiteUrl}
+                  onChange={(e) => setEditWebsiteUrl(e.target.value)}
+                  placeholder="https://example.com"
+                  className="w-full bg-[#080808] border border-zinc-800 px-4 py-2 text-sm text-white focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none"
+                />
+              </div>
+
+              <div className="flex gap-4 justify-end">
+                <button
+                  onClick={() => setIsEditingAbout(false)}
+                  className="text-[11px] font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-widest"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    setIsSavingAbout(true);
+                    try {
+                      const token = await getToken();
+                      const res = await fetch(`/api/repos/${username}/${repoName}`, {
+                        method: 'PATCH',
+                        headers: {
+                          'Authorization': `Bearer ${token}`,
+                          'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                          description: editAboutText,
+                          websiteUrl: editWebsiteUrl
+                        })
+                      });
+                      if (res.ok) {
+                        const updatedRepo = await res.json();
+                        setRepo(updatedRepo);
+                        setIsEditingAbout(false);
+                      } else {
+                        alert('Failed to save description');
+                      }
+                    } catch (err) {
+                      console.error('Error saving description:', err);
+                      alert('Error saving description');
+                    } finally {
+                      setIsSavingAbout(false);
+                    }
+                  }}
+                  disabled={isSavingAbout}
+                  className={`text-[11px] px-6 py-2 border-b-2 border-r-2 border-black font-bold uppercase tracking-widest transition-all ${isSavingAbout ? 'bg-red-600/50 text-white/50 cursor-wait border-black/50' : 'bg-red-600 text-white hover:bg-red-700'}`}
+                >
+                  {isSavingAbout ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Create Tag Modal */}
+        {isCreatingTag && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-[#0d0d0d] border-2 border-zinc-800 max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <h2 className="text-lg font-black text-white mb-6 uppercase tracking-tight">Create Tag</h2>
+              
+              <div className="grid grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label className="block text-[11px] font-bold text-zinc-300 mb-2 uppercase tracking-widest">Tag Name</label>
+                  <input
+                    type="text"
+                    value={newTagName}
+                    onChange={(e) => setNewTagName(e.target.value)}
+                    placeholder="v1.0.0"
+                    className="w-full bg-[#080808] border border-zinc-800 px-4 py-2 text-sm text-white focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-zinc-300 mb-2 uppercase tracking-widest">Select Commit</label>
+                  <select
+                    value={selectedCommitForTag}
+                    onChange={(e) => setSelectedCommitForTag(e.target.value)}
+                    className="w-full bg-[#080808] border border-zinc-800 px-4 py-2 text-sm text-white focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none"
+                  >
+                    <option value="">Choose a commit...</option>
+                    {commits.map((commit: any) => (
+                      <option key={commit.id} value={commit.id}>
+                        {commit.message} ({commit.id.slice(0, 7)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-[11px] font-bold text-zinc-300 mb-3 uppercase tracking-widest">Release Notes (Markdown Supported)</label>
+                <div className="grid grid-cols-2 gap-4 border-2 border-zinc-800 bg-[#080808]">
+                  {/* Editor */}
+                  <div className="border-r-2 border-zinc-800 p-4">
+                    <p className="text-[10px] text-zinc-500 mb-2 uppercase tracking-widest font-bold">Editor</p>
+                    <textarea
+                      value={newTagMessage}
+                      onChange={(e) => setNewTagMessage(e.target.value)}
+                      placeholder="# Release Notes
+
+## Features
+- New feature 1
+- New feature 2
+
+## Bug Fixes
+- Fixed issue 1
+- Fixed issue 2
+
+## Changelog
+Add your changelog here..."
+                      rows={12}
+                      className="w-full bg-[#0a0a0a] border border-zinc-800 px-3 py-2 text-xs text-white focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none resize-none font-mono"
+                    />
+                  </div>
+
+                  {/* Preview */}
+                  <div className="p-4 overflow-y-auto">
+                    <p className="text-[10px] text-zinc-500 mb-2 uppercase tracking-widest font-bold">Preview</p>
+                    <div className="text-sm text-zinc-200 space-y-3">
+                      {newTagMessage ? (
+                        <MarkdownViewer content={newTagMessage} />
+                      ) : (
+                        <p className="text-zinc-600 text-xs italic">Markdown preview will appear here...</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-4 justify-end">
+                <button
+                  onClick={() => {
+                    setIsCreatingTag(false);
+                    setNewTagName('');
+                    setNewTagMessage('');
+                    setSelectedCommitForTag('');
+                  }}
+                  className="text-[11px] font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-widest"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!newTagName || !selectedCommitForTag) {
+                      alert('Please fill in all required fields');
+                      return;
+                    }
+                    
+                    // Check if tag name already exists
+                    if (tags.some((t: any) => t.name === newTagName)) {
+                      alert('A tag with this name already exists. Please choose another tag name.');
+                      return;
+                    }
+                    
+                    try {
+                      const token = await getToken();
+                      const res = await fetch(`/api/repos/${username}/${repoName}/tags`, {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${token}`,
+                          'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                          name: newTagName,
+                          commitId: selectedCommitForTag,
+                          message: newTagMessage || null
+                        })
+                      });
+                      if (res.ok) {
+                        const newTag = await res.json();
+                        setTags([newTag, ...tags]);
+                        setIsCreatingTag(false);
+                        setNewTagName('');
+                        setNewTagMessage('');
+                        setSelectedCommitForTag('');
+                        navigate(`/${username}/${repoName}/tags/${encodeURIComponent(newTag.name)}`);
+                      } else {
+                        alert('Failed to create tag');
+                      }
+                    } catch (err) {
+                      console.error('Error creating tag:', err);
+                      alert('Error creating tag');
+                    }
+                  }}
+                  className="text-[11px] px-6 py-2 border-b-2 border-r-2 border-black font-bold uppercase tracking-widest bg-red-600 text-white hover:bg-red-700 transition-all"
+                >
+                  Create Tag
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Create Release Modal */}
+        {isCreatingRelease && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <div className="bg-[#0d0d0d] border-2 border-zinc-800 max-w-5xl w-full max-h-[92vh] overflow-y-auto p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <div className="flex items-start justify-between gap-6 mb-6">
+                <div>
+                  <h2 className="text-lg font-black text-white mb-2 uppercase tracking-tight">Create Release</h2>
+                  <p className="text-xs text-zinc-500">Publish release notes and attach binaries stored in Supabase Storage.</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setIsCreatingRelease(false);
+                    resetReleaseForm();
+                  }}
+                  className="p-2 text-zinc-500 hover:text-white transition-colors"
+                  title="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-bold text-zinc-300 mb-2 uppercase tracking-widest">Tag</label>
+                      <input
+                        type="text"
+                        list="release-tags"
+                        value={newReleaseTag}
+                        onChange={(e) => {
+                          setNewReleaseTag(e.target.value);
+                          if (!newReleaseTitle) setNewReleaseTitle(e.target.value);
+                        }}
+                        placeholder="v1.0.0"
+                        className="w-full bg-[#080808] border border-zinc-800 px-4 py-2 text-sm text-white focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none"
+                      />
+                      <datalist id="release-tags">
+                        {tags.map((tag: any) => (
+                          <option key={tag.id} value={tag.name} />
+                        ))}
+                      </datalist>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-zinc-300 mb-2 uppercase tracking-widest">Target Commit</label>
+                      <select
+                        value={newReleaseCommit}
+                        onChange={(e) => setNewReleaseCommit(e.target.value)}
+                        className="w-full bg-[#080808] border border-zinc-800 px-4 py-2 text-sm text-white focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none"
+                      >
+                        <option value="">Latest commit / existing tag commit</option>
+                        {commits.map((commit: any) => (
+                          <option key={commit.id} value={commit.id}>
+                            {commit.message} ({commit.id.slice(0, 7)})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-zinc-300 mb-2 uppercase tracking-widest">Release Title</label>
+                    <input
+                      type="text"
+                      value={newReleaseTitle}
+                      onChange={(e) => setNewReleaseTitle(e.target.value)}
+                      placeholder="Release v1.0.0"
+                      className="w-full bg-[#080808] border border-zinc-800 px-4 py-2 text-sm text-white focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-zinc-300 mb-3 uppercase tracking-widest">Release Notes</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-2 border-zinc-800 bg-[#080808]">
+                      <div className="md:border-r-2 border-zinc-800 p-4">
+                        <p className="text-[10px] text-zinc-500 mb-2 uppercase tracking-widest font-bold">Editor</p>
+                        <textarea
+                          value={newReleaseBody}
+                          onChange={(e) => setNewReleaseBody(e.target.value)}
+                          placeholder={"# What's Changed\n\n- Added production build\n- Fixed install flow\n\n## Checksums\nAttach binaries on the right."}
+                          rows={14}
+                          className="w-full bg-[#0a0a0a] border border-zinc-800 px-3 py-2 text-xs text-white focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none resize-none font-mono"
+                        />
+                      </div>
+                      <div className="p-4 overflow-y-auto max-h-[430px]">
+                        <p className="text-[10px] text-zinc-500 mb-2 uppercase tracking-widest font-bold">Preview</p>
+                        {newReleaseBody ? (
+                          <MarkdownViewer content={newReleaseBody} />
+                        ) : (
+                          <p className="text-zinc-600 text-xs italic">Markdown preview will appear here...</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="border-2 border-zinc-800 bg-[#080808]">
+                    <div className="border-b-2 border-zinc-800 px-4 py-3">
+                      <h3 className="text-[10px] font-black text-white uppercase tracking-[0.25em]">Options</h3>
+                    </div>
+                    <div className="p-4 space-y-4">
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newReleaseDraft}
+                          onChange={(e) => setNewReleaseDraft(e.target.checked)}
+                          className="mt-1 accent-red-600"
+                        />
+                        <span>
+                          <span className="block text-xs font-bold text-white">Save as draft</span>
+                          <span className="block text-[10px] text-zinc-500 mt-1">Hidden from normal release consumers until published.</span>
+                        </span>
+                      </label>
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newReleasePrerelease}
+                          onChange={(e) => setNewReleasePrerelease(e.target.checked)}
+                          className="mt-1 accent-red-600"
+                        />
+                        <span>
+                          <span className="block text-xs font-bold text-white">Mark as pre-release</span>
+                          <span className="block text-[10px] text-zinc-500 mt-1">Signals that this build is not the stable default.</span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="border-2 border-zinc-800 bg-[#080808]">
+                    <div className="border-b-2 border-zinc-800 px-4 py-3 flex items-center justify-between">
+                      <h3 className="text-[10px] font-black text-white uppercase tracking-[0.25em]">Binaries</h3>
+                      <span className="text-[10px] font-black text-zinc-600">{newReleaseAssets.length}</span>
+                    </div>
+                    <div className="p-4 space-y-4">
+                      <label
+                        className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed px-4 py-8 cursor-pointer transition-colors ${
+                          isDraggingReleaseAsset
+                            ? 'border-red-600 bg-red-600/10'
+                            : 'border-zinc-800 bg-black hover:border-red-600/60'
+                        }`}
+                        onDragEnter={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsDraggingReleaseAsset(true);
+                        }}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          e.dataTransfer.dropEffect = 'copy';
+                          setIsDraggingReleaseAsset(true);
+                        }}
+                        onDragLeave={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                            setIsDraggingReleaseAsset(false);
+                          }
+                        }}
+                        onDrop={handleReleaseAssetDrop}
+                      >
+                        <Upload className={`w-6 h-6 ${isDraggingReleaseAsset ? 'text-white' : 'text-red-600'}`} />
+                        <span className="text-xs font-bold text-zinc-300 text-center">
+                          {isDraggingReleaseAsset ? 'Drop binaries here' : 'Attach or drop release binaries'}
+                        </span>
+                        <input
+                          type="file"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => {
+                            const files = Array.from(e.target.files || []);
+                            addReleaseAssetFiles(files);
+                            e.currentTarget.value = '';
+                          }}
+                        />
+                      </label>
+
+                      {newReleaseAssets.length > 0 && (
+                        <div className="divide-y divide-zinc-900 border border-zinc-900">
+                          {newReleaseAssets.map((file, index) => (
+                            <div key={`${file.name}-${index}`} className="flex items-center gap-3 px-3 py-2 bg-black">
+                              <FileArchive className="w-4 h-4 text-red-600 flex-shrink-0" />
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs font-bold text-zinc-200 truncate">{file.name}</p>
+                                <p className="text-[10px] text-zinc-600">{formatBytes(file.size)}</p>
+                              </div>
+                              <button
+                                onClick={() => setNewReleaseAssets(prev => prev.filter((_, fileIndex) => fileIndex !== index))}
+                                className="p-1 text-zinc-600 hover:text-red-500"
+                                title="Remove asset"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col md:flex-row gap-4 justify-end mt-8 pt-6 border-t border-zinc-800">
+                <button
+                  onClick={() => {
+                    setIsCreatingRelease(false);
+                    resetReleaseForm();
+                  }}
+                  className="text-[11px] font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-widest"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateRelease}
+                  disabled={isSavingRelease}
+                  className={`text-[11px] px-6 py-2 border-b-2 border-r-2 border-black font-bold uppercase tracking-widest transition-all ${isSavingRelease ? 'bg-red-600/50 text-white/50 cursor-wait' : 'bg-red-600 text-white hover:bg-red-700'}`}
+                >
+                  {isSavingRelease ? 'Publishing...' : newReleaseDraft ? 'Save Draft' : 'Publish Release'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isCreatingWikiPage && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <div className="bg-white text-black border-[3px] border-black max-w-3xl w-full p-8 shadow-[12px_12px_0px_0px_rgba(220,38,38,1)]">
+              <h2 className="text-xl font-black mb-6">New wiki page</h2>
+              <input
+                value={newWikiTitle}
+                onChange={(e) => setNewWikiTitle(e.target.value)}
+                placeholder="Page title"
+                className="w-full border-[3px] border-black px-4 py-3 mb-4 font-bold"
+              />
+              <textarea
+                value={newWikiContent}
+                onChange={(e) => setNewWikiContent(e.target.value)}
+                placeholder="Write documentation in Markdown..."
+                rows={12}
+                className="w-full border-[3px] border-black px-4 py-3 mb-6 font-mono text-sm"
+              />
+              <div className="flex justify-end gap-4">
+                <button onClick={() => setIsCreatingWikiPage(false)} className="text-sm font-black text-zinc-500">Cancel</button>
+                <button onClick={handleCreateWikiPage} className="bg-red-600 text-white border-[3px] border-black px-6 py-3 text-sm font-black">
+                  Create page
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

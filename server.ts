@@ -10,9 +10,9 @@ const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3002;
 
-  app.use(express.json());
+  app.use(express.json({ limit: "100mb" }));
   app.use(cookieParser());
   console.log('>>> SERVER BOOT: DATABASE_SYNC_V1 ACTIVE <<<');
 
