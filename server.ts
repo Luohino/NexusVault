@@ -4,17 +4,44 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import { setupApiRoutes } from "./src/server/api.js";
+import { initializeRedis } from "./src/server/redis.js";
+import { applySecurityHeaders, createRateLimitMiddleware } from "./src/server/security.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3002;
+  const requestBodyLimit = process.env.REQUEST_BODY_LIMIT || "20mb";
+  const rateLimitWindowMs = Number(process.env.RATE_LIMIT_WINDOW_MS || 60_000);
+  const rateLimitMaxRequests = Number(process.env.RATE_LIMIT_MAX_REQUESTS || 300);
+  const authRateLimitMaxRequests = Number(process.env.AUTH_RATE_LIMIT_MAX_REQUESTS || 30);
+  const searchRateLimitMaxRequests = Number(process.env.SEARCH_RATE_LIMIT_MAX_REQUESTS || 60);
+  const writeRateLimitMaxRequests = Number(process.env.WRITE_RATE_LIMIT_MAX_REQUESTS || 120);
 
-  app.use(express.json());
+  app.set("trust proxy", 1);
+  app.disable("x-powered-by");
+  app.use(applySecurityHeaders);
+  app.use(express.json({ limit: requestBodyLimit }));
+  app.use(express.urlencoded({ extended: true, limit: requestBodyLimit }));
   app.use(cookieParser());
+  app.use("/api", createRateLimitMiddleware({ windowMs: rateLimitWindowMs, maxRequests: rateLimitMaxRequests, keyPrefix: 'api' }));
+  app.use("/api/auth", createRateLimitMiddleware({ windowMs: rateLimitWindowMs, maxRequests: authRateLimitMaxRequests, keyPrefix: 'auth' }));
+  app.use("/api/search", createRateLimitMiddleware({ windowMs: rateLimitWindowMs, maxRequests: searchRateLimitMaxRequests, keyPrefix: 'search' }));
+  app.use("/api", createRateLimitMiddleware({
+    windowMs: rateLimitWindowMs,
+    maxRequests: writeRateLimitMaxRequests,
+    keyPrefix: 'writes',
+    shouldLimit: (req) => ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method),
+  }));
   console.log('>>> SERVER BOOT: DATABASE_SYNC_V1 ACTIVE <<<');
+
+  try {
+    await initializeRedis();
+  } catch (error) {
+    console.error('Redis initialization failed, continuing with in-memory fallback:', error);
+  }
 
   // API routes
   setupApiRoutes(app);

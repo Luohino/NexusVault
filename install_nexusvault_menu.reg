@@ -1,0 +1,15 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\NexusVault]
+@="Open with NexusVault"
+"Icon"="f:\\Luohino\\Lutervyn\\Nexusvault\\cli_and_gui\\lite-xl\\litex\\lite-xl\\NexusVault.exe"
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\NexusVault\command]
+@="\"f:\\Luohino\\Lutervyn\\Nexusvault\\cli_and_gui\\lite-xl\\litex\\lite-xl\\NexusVault.exe\" \"%V\""
+
+[HKEY_CLASSES_ROOT\Directory\shell\NexusVault]
+@="Open with NexusVault"
+"Icon"="f:\\Luohino\\Lutervyn\\Nexusvault\\cli_and_gui\\lite-xl\\litex\\lite-xl\\NexusVault.exe"
+
+[HKEY_CLASSES_ROOT\Directory\shell\NexusVault\command]
+@="\"f:\\Luohino\\Lutervyn\\Nexusvault\\cli_and_gui\\lite-xl\\litex\\lite-xl\\NexusVault.exe\" \"%1\""

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import Prism from 'prismjs';
@@ -17,9 +16,18 @@ import 'prismjs/themes/prism-twilight.css'; // Fits brutalist dark mode perfectl
 
 interface MarkdownViewerProps {
   content: string;
+  theme?: 'dark' | 'light';
 }
 
-const CodeBlock = ({ lang, codeString }: { lang: string, codeString: string }) => {
+const escapeHtml = (value: string) =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+
+const CodeBlock = ({ lang, codeString, theme = 'dark' }: { lang: string, codeString: string, theme?: 'dark' | 'light' }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -32,14 +40,17 @@ const CodeBlock = ({ lang, codeString }: { lang: string, codeString: string }) =
   try {
     if (lang && Prism.languages[lang]) {
       highlightedCode = Prism.highlight(codeString, Prism.languages[lang], lang);
+    } else {
+      highlightedCode = escapeHtml(codeString);
     }
   } catch (e) {
     console.error('Prism highlight error', e);
+    highlightedCode = escapeHtml(codeString);
   }
 
   return (
-    <div className="relative group my-6 rounded-sm bg-[#0d0d0d] border border-zinc-800 overflow-hidden shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-      <div className="flex items-center justify-between px-4 py-2 bg-black border-b border-zinc-800">
+    <div className={`relative group my-6 rounded-sm overflow-hidden ${theme === 'light' ? 'bg-zinc-100 border border-zinc-200' : 'bg-[#0d0d0d]'}`}>
+      <div className={`flex items-center justify-between px-4 py-2 border-b ${theme === 'light' ? 'bg-white border-zinc-200' : 'bg-black border-zinc-800'}`}>
         <span className="text-xs font-mono text-zinc-500 font-bold uppercase">{lang || 'text'}</span>
         <button
           onClick={handleCopy}
@@ -52,7 +63,7 @@ const CodeBlock = ({ lang, codeString }: { lang: string, codeString: string }) =
       <div className="overflow-x-auto p-4">
         <pre className={`language-${lang} !bg-transparent !p-0 !m-0`}>
           <code 
-            className={`language-${lang} font-mono text-xs leading-relaxed text-zinc-300`}
+            className={`language-${lang} font-mono text-xs leading-relaxed ${theme === 'light' ? 'text-zinc-800' : 'text-zinc-300'}`}
             dangerouslySetInnerHTML={{ __html: highlightedCode === codeString ? codeString : highlightedCode }} 
           />
         </pre>
@@ -61,17 +72,20 @@ const CodeBlock = ({ lang, codeString }: { lang: string, codeString: string }) =
   );
 };
 
-export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
+export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, theme = 'dark' }) => {
   if (!content) {
     return <div className="text-zinc-600 italic text-xs font-bold">No content provided.</div>;
   }
 
+  const textColor = theme === 'light' ? 'text-zinc-800' : 'text-zinc-300';
+  const headingColor = theme === 'light' ? 'text-black' : 'text-white';
+  const borderColor = theme === 'light' ? 'border-zinc-200' : 'border-zinc-800';
+
   return (
-    <div className="markdown-body w-full max-w-none text-zinc-300 bg-transparent rounded-none overflow-hidden">
+    <div className={`w-full max-w-none bg-transparent rounded-none overflow-hidden ${textColor}`}>
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]} 
         rehypePlugins={[
-          rehypeRaw, 
           rehypeSlug, 
           [rehypeAutolinkHeadings, { 
             behavior: 'wrap',
@@ -82,12 +96,12 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
         ]}
         components={{
           // HEADINGS
-          h1(props) { return <h1 className="text-3xl font-bold border-b border-zinc-800 pb-2 mb-4 mt-8 first:mt-0 text-white group-hover:text-red-500 transition-colors" {...props} />; },
-          h2(props) { return <h2 className="text-2xl font-bold border-b border-zinc-800 pb-2 mb-4 mt-8 first:mt-0 text-white" {...props} />; },
-          h3(props) { return <h3 className="text-xl font-bold mb-4 mt-6 first:mt-0 text-white" {...props} />; },
-          h4(props) { return <h4 className="text-lg font-bold mb-4 mt-6 first:mt-0 text-white" {...props} />; },
-          h5(props) { return <h5 className="text-base font-bold mb-4 mt-6 first:mt-0 text-white" {...props} />; },
-          h6(props) { return <h6 className="text-sm font-bold mb-4 mt-6 first:mt-0 text-zinc-500 uppercase tracking-widest" {...props} />; },
+          h1(props) { return <h1 className={`text-3xl font-bold border-b pb-2 mb-4 mt-8 first:mt-0 group-hover:text-red-500 transition-colors ${headingColor} ${borderColor}`} {...props} />; },
+          h2(props) { return <h2 className={`text-2xl font-bold border-b pb-2 mb-4 mt-8 first:mt-0 ${headingColor} ${borderColor}`} {...props} />; },
+          h3(props) { return <h3 className={`text-xl font-bold mb-4 mt-6 first:mt-0 ${headingColor}`} {...props} />; },
+          h4(props) { return <h4 className={`text-lg font-bold mb-4 mt-6 first:mt-0 ${headingColor}`} {...props} />; },
+          h5(props) { return <h5 className={`text-base font-bold mb-4 mt-6 first:mt-0 ${headingColor}`} {...props} />; },
+          h6(props) { return <h6 className={`text-sm font-bold mb-4 mt-6 first:mt-0 uppercase tracking-widest text-zinc-500`} {...props} />; },
           
           // PARAGRAPHS & LISTS
           p(props) { return <p className="mb-4 leading-relaxed text-sm first:mt-0" {...props} />; },
@@ -102,26 +116,26 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
             const isInline = !match && !className;
             
             if (isInline) {
-              return <code className="bg-zinc-900 text-red-500 px-1.5 py-0.5 rounded-none font-mono text-[11px] font-bold border border-zinc-800" {...props}>{children}</code>;
+              return <code className={`px-1.5 py-0.5 rounded-none font-mono text-[11px] font-bold border ${theme === 'light' ? 'bg-zinc-100 text-red-600 border-zinc-200' : 'bg-zinc-900 text-red-500 border-zinc-800'}`} {...props}>{children}</code>;
             }
 
             const codeString = String(children).replace(/\n$/, '');
-            return <CodeBlock lang={lang} codeString={codeString} />;
+            return <CodeBlock lang={lang} codeString={codeString} theme={theme} />;
           },
           
           // TABLES
           table(props) {
             return (
-              <div className="w-full max-w-full overflow-x-auto my-6 border-2 border-zinc-800 bg-[#0d0d0d] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <div className={`w-full max-w-full overflow-x-auto my-6 border-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${theme === 'light' ? 'bg-white border-zinc-300' : 'bg-[#0d0d0d] border-zinc-800'}`}>
                 <table className="w-full text-left border-collapse text-sm" {...props} />
               </div>
             );
           },
           th(props) {
-            return <th className="border-b-2 border-zinc-800 bg-black px-4 py-3 font-bold text-white uppercase text-[10px] tracking-wider" {...props} />;
+            return <th className={`border-b-2 px-4 py-3 font-bold uppercase text-[10px] tracking-wider ${theme === 'light' ? 'bg-zinc-50 border-zinc-200 text-black' : 'bg-black border-zinc-800 text-white'}`} {...props} />;
           },
           td(props) {
-            return <td className="border-b border-zinc-800/50 bg-transparent hover:bg-zinc-900/50 px-4 py-3 transition-colors duration-150" {...props} />;
+            return <td className={`border-b px-4 py-3 transition-colors duration-150 ${theme === 'light' ? 'border-zinc-100 hover:bg-zinc-50' : 'border-zinc-800/50 hover:bg-zinc-900/50'}`} {...props} />;
           },
           tr(props) {
             return <tr className="group hover:bg-zinc-900/50 transition-colors duration-150" {...props} />;
@@ -142,7 +156,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
             }
             return (
               <a 
-                className="text-[#58a6ff] hover:text-red-400 hover:underline decoration-[#58a6ff] hover:decoration-red-400 transition-all duration-200 cursor-pointer break-words font-medium" 
+                className="text-[#0969da] hover:text-red-600 hover:underline transition-all duration-200 cursor-pointer break-words font-medium" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 {...props} 
@@ -152,10 +166,10 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
           
           // QUOTES & RULES
           blockquote(props) {
-            return <blockquote className="border-l-4 border-red-600 bg-red-600/5 pl-6 py-2 pr-4 text-zinc-400 italic my-6 rounded-r-sm" {...props} />;
+            return <blockquote className={`border-l-4 border-red-600 pl-6 py-2 pr-4 italic my-6 rounded-r-sm ${theme === 'light' ? 'bg-red-50 text-zinc-600' : 'bg-red-600/5 text-zinc-400'}`} {...props} />;
           },
           hr(props) {
-            return <hr className="border-zinc-800 my-8 border-t-2 border-dashed" {...props} />;
+            return <hr className={`my-8 border-t-2 border-dashed ${theme === 'light' ? 'border-zinc-200' : 'border-zinc-800'}`} {...props} />;
           }
         }}
       >

@@ -138,7 +138,7 @@ export default function RuixenBentoCards() {
             <span className="text-gray-400">Designed for collaboration.</span>
           </h2>
           <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl">
-            NexusVault is the modern platform for hosting repositories and browsing code locally. Experience a GitHub-like environment with enhanced performance and team-focused features.
+            NexusVault is the modern platform for hosting repositories and browsing code locally. Experience a NexusVault-like environment with enhanced performance and team-focused features.
           </p>
         </div>
 

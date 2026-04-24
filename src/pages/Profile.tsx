@@ -16,6 +16,7 @@ export const Profile = () => {
   
   const [profileUser, setProfileUser] = useState<any>(null);
   const [repos, setRepos] = useState<any[]>([]);
+  const [reposTotalCount, setReposTotalCount] = useState(0);
   const [socialList, setSocialList] = useState<any[]>([]);
   const [starredRepos, setStarredRepos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,8 +32,32 @@ export const Profile = () => {
     location: '',
     pronouns: ''
   });
+  const [repoSearchQuery, setRepoSearchQuery] = useState('');
+  const [repoPage, setRepoPage] = useState(0);
   const { user } = useUser();
   const { getToken } = useAuth();
+  
+  // Refetch repos when search or page changes
+  useEffect(() => {
+    const fetchRepos = async () => {
+      try {
+        const token = await getToken();
+        const headers: any = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        
+        const res = await fetch(`/api/repos/${username}?q=${repoSearchQuery}&limit=10&offset=${repoPage * 10}`, { headers });
+        if (res.ok) {
+          const data = await res.json();
+          setRepos(data.repos);
+          setReposTotalCount(data.totalCount);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    
+    if (username) fetchRepos();
+  }, [username, repoSearchQuery, repoPage, getToken]);
 
   const isOwner = user?.id === profileUser?.id;
 
@@ -44,9 +69,8 @@ export const Profile = () => {
         const headers: any = {};
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const [userRes, reposRes] = await Promise.all([
-          fetch(`/api/users/${username}`, { headers }),
-          fetch(`/api/repos/${username}`, { headers })
+        const [userRes] = await Promise.all([
+          fetch(`/api/users/${username}`, { headers })
         ]);
 
         if (userRes.ok) {
@@ -59,7 +83,6 @@ export const Profile = () => {
             pronouns: userData.pronouns || ''
           });
         }
-        if (reposRes.ok) setRepos(await reposRes.json());
       } catch (error) {
         console.error(error);
       } finally {
@@ -179,7 +202,8 @@ export const Profile = () => {
         // Refresh repos
         const reposRes = await fetch(`/api/repos/${username}`);
         const reposData = await reposRes.json();
-        setRepos(reposData);
+        setRepos(reposData.repos || []);
+        setReposTotalCount(reposData.totalCount || 0);
         setIsPinModalOpen(false);
       }
     } catch (err) {
@@ -189,10 +213,9 @@ export const Profile = () => {
     }
   };
 
-  // Sync selectedPins when repos change or modal opens
   useEffect(() => {
     if (isPinModalOpen) {
-      setSelectedPins(repos.filter(r => r.isPinned).map(r => r.id));
+      setSelectedPins((repos || []).filter(r => r.isPinned).map(r => r.id));
     }
   }, [isPinModalOpen, repos]);
 
@@ -362,7 +385,7 @@ export const Profile = () => {
                 <span className="capitalize">{t}</span>
                 {t === 'repositories' && (
                   <span className="bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full text-[9px] font-bold ml-1">
-                    {repos.length}
+                    {reposTotalCount}
                   </span>
                 )}
                 {t === 'followers' && (
@@ -403,8 +426,9 @@ export const Profile = () => {
                 )}
                  <div className="col-span-full">
                    {(() => {
-                     const pinnedRepos = repos.filter(r => r.isPinned);
-                     const displayRepos = pinnedRepos.length > 0 ? pinnedRepos : [...repos].sort((a, b) => (b.starCount || 0) - (a.starCount || 0)).slice(0, 4);
+                     const reposArray = Array.isArray(repos) ? repos : [];
+                     const pinnedRepos = reposArray.filter(r => r.isPinned);
+                     const displayRepos = pinnedRepos.length > 0 ? pinnedRepos : [...reposArray].sort((a, b) => (b.starCount || 0) - (a.starCount || 0)).slice(0, 4);
                      const isActualPins = pinnedRepos.length > 0;
 
                      return (
@@ -559,54 +583,107 @@ export const Profile = () => {
                 </div>
               </>
             )}
-
             {tab === 'repositories' && (
-              <div className="col-span-full space-y-4">
-                {repos.length === 0 ? (
-                  <div className="p-24 text-center border-2 border-dashed border-zinc-900 text-zinc-600 text-[10px] font-bold">
-                    Zero Repositories Found.
+              <div className="col-span-full space-y-6">
+                <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-2">
+                  <div className="relative flex-1 w-full">
+                    <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                    <input 
+                      type="text" 
+                      placeholder="Find a repository..."
+                      className="w-full bg-[#0d0d0d] border-2 border-zinc-900 px-12 py-3 text-sm text-white focus:border-red-600 outline-none transition-all placeholder:text-zinc-700 font-bold"
+                      value={repoSearchQuery}
+                      onChange={(e) => {
+                        setRepoSearchQuery(e.target.value);
+                        setRepoPage(0);
+                      }}
+                    />
                   </div>
-                ) : (
-                  repos.map(repo => (
-                    <div key={repo.id} className="p-6 border-b border-zinc-900 hover:bg-zinc-900/20 transition-all flex items-center justify-between group">
-                      <div>
-                        <div className="flex items-center gap-3 mb-1">
-                          <Link to={`/${username}/${repo.name}`} className="text-xl font-bold text-white group-hover:text-red-500 transition-colors">
-                            {repo.name}
-                          </Link>
-                          <span className="text-[8px] font-bold border border-zinc-800 px-2 py-0.5 text-zinc-500">
-                            {repo.isPrivate ? 'Private' : 'Public'}
-                          </span>
-                        </div>
-                        <p className="text-xs text-zinc-500 mb-4">{repo.description || 'No description provided.'}</p>
-                        <div className="flex items-center gap-6 text-[10px] font-bold text-zinc-600">
-                          {repo.language && (
-                            <span className="flex items-center gap-1.5">
-                              <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: languageColors[repo.language] || '#888' }} />
-                              {repo.language}
-                            </span>
-                          )}
-                          {repo.starCount > 0 && (
-                            <span className="flex items-center gap-1"><Star className="w-3 h-3" /> {repo.starCount}</span>
-                          )}
-                          <span>Updated on {format(new Date(repo.updatedAt), 'MMM d')}</span>
-                        </div>
-                      </div>
-                      <button 
-                        onClick={() => handleStar(repo.name, repo.isStarred)}
-                        className={`border p-2 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
-                          repo.isStarred 
-                            ? 'bg-red-600 border-red-700 text-white' 
-                            : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-red-600'
-                        }`}
-                      >
-                        <Star className={`w-4 h-4 ${repo.isStarred ? 'fill-current' : ''}`} />
-                      </button>
+                  <div className="flex gap-2">
+                    <button className="bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-[11px] font-bold text-zinc-400 hover:text-white transition-colors">Type</button>
+                    <button className="bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-[11px] font-bold text-zinc-400 hover:text-white transition-colors">Language</button>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  {repos.length === 0 ? (
+                    <div className="p-24 text-center border-2 border-dashed border-zinc-900 text-zinc-600 text-[10px] font-bold uppercase tracking-widest bg-[#0d0d0d]/30">
+                      Zero Repositories Found matching your criteria.
                     </div>
-                  ))
-                )}
+                  ) : (
+                    <>
+                      {repos.map(repo => (
+                        <div key={repo.id} className="p-8 border-b border-zinc-900 hover:bg-red-600/5 transition-all flex items-center justify-between group relative overflow-hidden">
+                          <div className="relative z-10">
+                            <div className="flex items-center gap-3 mb-2">
+                              <Link to={`/${username}/${repo.name}`} className="text-xl font-black text-white group-hover:text-red-500 transition-colors">
+                                {repo.name}
+                              </Link>
+                              <span className="text-[10px] font-bold border border-zinc-800 px-2 py-0.5 text-zinc-500 bg-black">
+                                {repo.isPrivate ? 'Private' : 'Public'}
+                              </span>
+                            </div>
+                            <p className="text-[13px] font-medium text-zinc-500 mb-6 max-w-2xl leading-relaxed">
+                              {repo.description || 'No description provided. This project is a masterpiece in progress.'}
+                            </p>
+                            <div className="flex items-center gap-6 text-[11px] font-bold text-zinc-500">
+                              {repo.language && (
+                                <span className="flex items-center gap-2">
+                                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: languageColors[repo.language] || '#888' }} />
+                                  {repo.language}
+                                </span>
+                              )}
+                              {repo.starCount > 0 && (
+                                <span className="flex items-center gap-1.5 text-zinc-400">
+                                  <Star className="w-3.5 h-3.5 fill-red-600 text-red-600" /> {repo.starCount}
+                                </span>
+                              )}
+                              <span>Updated on {format(new Date(repo.updatedAt), 'MMM d')}</span>
+                            </div>
+                          </div>
+                          <div className="relative z-10 flex flex-col items-end gap-3">
+                            <button 
+                              onClick={() => handleStar(repo.name, repo.isStarred)}
+                              className={`border-2 p-2.5 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                                repo.isStarred 
+                                  ? 'bg-red-600 border-red-700 text-white' 
+                                  : 'bg-zinc-900 border-zinc-800 text-zinc-600 hover:text-red-500'
+                              }`}
+                            >
+                              <Star className={`w-5 h-5 ${repo.isStarred ? 'fill-current' : ''}`} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Pagination */}
+                      <div className="flex items-center justify-center gap-4 py-12">
+                        <button 
+                          disabled={repoPage === 0}
+                          onClick={() => setRepoPage(prev => Math.max(0, prev - 1))}
+                          className="bg-black border-2 border-zinc-800 px-8 py-3 text-[10px] font-black text-white uppercase tracking-widest hover:border-red-600 transition-all disabled:opacity-20 disabled:cursor-not-allowed shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none"
+                        >
+                          Previous
+                        </button>
+                        <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest bg-zinc-900 px-4 py-2 border border-zinc-800">Page {repoPage + 1}</span>
+                        <button 
+                          disabled={reposTotalCount <= (repoPage + 1) * 10}
+                          onClick={() => setRepoPage(prev => prev + 1)}
+                          className="bg-black border-2 border-zinc-800 px-8 py-3 text-[10px] font-black text-white uppercase tracking-widest hover:border-red-600 transition-all disabled:opacity-20 disabled:cursor-not-allowed shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             )}
+
+
+
+
+
 
             {(tab === 'followers' || tab === 'following') && (
               <div className={`col-span-full space-y-1 transition-opacity duration-200 ${socialLoading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
@@ -724,7 +801,7 @@ export const Profile = () => {
               </div>
 
               <div className="space-y-2">
-                {repos
+                {(repos || [])
                   .filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase()))
                   .map(repo => {
                     const isSelected = selectedPins.includes(repo.id);

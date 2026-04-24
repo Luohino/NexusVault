@@ -84,12 +84,12 @@ export function HeroSection() {
 
           {/* Mobile Summary */}
           <p className="md:hidden text-[10px] text-gray-500 mb-2 leading-relaxed max-w-[240px]">
-            A modern GitHub-like developer platform for hosting repositories, browsing code, and collaborating locally.
+            A modern developer platform for hosting repositories, browsing code, and collaborating locally.
           </p>
 
           <div className="flex flex-col md:flex-row gap-0 md:gap-6 items-center">
             <p className="hidden md:block text-xs text-gray-500 md:text-sm text-right leading-5 max-w-[180px]">
-              A modern GitHub-like developer platform for hosting repositories, browsing code, and collaborating locally.
+              A modern developer platform for hosting repositories, browsing code, and collaborating locally.
             </p>
             <h1 className="text-[20vw] md:text-6xl xl:text-[8rem] font-bold leading-none tracking-wider">
               BUILD

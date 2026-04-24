@@ -1,0 +1,31 @@
+import express from 'express';
+import request from 'supertest';
+import { describe, expect, it } from 'vitest';
+import { applySecurityHeaders, createRateLimitMiddleware } from './security';
+
+describe('security middleware', () => {
+  it('adds baseline security headers', async () => {
+    const app = express();
+    app.use(applySecurityHeaders);
+    app.get('/ok', (_req, res) => res.json({ ok: true }));
+
+    const res = await request(app).get('/ok');
+
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+    expect(res.headers['x-frame-options']).toBe('DENY');
+    expect(res.headers['referrer-policy']).toBe('strict-origin-when-cross-origin');
+  });
+
+  it('rate limits repeated requests from the same client', async () => {
+    const app = express();
+    app.use(createRateLimitMiddleware({ windowMs: 60_000, maxRequests: 2 }));
+    app.get('/ok', (_req, res) => res.json({ ok: true }));
+
+    expect((await request(app).get('/ok')).status).toBe(200);
+    expect((await request(app).get('/ok')).status).toBe(200);
+
+    const blocked = await request(app).get('/ok');
+    expect(blocked.status).toBe(429);
+    expect(blocked.body.error).toBe('Too many requests');
+  });
+});
