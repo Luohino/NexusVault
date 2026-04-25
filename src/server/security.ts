@@ -18,18 +18,18 @@ export const applySecurityHeaders = (_req: Request, res: Response, next: NextFun
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   
-  // Sovereign CSP: Authorizing Clerk and Platform Assets
+  // Sovereign CSP: Authorizing Clerk, Google OAuth, and Platform Assets
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.accounts.dev https://clerk.com",
-    "connect-src 'self' https://*.clerk.accounts.dev https://*.supabase.co wss://*.clerk.accounts.dev",
-    "img-src 'self' data: https://*.clerk.com https://img.clerk.com https://github.com https://*.githubusercontent.com",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.accounts.dev https://clerk.com https://accounts.google.com",
+    "connect-src 'self' https://*.clerk.accounts.dev https://*.supabase.co wss://*.clerk.accounts.dev https://accounts.google.com",
+    "img-src 'self' data: blob: https://*.clerk.com https://img.clerk.com https://github.com https://*.githubusercontent.com https://*.googleusercontent.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
     "font-src 'self' https://fonts.gstatic.com",
-    "frame-src 'self' https://*.clerk.accounts.dev"
+    "frame-src 'self' https://*.clerk.accounts.dev https://accounts.google.com"
   ].join('; ');
   
   res.setHeader('Content-Security-Policy', csp);
