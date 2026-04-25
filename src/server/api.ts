@@ -41,11 +41,14 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     if (!error && user) {
       (req as any).userId = user.id;
       return next();
+    } else if (error) {
+      console.error('Supabase fallback auth error:', error.message);
     }
 
+    console.error('Auth failed: Token was invalid for both Clerk and Supabase');
     return res.status(401).json({ error: 'Invalid token' });
   } catch (err) {
-    console.error('Auth error:', err);
+    console.error('Auth error (verifyToken):', err);
     res.status(401).json({ error: 'Authentication failed' });
   }
 };
