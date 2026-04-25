@@ -95,6 +95,60 @@ export function setupApiRoutes(app: Express) {
 
   const releaseBucketReady = ensureReleaseStorageBucket();
 
+  // Dynamic Sitemap Generator for Search Engines
+  app.get('/api/sitemap.xml', async (req: Request, res: Response) => {
+    try {
+      const allUsers = await db.select({ username: users.username }).from(users);
+      const allRepos = await db.select({ 
+        username: users.username, 
+        repoName: repositories.name,
+        updatedAt: repositories.updatedAt 
+      }).from(repositories).innerJoin(users, eq(repositories.ownerId, users.id));
+
+      const baseUrl = 'https://nexusvault-luohino.vercel.app';
+      const lastMod = new Date().toISOString().split('T')[0];
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${baseUrl}/</loc>
+    <lastmod>${lastMod}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>`;
+
+      // Add user profiles
+      allUsers.forEach(u => {
+        xml += `
+  <url>
+    <loc>${baseUrl}/${u.username}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+      });
+
+      // Add repositories
+      allRepos.forEach(r => {
+        const repoDate = r.updatedAt ? new Date(r.updatedAt).toISOString().split('T')[0] : lastMod;
+        xml += `
+  <url>
+    <loc>${baseUrl}/${r.username}/${r.repoName}</loc>
+    <lastmod>${repoDate}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>`;
+      });
+
+      xml += '\n</urlset>';
+
+      res.header('Content-Type', 'application/xml');
+      res.send(xml);
+    } catch (error) {
+      console.error('Sitemap generation error:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+
   const getRepositoryForRequest = async (username: string, repoName: string) => {
     const user = await db.select().from(users).where(ilike(users.username, username)).limit(1);
     if (user.length === 0) return { error: 'User not found' as const };

@@ -7,6 +7,7 @@ import { useUser, useAuth } from '@clerk/clerk-react';
 
 import { LoadingScreen } from '../components/ui/loading-states';
 import { languageColors } from '../utils/languageColors';
+import { SEO } from '../components/SEO';
 
 export const Profile = () => {
   const { username } = useParams<{ username: string }>();
@@ -223,7 +224,13 @@ export const Profile = () => {
   if (!profileUser) return <div className="p-20 text-center text-xl font-bold text-zinc-800 bg-[#080808] min-h-screen">User Not Found.</div>;
 
   return (
-    <div className="bg-[#080808] min-h-screen text-white">
+    <>
+      <SEO 
+        title={`${username} (${profileUser.displayName || username})`}
+        description={profileUser.bio || `View ${username}'s repositories and contributions on NexusVault.`}
+        username={username}
+      />
+      <div className="bg-[#080808] min-h-screen text-white">
       <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-8 py-6 sm:py-8 md:py-10 flex flex-col md:flex-row gap-6 md:gap-10">
         {/* User Info Sidebar */}
         <div className="w-full md:w-80 space-y-5 md:sticky md:top-6 self-start">
@@ -851,5 +858,6 @@ export const Profile = () => {
         </div>
       )}
     </div>
+    </>
   );
 };

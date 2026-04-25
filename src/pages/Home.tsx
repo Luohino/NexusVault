@@ -8,6 +8,7 @@ import { Footer } from '../components/ui/modem-animated-footer';
 import { LoadingScreen, DashboardSkeleton } from '../components/ui/loading-states';
 import { ProtocolHub } from '../components/ui/protocol-hub';
 import { format } from 'date-fns';
+import { SEO } from '../components/SEO';
 
 export const Home = () => {
   const { user, isLoaded } = useUser();
@@ -71,6 +72,7 @@ export const Home = () => {
 
   return (
     <>
+      <SEO />
       {!user ? (
         <div className="bg-[#080808] w-full min-h-screen">
           <HeroSection />

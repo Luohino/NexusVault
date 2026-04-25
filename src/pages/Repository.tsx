@@ -316,6 +316,7 @@ import { RepositoryAdminPanel } from '../components/repository/RepositoryAdminPa
 import { WikiPanel } from '../components/repository/WikiPanel';
 import { ReleaseEditControls } from '../components/repository/ReleaseEditControls';
 import { useRepositoryData } from '../components/repository/useRepositoryData';
+import { SEO } from '../components/SEO';
 
 const CommitDetailView = ({ username, repoName, commits }: { username: string, repoName: string, commits: any[] }) => {
   const { commitId } = useParams();
@@ -1293,7 +1294,14 @@ export const Repository = () => {
 
   const readmeFile = files.find(f => f.path.toLowerCase() === 'readme.md');
   return (
-    <div className="bg-[#080808] min-h-screen text-white flex-1">
+    <>
+      <SEO 
+        title={`${username} / ${repoName}`}
+        description={repo.description || `Explore ${repoName} by ${username} on NexusVault.`}
+        username={username}
+        repoName={repoName}
+      />
+      <div className="bg-[#080808] min-h-screen text-white flex-1">
       {/* Repo Header */}
       <div className="bg-[#0d0d0d] border-b border-zinc-900 pt-6">
         <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-8">
@@ -3514,5 +3522,6 @@ Add your changelog here..."
 
       </div>
     </div>
+    </>
   );
 };
