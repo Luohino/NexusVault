@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react';
-import { Github, Search, Plus, Bell, LogOut, User, Folder, Settings } from 'lucide-react';
+import { Github, Search, Plus, Bell, LogOut, User, Folder, Settings, Book } from 'lucide-react';
 
 export const Navbar = () => {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -37,7 +37,7 @@ export const Navbar = () => {
           const token = await getToken();
           await fetch('/api/auth/sync', {
             method: 'POST',
-            headers: { 
+            headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
             },
@@ -53,7 +53,7 @@ export const Navbar = () => {
         }
       }
     };
-    
+
     syncUser();
   }, [isSignedIn, user, getToken]);
 
@@ -107,7 +107,7 @@ export const Navbar = () => {
             NV
           </div>
         </Link>
-        
+
         <form onSubmit={handleSearch} className="hidden md:block flex-1 max-w-sm relative">
           <input
             type="text"
@@ -145,7 +145,7 @@ export const Navbar = () => {
           </button>
 
           {isNotificationsOpen && (
-            <div className="absolute right-0 mt-6 w-96 bg-white border-[3px] border-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)] text-black z-50 overflow-hidden">
+            <div className="fixed md:absolute right-0 left-0 md:left-auto mt-6 md:w-96 mx-4 md:mx-0 bg-white border-[3px] border-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)] text-black z-[100] overflow-hidden">
               <div className="bg-red-600 text-white border-b-[3px] border-black px-5 py-4">
                 <h3 className="text-sm font-black uppercase italic">Notifications</h3>
               </div>
@@ -215,9 +215,9 @@ export const Navbar = () => {
             </div>
           )}
         </div>
-        
+
         <div className="relative" ref={dropdownRef}>
-          <button 
+          <button
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
@@ -228,12 +228,12 @@ export const Navbar = () => {
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-6 w-80 bg-white border-[3px] border-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)] text-black z-50 overflow-hidden animate-in slide-in-from-top-4 duration-300">
+            <div className="fixed md:absolute right-0 left-0 md:left-auto mt-6 md:w-80 mx-4 md:mx-0 bg-white border-[3px] border-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)] text-black z-[100] overflow-hidden animate-in slide-in-from-top-4 duration-300">
               {/* Bold Header Zone */}
               <div className="bg-red-600 p-6 border-b-[3px] border-black relative overflow-hidden group">
                 {/* Diagonal Stripe Accent */}
                 <div className="absolute top-0 right-0 w-32 h-full bg-black/10 -skew-x-[45deg] translate-x-16"></div>
-                
+
                 <div className="flex items-center gap-5 relative z-10">
                   <div className="relative">
                     <div className="absolute inset-0 bg-black translate-x-1.5 translate-y-1.5"></div>
@@ -256,8 +256,8 @@ export const Navbar = () => {
 
               {/* Navigation Section */}
               <div className="p-2 bg-white">
-                <Link 
-                  to={`/${user?.username || user?.id}`} 
+                <Link
+                  to={`/${user?.username || user?.id}`}
                   className="flex items-center gap-4 px-4 py-4 text-xs font-black hover:bg-red-50 hover:text-red-600 transition-all border-b-2 border-transparent hover:border-black group"
                   onClick={() => setIsDropdownOpen(false)}
                 >
@@ -267,9 +267,9 @@ export const Navbar = () => {
                   <span className="flex-1">View profile</span>
                   <span className="text-[10px] font-black text-zinc-300 group-hover:text-black">/01</span>
                 </Link>
-                
-                <Link 
-                  to={`/${user?.username || user?.id}?tab=repositories`} 
+
+                <Link
+                  to={`/${user?.username || user?.id}?tab=repositories`}
                   className="flex items-center gap-4 px-4 py-4 text-xs font-black hover:bg-red-50 hover:text-red-600 transition-all border-b-2 border-transparent hover:border-black group"
                   onClick={() => setIsDropdownOpen(false)}
                 >
@@ -280,14 +280,26 @@ export const Navbar = () => {
                   <span className="text-[10px] font-black text-zinc-300 group-hover:text-black">/02</span>
                 </Link>
 
+                <Link
+                  to="/vault"
+                  className="flex items-center gap-4 px-4 py-4 text-xs font-black hover:bg-red-50 hover:text-red-600 transition-all border-b-2 border-transparent hover:border-black group"
+                  onClick={() => setIsDropdownOpen(false)}
+                >
+                  <div className="w-8 h-8 flex items-center justify-center bg-black text-white group-hover:bg-red-600 transition-colors">
+                    <Book className="w-4 h-4" />
+                  </div>
+                  <span className="flex-1">Protocol Vault</span>
+                  <span className="text-[10px] font-black text-zinc-300 group-hover:text-black">/03</span>
+                </Link>
+
                 <div className="mt-4 border-t-[3px] border-black">
-                  <button 
+                  <button
                     onClick={handleLogout}
                     className="flex items-center justify-between w-full p-5 bg-black text-white hover:bg-red-600 transition-all group overflow-hidden relative"
                   >
                     {/* Animated BG text */}
                     <span className="absolute left-0 bottom-0 text-[40px] font-black text-white/5 leading-none translate-y-4 pointer-events-none group-hover:text-white/10 transition-colors">LOGOUT</span>
-                    
+
                     <div className="flex flex-col text-left relative z-10">
                       <span className="text-xs font-black uppercase tracking-tighter group-hover:translate-x-1 transition-transform">Terminate access</span>
                       <span className="text-[8px] font-bold text-zinc-500 group-hover:text-red-100 transition-colors">End active session now</span>

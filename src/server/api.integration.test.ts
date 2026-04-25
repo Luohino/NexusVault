@@ -3,6 +3,7 @@ import express from 'express';
 import request from 'supertest';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { verifyToken } from '@clerk/backend';
+import { createTrustedOriginMiddleware, requireJsonMutation } from './security.js';
 
 const { selectQueue, dbMock } = vi.hoisted(() => {
   const queue: any[] = [];
@@ -98,6 +99,8 @@ describe('repository api integration', () => {
     const app = express();
     app.use(express.json());
     app.use(cookieParser());
+    app.use('/api', createTrustedOriginMiddleware(['http://localhost:3002']));
+    app.use('/api', requireJsonMutation);
     setupApiRoutes(app);
     return app;
   };
@@ -176,5 +179,23 @@ describe('repository api integration', () => {
       .set('Authorization', 'Bearer forged.token.payload');
 
     expect(res.status).toBe(401);
+  });
+
+  it('rejects cookie-only authentication on protected routes', async () => {
+    const res = await request(createApp())
+      .get('/api/auth/me')
+      .set('Cookie', 'token=owner');
+
+    expect(res.status).toBe(401);
+  });
+
+  it('blocks mutation requests from untrusted origins', async () => {
+    const res = await request(createApp())
+      .post('/api/auth/logout')
+      .set('Origin', 'https://evil.example')
+      .set('Content-Type', 'application/json')
+      .send({});
+
+    expect(res.status).toBe(403);
   });
 });

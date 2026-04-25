@@ -1,7 +1,7 @@
 import express from 'express';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
-import { applySecurityHeaders, createRateLimitMiddleware } from './security';
+import { applySecurityHeaders, createRateLimitMiddleware, createTrustedOriginMiddleware, requireJsonMutation } from './security';
 
 describe('security middleware', () => {
   it('adds baseline security headers', async () => {
@@ -27,5 +27,34 @@ describe('security middleware', () => {
     const blocked = await request(app).get('/ok');
     expect(blocked.status).toBe(429);
     expect(blocked.body.error).toBe('Too many requests');
+  });
+
+  it('blocks cross-origin mutation requests', async () => {
+    const app = express();
+    app.use(express.json());
+    app.use(createTrustedOriginMiddleware(['http://localhost:3002']));
+    app.post('/ok', (_req, res) => res.json({ ok: true }));
+
+    const res = await request(app)
+      .post('/ok')
+      .set('Origin', 'https://evil.example')
+      .send({ ok: true });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toBe('Blocked cross-origin request');
+  });
+
+  it('rejects non-json mutation requests', async () => {
+    const app = express();
+    app.use(requireJsonMutation);
+    app.post('/ok', (_req, res) => res.json({ ok: true }));
+
+    const res = await request(app)
+      .post('/ok')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .send('a=1');
+
+    expect(res.status).toBe(415);
+    expect(res.body.error).toBe('JSON requests only');
   });
 });

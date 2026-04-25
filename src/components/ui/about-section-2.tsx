@@ -95,17 +95,6 @@ export default function AboutSection2() {
                   take you further
                 </div>
               </TimelineContent>
-
-              <TimelineContent
-                as="button"
-                animationNum={5}
-                timelineRef={heroRef}
-                customVariants={textVariants}
-                className="bg-red-600 gap-2 font-medium shadow-lg shadow-red-600/30 text-white h-12 px-6 rounded-full text-sm inline-flex items-center cursor-pointer transition-transform hover:scale-105"
-              >
-                <Zap fill="white" size={16} />
-                Join Us
-              </TimelineContent>
             </div>
           </div>
         </div>

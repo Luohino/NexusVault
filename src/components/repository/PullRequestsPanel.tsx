@@ -45,7 +45,7 @@ export const PullRequestsPanel = ({ username, repoName, repo, user, getToken, pu
   return (
     <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
       <div className="border-[3px] border-black bg-black shadow-[8px_8px_0px_0px_rgba(220,38,38,1)] overflow-hidden">
-        <div className="bg-red-600 border-b-[3px] border-black px-5 py-4 flex items-center justify-between">
+        <div className="bg-red-600 border-b-[3px] border-black px-4 sm:px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h2 className="text-sm font-black text-white">Pull requests</h2>
             <p className="text-xs font-bold text-red-100 mt-1">Review, approve, merge</p>
@@ -84,7 +84,7 @@ export const PullRequestsPanel = ({ username, repoName, repo, user, getToken, pu
                 </p>
               </div>
               {user && selectedPull.status === 'open' && (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button onClick={() => submitReview('approved')} className="bg-white text-black border-[3px] border-black px-4 py-2 text-xs font-black flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-red-600" />
                     Approve
@@ -111,8 +111,8 @@ export const PullRequestsPanel = ({ username, repoName, repo, user, getToken, pu
 
           {compare?.changedFiles?.map((file: any) => (
             <div key={file.path} className="border-[3px] border-black bg-black shadow-[8px_8px_0px_0px_rgba(220,38,38,1)] overflow-hidden">
-              <div className="bg-white text-black border-b-[3px] border-black px-5 py-3 flex justify-between">
-                <span className="text-sm font-black">{file.path}</span>
+              <div className="bg-white text-black border-b-[3px] border-black px-4 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <span className="text-sm font-black break-all">{file.path}</span>
                 <span className="text-[10px] font-black text-red-600">{file.status}</span>
               </div>
               <DiffViewer before={file.targetContent} after={file.sourceContent} />

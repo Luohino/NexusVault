@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { UserButton, useUser } from "@clerk/clerk-react";
+import { UserButton, useUser, SignedOut, SignedIn } from "@clerk/clerk-react";
 import AboutSection2 from '../components/ui/about-section-2';
 
 export const About = () => {
@@ -14,7 +14,7 @@ export const About = () => {
         <Link to="/" className="flex items-center gap-2 md:gap-3">
           <div className="text-xl md:text-2xl font-bold italic tracking-tighter text-black">NexusVault</div>
         </Link>
-        
+
         <div className="flex items-center gap-4 md:gap-8">
           <nav className="hidden md:flex gap-6 text-sm">
             <Link to="/" className="text-gray-400 hover:opacity-60 transition-opacity">Explore</Link>
@@ -24,7 +24,7 @@ export const About = () => {
             <Link to="/contact" className="text-gray-400 hover:opacity-60 transition-opacity">Contact</Link>
           </nav>
 
-          <button 
+          <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 text-red-600"
           >
@@ -59,7 +59,7 @@ export const About = () => {
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
         <div className="fixed inset-0 z-50 bg-white pt-24 px-8 md:hidden">
-          <button 
+          <button
             onClick={() => setIsMenuOpen(false)}
             className="absolute top-8 right-6 text-red-600 p-2"
           >

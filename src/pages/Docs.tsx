@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
-import { Component, DataPoint } from '../components/ui/annotation'; 
+import { Component, DataPoint } from '../components/ui/annotation';
 import { Annotation } from '@visx/annotation';
 import { scaleTime, scaleLinear } from '@visx/scale';
 import { extent } from 'd3-array';
@@ -26,7 +26,7 @@ const getStockValue = (d: DataPoint): number => d.value;
 export const Docs = () => {
   // Auth handled by Clerk
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  
+
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
@@ -49,10 +49,10 @@ export const Docs = () => {
   const chartWidth = dimensions.width;
   const chartHeight = dimensions.height;
 
-  const margin = isMobile 
+  const margin = isMobile
     ? { top: 20, right: 20, bottom: 20, left: 20 }
     : { top: 40, right: 40, bottom: 40, left: 40 };
-    
+
   const innerWidth = Math.max(0, chartWidth - margin.left - margin.right);
   const innerHeight = Math.max(0, chartHeight - margin.top - margin.bottom);
 
@@ -69,7 +69,7 @@ export const Docs = () => {
     range: [innerHeight, 0],
   }), [innerHeight]);
 
-  const defaultAnnotatedDatum = mockStockData[5]; 
+  const defaultAnnotatedDatum = mockStockData[5];
   const initialAnnotationX = xScale(getDate(defaultAnnotatedDatum)) ?? 0;
   const initialAnnotationY = yScale(getStockValue(defaultAnnotatedDatum)) ?? 0;
 
@@ -97,7 +97,7 @@ export const Docs = () => {
         <Link to="/" className="flex items-center gap-2 md:gap-3">
           <div className="text-xl md:text-2xl font-bold italic tracking-tighter text-black">NexusVault</div>
         </Link>
-        
+
         <div className="flex items-center gap-4 md:gap-8">
           <nav className="hidden md:flex gap-6 text-sm">
             <Link to="/" className="text-gray-400 hover:opacity-60 transition-opacity">Explore</Link>
@@ -107,7 +107,7 @@ export const Docs = () => {
             <Link to="/contact" className="text-gray-400 hover:opacity-60 transition-opacity">Contact</Link>
           </nav>
 
-          <button 
+          <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 text-red-600"
           >
@@ -143,7 +143,7 @@ export const Docs = () => {
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
         <div className="fixed inset-0 z-50 bg-white pt-24 px-8 md:hidden">
-          <button 
+          <button
             onClick={() => setIsMenuOpen(false)}
             className="absolute top-8 right-6 text-red-600 p-2"
           >
@@ -165,7 +165,7 @@ export const Docs = () => {
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-black mb-2">Documentation</h1>
           <p className="text-gray-500 max-w-2xl text-sm md:text-base">Explore our interactive repository activity charts. Drag the annotations to inspect different data points on the timeline.</p>
         </div>
-        
+
         <div className="flex-1 relative min-h-[300px] md:min-h-[400px] w-full" ref={containerRef}>
           {chartWidth > 0 && chartHeight > 0 && (
             <svg width={chartWidth} height={chartHeight} className="absolute inset-0">
@@ -182,7 +182,7 @@ export const Docs = () => {
                   annotationPosition={annotationPosition}
                   onAnnotationPositionChange={setAnnotationPosition}
                   connectorType="elbow"
-                  labelType="html" 
+                  labelType="html"
                   subjectType="circle"
                   title="NexusVault Performance"
                   subtitle="Repository analytics tracking high activity spikes."

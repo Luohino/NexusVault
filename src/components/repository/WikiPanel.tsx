@@ -55,27 +55,27 @@ const WikiPageDetail = ({ username, repoName, user, repo, getToken, onChanged }:
 
   return (
     <div className="border-[3px] border-black bg-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)] overflow-hidden">
-      <div className="bg-red-600 text-white border-b-[3px] border-black px-8 py-6 flex items-start justify-between gap-5">
+      <div className="bg-red-600 text-white border-b-[3px] border-black px-4 sm:px-6 md:px-8 py-5 sm:py-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-5">
         <div>
           <h2 className="text-2xl font-black italic">{page.title}</h2>
           <p className="text-xs font-bold text-red-100 mt-2">Updated {formatDistanceToNow(new Date(page.updatedAt), { addSuffix: true })}</p>
         </div>
         {user?.id === repo.ownerId && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 self-start">
             <button onClick={() => setEditing(!editing)} className="bg-white text-black border-2 border-black p-2"><Pencil className="w-4 h-4" /></button>
             <button onClick={remove} className="bg-black text-white border-2 border-black p-2"><Trash className="w-4 h-4" /></button>
           </div>
         )}
       </div>
-      <div className="bg-[#050505] p-8">
+      <div className="bg-[#050505] p-4 sm:p-6 md:p-8">
         {editing ? (
-          <div className="space-y-4 bg-white text-black border-[3px] border-black p-6">
+          <div className="space-y-4 bg-white text-black border-[3px] border-black p-4 sm:p-6">
             <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border-[3px] border-black px-4 py-3 font-black" />
             <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={14} className="w-full border-[3px] border-black px-4 py-3 font-mono text-sm" />
             <button onClick={save} className="bg-red-600 text-white border-[3px] border-black px-6 py-3 text-sm font-black">Save page</button>
           </div>
         ) : (
-          <div className="bg-[#080808] text-white border-[3px] border-black p-6">
+          <div className="bg-[#080808] text-white border-[3px] border-black p-4 sm:p-6">
             <MarkdownViewer content={page.content} />
           </div>
         )}
@@ -88,7 +88,7 @@ export const WikiPanel = ({ username, repoName, wikiPages, user, repo, getToken,
   <Routes>
     <Route path="/" element={
       <div className="border-[3px] border-black bg-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)] overflow-hidden">
-        <div className="bg-red-600 border-b-[3px] border-black px-8 py-6 flex items-center justify-between">
+        <div className="bg-red-600 border-b-[3px] border-black px-4 sm:px-6 md:px-8 py-5 sm:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h2 className="text-xl font-black text-white uppercase italic tracking-tight">Wiki</h2>
             <p className="text-sm text-red-100 mt-2 font-semibold">Project documentation beyond the README</p>
@@ -97,10 +97,10 @@ export const WikiPanel = ({ username, repoName, wikiPages, user, repo, getToken,
             <button onClick={onCreate} className="bg-white text-black px-6 py-3 text-[11px] font-black border-[3px] border-black">New page</button>
           )}
         </div>
-        <div className="p-8 bg-[#050505] space-y-4">
+        <div className="p-4 sm:p-6 md:p-8 bg-[#050505] space-y-4">
           {wikiPages.map((page: any) => (
-            <Link key={page.id} to={page.slug} className="block bg-white text-black border-[3px] border-black p-6 shadow-[7px_7px_0px_0px_rgba(220,38,38,1)]">
-              <h3 className="text-xl font-black mb-2">{page.title}</h3>
+            <Link key={page.id} to={page.slug} className="block bg-white text-black border-[3px] border-black p-4 sm:p-6 shadow-[7px_7px_0px_0px_rgba(220,38,38,1)]">
+              <h3 className="text-lg sm:text-xl font-black mb-2 break-words">{page.title}</h3>
               <p className="text-xs font-bold text-zinc-500">Updated {formatDistanceToNow(new Date(page.updatedAt), { addSuffix: true })}</p>
             </Link>
           ))}

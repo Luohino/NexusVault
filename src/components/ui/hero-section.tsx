@@ -2,7 +2,7 @@ import { Separator } from "@/components/ui/separator";
 import { Github, Mail, Linkedin } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
-import { UserButton, useUser } from "@clerk/clerk-react";
+import { UserButton, useUser, SignedOut, SignedIn } from "@clerk/clerk-react";
 
 export function HeroSection() {
   const { isSignedIn, isLoaded } = useUser();
@@ -18,9 +18,9 @@ export function HeroSection() {
 
         <div className="flex items-center gap-4 md:gap-8">
           <nav className="hidden md:flex gap-6 text-sm">
-            <a href="#" className="font-semibold hover:opacity-60 transition-opacity">Explore</a>
+            <Link to="/vault" className="font-semibold hover:opacity-60 transition-opacity">Explore</Link>
             <Link to="/about" className="text-gray-400 hover:opacity-60 transition-opacity">About</Link>
-            <Link to="/docs" className="text-gray-400 hover:opacity-60 transition-opacity">Docs</Link>
+            <Link to="/vault" className="text-gray-400 hover:opacity-60 transition-opacity">Docs</Link>
             <Link to="/community" className="text-gray-400 hover:opacity-60 transition-opacity">Community</Link>
             <Link to="/contact" className="text-gray-400 hover:opacity-60 transition-opacity">Contact</Link>
           </nav>
@@ -66,12 +66,12 @@ export function HeroSection() {
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
-          <nav className="flex flex-col gap-8 text-3xl font-bold italic text-black">
-            <a href="#" className="hover:text-red-600 transition-colors" onClick={() => setIsMenuOpen(false)}>Explore</a>
-            <Link to="/about" className="hover:text-red-600 transition-colors" onClick={() => setIsMenuOpen(false)}>About</Link>
-            <Link to="/docs" className="hover:text-red-600 transition-colors" onClick={() => setIsMenuOpen(false)}>Docs</Link>
-            <Link to="/community" className="hover:text-red-600 transition-colors" onClick={() => setIsMenuOpen(false)}>Community</Link>
-            <Link to="/contact" className="hover:text-red-600 transition-colors" onClick={() => setIsMenuOpen(false)}>Contact</Link>
+          <nav className="flex flex-col gap-8 text-4xl font-black uppercase italic text-black">
+            <Link to="/vault" onClick={() => setIsMenuOpen(false)}>Explore</Link>
+            <Link to="/about" onClick={() => setIsMenuOpen(false)}>About</Link>
+            <Link to="/vault" onClick={() => setIsMenuOpen(false)}>Docs</Link>
+            <Link to="/community" onClick={() => setIsMenuOpen(false)}>Community</Link>
+            <Link to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link>
             <SignedOut>
               <Link to="/login" className="text-red-600 border-t border-gray-100 pt-8" onClick={() => setIsMenuOpen(false)}>Sign in</Link>
             </SignedOut>
@@ -135,9 +135,6 @@ export function HeroSection() {
             </div>
           </div>
         </div>
-
-
-
       </main>
     </div>
   );

@@ -174,7 +174,7 @@ export const RepositoryAdminPanel = ({ username, repoName, branches, settings, r
 
   return (
     <div className="space-y-8">
-      <div className="border-4 border-black bg-white text-black p-8 shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
+      <div className="border-4 border-black bg-white text-black p-4 sm:p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
         <div className="flex items-center gap-3 mb-6">
           {repo?.isPrivate ? <Lock className="w-5 h-5 text-red-600" /> : <Globe className="w-5 h-5 text-red-600" />}
           <h3 className="text-lg font-black">Repository visibility</h3>
@@ -224,7 +224,7 @@ export const RepositoryAdminPanel = ({ username, repoName, branches, settings, r
         {visibilityError && <p className="mt-2 text-xs font-black text-red-600">{visibilityError}</p>}
       </div>
 
-      <div className="border-4 border-black bg-white text-black p-8 shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
+      <div className="border-4 border-black bg-white text-black p-4 sm:p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
         <div className="flex items-center gap-3 mb-6">
           <GitBranch className="w-5 h-5 text-red-600" />
           <h3 className="text-lg font-black">Branch management</h3>
@@ -253,15 +253,15 @@ export const RepositoryAdminPanel = ({ username, repoName, branches, settings, r
         </div>
         <div className="mt-6 grid gap-3 md:grid-cols-2">
           {branches.filter((branch: any) => branch.name !== (settings?.defaultBranch || 'main')).map((branch: any) => (
-            <div key={branch.id} className="flex items-center justify-between border-2 border-black p-3">
-              <span className="text-sm font-black">{branch.name}</span>
+            <div key={branch.id} className="flex items-center justify-between gap-3 border-2 border-black p-3">
+              <span className="text-sm font-black break-all">{branch.name}</span>
               <button onClick={() => handleDeleteBranch(branch.name)} className="text-red-600 hover:text-black"><Trash className="w-4 h-4" /></button>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="border-4 border-black bg-white text-black p-8 shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
+      <div className="border-4 border-black bg-white text-black p-4 sm:p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
         <div className="flex items-center gap-3 mb-6">
           <UserPlus className="w-5 h-5 text-red-600" />
           <h3 className="text-lg font-black">Collaborators</h3>
@@ -313,13 +313,13 @@ export const RepositoryAdminPanel = ({ username, repoName, branches, settings, r
           <button
             onClick={handleInvite}
             disabled={!selectedUser || isInviting}
-            className="bg-red-600 text-white border-2 border-black px-5 py-2 text-xs font-black disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-red-600 text-white border-2 border-black px-5 py-2 text-xs font-black disabled:opacity-50 disabled:cursor-not-allowed min-h-[42px]"
           >
             {isInviting ? 'Inviting...' : 'Invite'}
           </button>
         </div>
         {selectedUser && (
-          <div className="mt-4 border-[3px] border-black bg-red-50 p-4 flex items-center justify-between gap-3">
+          <div className="mt-4 border-[3px] border-black bg-red-50 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               {selectedUser.avatarUrl ? (
                 <img src={selectedUser.avatarUrl} alt={selectedUser.username} className="w-10 h-10 border-2 border-black object-cover" />
@@ -348,7 +348,7 @@ export const RepositoryAdminPanel = ({ username, repoName, branches, settings, r
         {removeError && <p className="mt-3 text-xs font-black text-red-600">{removeError}</p>}
         <div className="mt-6 space-y-3">
           {collaborators.map((collaborator: any) => (
-            <div key={collaborator.id} className="flex items-center justify-between border-2 border-black p-3">
+            <div key={collaborator.id} className="flex items-center justify-between gap-3 border-2 border-black p-3">
               <div className="flex items-center gap-3 min-w-0">
                 {collaborator.avatarUrl ? (
                   <img src={collaborator.avatarUrl} alt={collaborator.username} className="w-9 h-9 border-2 border-black object-cover" />
@@ -376,7 +376,7 @@ export const RepositoryAdminPanel = ({ username, repoName, branches, settings, r
           {collaborators.length === 0 && <p className="text-xs font-bold text-zinc-500">No collaborators invited yet.</p>}
         </div>
       </div>
-      <div className="border-4 border-black bg-red-50 text-black p-8 shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
+      <div className="border-4 border-black bg-red-50 text-black p-4 sm:p-6 md:p-8 shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
         <div className="flex items-center gap-3 mb-6">
           <Trash className="w-5 h-5 text-red-600" />
           <h3 className="text-lg font-black text-red-600 uppercase tracking-tight">Danger Zone</h3>

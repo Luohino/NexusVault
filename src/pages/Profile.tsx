@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { Users, MapPin, Link as LinkIcon, Calendar, Book, Star, Code, X, Check, Search as SearchIcon } from 'lucide-react';
+import { Users, MapPin, Link as LinkIcon, Calendar, Book, Star, Code, X, Check, Search as SearchIcon, Folder } from 'lucide-react';
 import { MarkdownViewer } from '../components/ui/MarkdownViewer';
 import { format } from 'date-fns';
 import { useUser, useAuth } from '@clerk/clerk-react';
@@ -224,11 +224,11 @@ export const Profile = () => {
 
   return (
     <div className="bg-[#080808] min-h-screen text-white">
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-10 flex flex-col md:flex-row gap-10">
+      <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-8 py-6 sm:py-8 md:py-10 flex flex-col md:flex-row gap-6 md:gap-10">
         {/* User Info Sidebar */}
-        <div className="w-full md:w-80 space-y-5">
+        <div className="w-full md:w-80 space-y-5 md:sticky md:top-6 self-start">
           <div className="relative group">
-            <div className="w-full aspect-square bg-[#0d0d0d] border-2 border-zinc-800 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[10px_10px_0px_0px_rgba(220,38,38,0.3)] transition-all overflow-hidden rounded-full md:rounded-none">
+            <div className="w-full max-w-[260px] md:max-w-none mx-auto md:mx-0 aspect-square bg-[#0d0d0d] border-2 border-zinc-800 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[10px_10px_0px_0px_rgba(220,38,38,0.3)] transition-all overflow-hidden rounded-full md:rounded-none">
               {profileUser.avatarUrl ? (
                 <img src={profileUser.avatarUrl} className="w-full h-full object-cover" />
               ) : (
@@ -279,7 +279,7 @@ export const Profile = () => {
                   placeholder="Location"
                 />
               </div>
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <button 
                   onClick={async () => {
                     try {
@@ -367,40 +367,28 @@ export const Profile = () => {
 
         {/* Profile Content */}
         <div className="flex-1 space-y-8">
-          <nav className="flex gap-1 border-b border-zinc-900 relative z-20">
-            {['overview', 'repositories', 'followers', 'following', 'stars'].map((t) => (
+          <nav className="flex gap-1 border-b border-zinc-900 relative z-20 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {[
+              { id: 'overview', icon: <Book className="w-4 h-4" />, label: 'Overview' },
+              { id: 'repositories', icon: <Folder className="w-4 h-4" />, label: 'Repositories', count: reposTotalCount },
+              { id: 'followers', icon: <Users className="w-4 h-4" />, label: 'Followers', count: profileUser.followersCount || 0 },
+              { id: 'following', icon: <Users className="w-4 h-4" />, label: 'Following', count: profileUser.followingCount || 0 },
+              { id: 'stars', icon: <Star className="w-4 h-4" />, label: 'Stars', count: profileUser.starsCount || 0 },
+            ].map((t) => (
               <Link
-                key={t}
-                to={`/${username}?tab=${t}`}
-                className={`flex items-center gap-2 px-4 py-3 text-[11px] font-bold tracking-tight transition-all relative border-b-2 ${
-                  tab === t 
+                key={t.id}
+                to={`/${username}?tab=${t.id}`}
+                className={`shrink-0 flex items-center gap-2 px-3 sm:px-4 py-3 text-[11px] font-bold tracking-tight transition-all relative border-b-2 whitespace-nowrap ${
+                  tab === t.id 
                     ? 'text-white border-red-600 bg-red-600/5' 
                     : 'text-zinc-500 hover:text-zinc-300 border-transparent hover:bg-zinc-900/40'
                 }`}
               >
-                {t === 'overview' && <Book className="w-4 h-4" />}
-                {t === 'repositories' && <Book className="w-4 h-4" />}
-                {(t === 'followers' || t === 'following') && <Users className="w-4 h-4" />}
-                {t === 'stars' && <Star className="w-4 h-4" />}
-                <span className="capitalize">{t}</span>
-                {t === 'repositories' && (
-                  <span className="bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full text-[9px] font-bold ml-1">
-                    {reposTotalCount}
-                  </span>
-                )}
-                {t === 'followers' && (
-                  <span className="bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full text-[9px] font-bold ml-1">
-                    {profileUser.followersCount}
-                  </span>
-                )}
-                {t === 'following' && (
-                  <span className="bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full text-[9px] font-bold ml-1">
-                    {profileUser.followingCount}
-                  </span>
-                )}
-                {t === 'stars' && (
-                  <span className="bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full text-[9px] font-bold ml-1">
-                    {profileUser.starsCount}
+                {t.icon}
+                <span className="hidden sm:inline capitalize">{t.label}</span>
+                {t.count !== undefined && (
+                  <span className="bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full text-[9px] font-black ml-1">
+                    {t.count}
                   </span>
                 )}
               </Link>
@@ -433,7 +421,7 @@ export const Profile = () => {
 
                      return (
                        <>
-                         <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                            <h3 className="text-sm font-bold text-zinc-400">
                              {isActualPins ? 'Pinned Repositories' : 'Popular Repositories'}
                            </h3>
@@ -505,8 +493,8 @@ export const Profile = () => {
                         </div>
                       </div>
                       
-                      <div className="neo-brutal-card !p-8 bg-[#0d0d0d] overflow-x-auto relative">
-                        <div className="min-w-[700px]">
+                      <div className="neo-brutal-card !p-4 sm:!p-8 bg-[#0d0d0d] overflow-x-auto relative scrollbar-hide">
+                        <div className="min-w-[800px] lg:min-w-0 w-full">
                           {/* Month Labels */}
                           <div className="grid grid-cols-[30px_repeat(52,minmax(0,1fr))] gap-1.5 mb-2 text-[9px] font-black text-zinc-600">
                             <div /> {/* Empty space for day labels */}
@@ -585,7 +573,7 @@ export const Profile = () => {
             )}
             {tab === 'repositories' && (
               <div className="col-span-full space-y-6">
-                <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-2">
+                <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between mb-2">
                   <div className="relative flex-1 w-full">
                     <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                     <input 
@@ -599,7 +587,7 @@ export const Profile = () => {
                       }}
                     />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex w-full md:w-auto gap-2">
                     <button className="bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-[11px] font-bold text-zinc-400 hover:text-white transition-colors">Type</button>
                     <button className="bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-[11px] font-bold text-zinc-400 hover:text-white transition-colors">Language</button>
                   </div>
@@ -613,8 +601,8 @@ export const Profile = () => {
                   ) : (
                     <>
                       {repos.map(repo => (
-                        <div key={repo.id} className="p-8 border-b border-zinc-900 hover:bg-red-600/5 transition-all flex items-center justify-between group relative overflow-hidden">
-                          <div className="relative z-10">
+                        <div key={repo.id} className="p-4 sm:p-6 md:p-8 border-b border-zinc-900 hover:bg-red-600/5 transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 group relative overflow-hidden">
+                          <div className="relative z-10 min-w-0">
                             <div className="flex items-center gap-3 mb-2">
                               <Link to={`/${username}/${repo.name}`} className="text-xl font-black text-white group-hover:text-red-500 transition-colors">
                                 {repo.name}
@@ -641,7 +629,7 @@ export const Profile = () => {
                               <span>Updated on {format(new Date(repo.updatedAt), 'MMM d')}</span>
                             </div>
                           </div>
-                          <div className="relative z-10 flex flex-col items-end gap-3">
+                          <div className="relative z-10 flex flex-col items-start sm:items-end gap-3">
                             <button 
                               onClick={() => handleStar(repo.name, repo.isStarred)}
                               className={`border-2 p-2.5 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none ${
@@ -657,7 +645,7 @@ export const Profile = () => {
                       ))}
 
                       {/* Pagination */}
-                      <div className="flex items-center justify-center gap-4 py-12">
+                      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 py-8 sm:py-12">
                         <button 
                           disabled={repoPage === 0}
                           onClick={() => setRepoPage(prev => Math.max(0, prev - 1))}
@@ -693,8 +681,8 @@ export const Profile = () => {
                   </div>
                 ) : (
                   socialList.map(item => (
-                    <div key={item.id} className="p-6 border-b border-zinc-900 hover:bg-zinc-900/20 transition-all flex items-center justify-between group animate-in fade-in slide-in-from-top-1 duration-200">
-                      <div className="flex items-start gap-4">
+                    <div key={item.id} className="p-4 sm:p-6 border-b border-zinc-900 hover:bg-zinc-900/20 transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 group animate-in fade-in slide-in-from-top-1 duration-200">
+                      <div className="flex items-start gap-4 min-w-0">
                         <Link to={`/${item.username}`} className="w-12 h-12 bg-zinc-800 border-2 border-zinc-900 overflow-hidden shrink-0 group-hover:border-red-600 transition-colors">
                           {item.avatarUrl ? (
                             <img src={item.avatarUrl} className="w-full h-full object-cover" />
@@ -734,8 +722,8 @@ export const Profile = () => {
                   </div>
                 ) : (
                   starredRepos.map(repo => (
-                    <div key={repo.id} className="p-6 border-b border-zinc-900 hover:bg-zinc-900/20 transition-all flex items-center justify-between group animate-in fade-in slide-in-from-top-1 duration-200">
-                      <div>
+                    <div key={repo.id} className="p-4 sm:p-6 border-b border-zinc-900 hover:bg-zinc-900/20 transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 group animate-in fade-in slide-in-from-top-1 duration-200">
+                      <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <Link to={`/${repo.ownerUsername}`} className="text-sm font-medium text-zinc-500 hover:text-red-500 transition-colors">
                             {repo.ownerUsername}
@@ -839,21 +827,21 @@ export const Profile = () => {
               </div>
             </div>
 
-            <div className="p-6 bg-zinc-900/30 border-t border-zinc-900 flex items-center justify-between shrink-0">
+            <div className="p-4 sm:p-6 bg-zinc-900/30 border-t border-zinc-900 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shrink-0">
               <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">
                 {6 - selectedPins.length} remaining
               </span>
-              <div className="flex gap-4">
+              <div className="flex w-full sm:w-auto gap-3 sm:gap-4">
                 <button 
                   onClick={() => setIsPinModalOpen(false)}
-                  className="px-6 py-2.5 text-xs font-black text-zinc-500 hover:text-white transition-colors"
+                  className="flex-1 sm:flex-none px-6 py-2.5 text-xs font-black text-zinc-500 hover:text-white transition-colors"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={() => handleUpdatePins(selectedPins)}
                   disabled={savingPins}
-                  className="neo-brutal-button !px-8 !py-2.5 disabled:opacity-50"
+                  className="neo-brutal-button flex-1 sm:flex-none !px-8 !py-2.5 disabled:opacity-50"
                 >
                   {savingPins ? 'Saving...' : 'Save pins'}
                 </button>

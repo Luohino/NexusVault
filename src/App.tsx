@@ -13,11 +13,11 @@ import { Profile } from './pages/Profile';
 import { Repository } from './pages/Repository';
 import { Search } from './pages/Search';
 import { About } from './pages/About';
-import { Docs } from './pages/Docs';
 import { Community } from './pages/Community';
 import { Contact } from './pages/Contact';
 import { ForkRepository } from './pages/ForkRepository';
-
+import { DocumentationIndex } from './pages/DocumentationIndex';
+import { DocumentViewer } from './pages/DocumentViewer';
 
 export default function App() {
   return (
@@ -28,7 +28,13 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
-            <Route path="/docs" element={<Docs />} />
+            
+            {/* DOCUMENTATION VAULT */}
+            <Route path="/docs" element={<DocumentationIndex />} />
+            <Route path="/vault" element={<DocumentationIndex />} />
+            <Route path="/docs/:filename" element={<DocumentViewer />} />
+            <Route path="/license" element={<DocumentViewer />} /> {/* Alias for specific requested route */}
+            
             <Route path="/community" element={<Community />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login/*" element={<Login />} />

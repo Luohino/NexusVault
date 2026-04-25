@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
+import rehypeRaw from 'rehype-raw';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import Prism from 'prismjs';
 import { Check, Copy, Link as LinkIcon } from 'lucide-react';
@@ -86,6 +87,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, theme =
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]} 
         rehypePlugins={[
+          rehypeRaw,
           rehypeSlug, 
           [rehypeAutolinkHeadings, { 
             behavior: 'wrap',

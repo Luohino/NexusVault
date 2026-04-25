@@ -5,7 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { setupApiRoutes } from "./src/server/api.js";
 import { initializeRedis } from "./src/server/redis.js";
-import { applySecurityHeaders, createRateLimitMiddleware } from "./src/server/security.js";
+import { applySecurityHeaders, createRateLimitMiddleware, createTrustedOriginMiddleware, requireJsonMutation } from "./src/server/security.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,6 +19,9 @@ async function startServer() {
   const authRateLimitMaxRequests = Number(process.env.AUTH_RATE_LIMIT_MAX_REQUESTS || 30);
   const searchRateLimitMaxRequests = Number(process.env.SEARCH_RATE_LIMIT_MAX_REQUESTS || 60);
   const writeRateLimitMaxRequests = Number(process.env.WRITE_RATE_LIMIT_MAX_REQUESTS || 120);
+  const serverRequestTimeoutMs = Number(process.env.SERVER_REQUEST_TIMEOUT_MS || 30_000);
+  const serverHeadersTimeoutMs = Number(process.env.SERVER_HEADERS_TIMEOUT_MS || 35_000);
+  const serverKeepAliveTimeoutMs = Number(process.env.SERVER_KEEPALIVE_TIMEOUT_MS || 5_000);
 
   app.set("trust proxy", 1);
   app.disable("x-powered-by");
@@ -26,6 +29,8 @@ async function startServer() {
   app.use(express.json({ limit: requestBodyLimit }));
   app.use(express.urlencoded({ extended: true, limit: requestBodyLimit }));
   app.use(cookieParser());
+  app.use("/api", createTrustedOriginMiddleware());
+  app.use("/api", requireJsonMutation);
   app.use("/api", createRateLimitMiddleware({ windowMs: rateLimitWindowMs, maxRequests: rateLimitMaxRequests, keyPrefix: 'api' }));
   app.use("/api/auth", createRateLimitMiddleware({ windowMs: rateLimitWindowMs, maxRequests: authRateLimitMaxRequests, keyPrefix: 'auth' }));
   app.use("/api/search", createRateLimitMiddleware({ windowMs: rateLimitWindowMs, maxRequests: searchRateLimitMaxRequests, keyPrefix: 'search' }));
@@ -35,8 +40,6 @@ async function startServer() {
     keyPrefix: 'writes',
     shouldLimit: (req) => ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method),
   }));
-  console.log('>>> SERVER BOOT: DATABASE_SYNC_V1 ACTIVE <<<');
-
   try {
     await initializeRedis();
   } catch (error) {
@@ -64,9 +67,12 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
+  const server = app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
+  server.requestTimeout = serverRequestTimeoutMs;
+  server.headersTimeout = serverHeadersTimeoutMs;
+  server.keepAliveTimeout = serverKeepAliveTimeoutMs;
 }
 
 startServer();

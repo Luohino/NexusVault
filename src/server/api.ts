@@ -1,4 +1,6 @@
 import { Express, Request, Response, NextFunction } from 'express';
+import path from 'path';
+import fs from 'fs/promises';
 import { db } from './db.js';
 import { users, repositories, commits, files, fileVersions, issues, issueComments, stars, followers, tags, releases, releaseAssets, branches, branchFiles, pullRequests, repositoryTopics, repositorySettings, wikiPages, pullRequestReviews, repositoryCollaborators, repositoryInvitations, notifications } from './schema.js';
 import { eq, and, or, like, ilike, desc, sql, gte, inArray } from 'drizzle-orm';
@@ -12,13 +14,10 @@ import { INPUT_LIMITS, ValidationError, readBoolean, readBranchName, readInteger
 
 const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
-console.log('>>> API.TS VERSION 1000 ACTIVE <<<');
-console.log('>>> GTE IS DEFINED:', typeof gte !== 'undefined');
-
 // Middleware to authenticate user using Supabase
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
-  const token = req.cookies.token || authHeader?.split(' ')[1];
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
   
   if (!token) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -27,15 +26,10 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   try {
     // Try Clerk verification first (using the provided secret key)
     // We use verifyToken for Bearer tokens
-    console.log('Attempting Clerk token verification...');
-    console.log('verifyToken function type:', typeof verifyToken);
-    
     const payload = await verifyToken(token, {
       secretKey: process.env.CLERK_SECRET_KEY,
     });
-    
-    console.log('Verification payload received:', payload ? 'Yes' : 'No');
-    
+
     if (payload && payload.sub) {
       (req as any).userId = payload.sub;
       return next();
@@ -58,7 +52,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
 export const optionalAuthenticate = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
-  const token = req.cookies.token || authHeader?.split(' ')[1];
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
   
   if (!token) return next();
 
@@ -162,7 +156,11 @@ export function setupApiRoutes(app: Express) {
       .limit(1);
     const decision = evaluateDirectWritePolicy(settings[0], branchName);
     if (decision.allowed) return true;
-    res.status(409).json({ error: decision.error });
+    if ('error' in decision) {
+      res.status(409).json({ error: decision.error });
+    } else {
+      res.status(409).json({ error: 'Direct writes are blocked on this branch' });
+    }
     return false;
   };
 
@@ -295,7 +293,6 @@ export function setupApiRoutes(app: Express) {
       const existingUser = await db.select().from(users).where(eq(users.id, id)).limit(1);
       
       if (existingUser.length === 0) {
-        console.log('Creating new user in database:', id);
         await db.insert(users).values({
           id,
           username,
@@ -357,10 +354,7 @@ export function setupApiRoutes(app: Express) {
     try {
       const userResult = await db.select().from(users).where(ilike(users.username, req.params.username)).limit(1);
       
-      console.log('DEBUG_V2: Attempting to fetch user:', req.params.username);
-      
       if (userResult.length === 0) {
-        console.log('DEBUG_V2: User NOT found in DB');
         return res.status(404).json({ error: 'User not found' });
       }
       
@@ -400,25 +394,18 @@ export function setupApiRoutes(app: Express) {
       }
 
       // 1. Fetch Special Repo (README)
-      console.log('DEBUG_PROFILE: Looking for special repo for user:', dbUser.id, 'with name:', dbUser.username);
       const specialRepo = await db.select().from(repositories)
         .where(and(eq(repositories.ownerId, dbUser.id), ilike(repositories.name, dbUser.username)))
         .limit(1);
 
       let profileReadme = null;
       if (specialRepo.length > 0 && await canReadRepository(specialRepo[0], currentUserId)) {
-        console.log('DEBUG_PROFILE: Found special repo:', specialRepo[0].id);
         const readmeFile = await db.select().from(files)
           .where(and(eq(files.repositoryId, specialRepo[0].id), ilike(files.path, 'README.md')))
           .limit(1);
         if (readmeFile.length > 0) {
-          console.log('DEBUG_PROFILE: Found README file!');
           profileReadme = readmeFile[0].content;
-        } else {
-          console.log('DEBUG_PROFILE: README file NOT found in special repo');
         }
-      } else {
-        console.log('DEBUG_PROFILE: Special repo NOT found');
       }
 
       // 2. Fetch Contributions for Heatmap (Last 365 days)
@@ -426,8 +413,6 @@ export function setupApiRoutes(app: Express) {
       oneYearAgo.setDate(oneYearAgo.getDate() - 365);
       const oneYearAgoStr = oneYearAgo.toISOString();
 
-      console.log('>>> ATTEMPTING HEATMAP QUERY WITH DATE:', oneYearAgoStr);
-      
       const contributions = await db.select({
         date: sql<string>`date_trunc('day', ${commits.timestamp})`,
         count: sql<number>`count(*)`
@@ -438,8 +423,6 @@ export function setupApiRoutes(app: Express) {
         sql`${commits.timestamp} >= ${oneYearAgoStr}::timestamp`
       ))
       .groupBy(sql`date_trunc('day', ${commits.timestamp})`);
-
-      console.log('>>> HEATMAP QUERY SUCCESS! FOUND:', contributions.length, 'records');
 
       // 3. Calculate Tech Stack (Languages from repos)
       const allUserRepos = await db.select().from(repositories).where(eq(repositories.ownerId, dbUser.id));
@@ -1284,8 +1267,6 @@ export function setupApiRoutes(app: Express) {
       const licenseKey = readOptionalString(req.body.licenseKey, { field: 'license key', maxLength: 40 });
       const filesToCreate = [];
 
-      console.log('DEBUG_REPO_CREATE:', { name, addReadme, hasNvignore: !!nvignoreContent, hasLicense: !!licenseContent, licenseKey });
-
       if (addReadme === true) {
         filesToCreate.push({
           path: 'README.md',
@@ -1452,7 +1433,9 @@ export function setupApiRoutes(app: Express) {
 
   app.get('/api/repos/:username', optionalAuthenticate, async (req, res) => {
     try {
-      const { q = '', limit = '10', offset = '0' } = req.query;
+      const q = readSearchQuery(req.query.q);
+      const limit = readInteger(req.query.limit, { field: 'limit', min: 1, max: 50, defaultValue: 10 });
+      const offset = readInteger(req.query.offset, { field: 'offset', min: 0, max: 5000, defaultValue: 0 });
       const currentUserId = (req as any).userId;
       const user = await db.select().from(users).where(ilike(users.username, req.params.username)).limit(1);
       if (user.length === 0) {
@@ -1469,7 +1452,7 @@ export function setupApiRoutes(app: Express) {
           visibleRepos.push(repo);
         }
       }
-      const paginatedRepos = visibleRepos.slice(Number(offset), Number(offset) + Number(limit));
+      const paginatedRepos = visibleRepos.slice(offset, offset + limit);
       const totalCount = visibleRepos.length;
       
       // Update languages if missing
@@ -1889,10 +1872,15 @@ export function setupApiRoutes(app: Express) {
     try {
       await releaseBucketReady;
       const userId = (req as any).userId;
-      const { tagName, targetCommitId, title, body, isDraft, isPrerelease, assets = [] } = req.body;
-
-      if (!tagName || !title) {
-        return res.status(400).json({ error: 'tagName and title are required' });
+      const tagName = readString(req.body.tagName, { field: 'tag name', maxLength: INPUT_LIMITS.tagName, allowEmpty: false, pattern: /^[A-Za-z0-9._-]+$/ });
+      const targetCommitId = req.body.targetCommitId === undefined ? null : readString(req.body.targetCommitId, { field: 'target commit ID', maxLength: 128, allowEmpty: false });
+      const title = readString(req.body.title, { field: 'title', maxLength: INPUT_LIMITS.title, allowEmpty: false });
+      const body = readOptionalString(req.body.body, { field: 'release notes', maxLength: INPUT_LIMITS.markdown, trim: false });
+      const isDraft = readBoolean(req.body.isDraft);
+      const isPrerelease = readBoolean(req.body.isPrerelease);
+      const assets = Array.isArray(req.body.assets) ? req.body.assets : [];
+      if (assets.length > INPUT_LIMITS.releaseAssetCount) {
+        return res.status(400).json({ error: 'Too many assets' });
       }
 
       const resolved = await getRepositoryForRequest(req.params.username, req.params.repoName);
@@ -1943,17 +1931,21 @@ export function setupApiRoutes(app: Express) {
       const now = new Date();
       const uploadedAssets = [];
       const uploadedStoragePaths: string[] = [];
-      for (const asset of assets as any[]) {
+      const requestAssets = Array.isArray(req.body.assets) ? (req.body.assets as any[]) : [];
+      for (const asset of requestAssets) {
         if (!asset?.name || !asset?.dataBase64) continue;
+        const assetName = readString(asset.name, { field: 'asset name', maxLength: INPUT_LIMITS.releaseAssetName, allowEmpty: false });
+        const assetBase64 = readString(asset.dataBase64, { field: 'asset data', maxLength: 5_000_000, allowEmpty: false, trim: false });
+        const assetContentType = readOptionalString(asset.contentType, { field: 'asset content type', maxLength: 120 }) || 'application/octet-stream';
         const assetId = crypto.randomUUID();
-        const safeName = String(asset.name).replace(/[\\/:*?"<>|]/g, '_');
+        const safeName = assetName.replace(/[\\/:*?"<>|]/g, '_');
         const storagePath = `${resolved.repo.id}/${releaseId}/${assetId}-${safeName}`;
-        const buffer = Buffer.from(asset.dataBase64, 'base64');
+        const buffer = Buffer.from(assetBase64, 'base64');
 
         const { error: uploadError } = await supabaseAdmin.storage
           .from(releaseBucket)
           .upload(storagePath, buffer, {
-            contentType: asset.contentType || 'application/octet-stream',
+            contentType: assetContentType,
             upsert: false,
           });
         if (uploadError) throw uploadError;
@@ -1961,9 +1953,9 @@ export function setupApiRoutes(app: Express) {
 
         uploadedAssets.push({
           id: assetId,
-          name: asset.name,
+          name: assetName,
           size: Number(asset.size || buffer.length),
-          contentType: asset.contentType || 'application/octet-stream',
+          contentType: assetContentType,
           storagePath,
           downloadUrl: `/api/repos/${req.params.username}/${req.params.repoName}/releases/assets/${assetId}/download`
         });
@@ -2020,8 +2012,7 @@ export function setupApiRoutes(app: Express) {
         assets: uploadedAssets,
       });
     } catch (error) {
-      console.error('Release creation error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      handleRequestError(res, error, 'Release creation error:');
     }
   });
 
@@ -2029,7 +2020,10 @@ export function setupApiRoutes(app: Express) {
     try {
       await releaseBucketReady;
       const userId = (req as any).userId;
-      const { title, body, isDraft, isPrerelease } = req.body;
+      const title = req.body.title === undefined ? undefined : readString(req.body.title, { field: 'title', maxLength: INPUT_LIMITS.title, allowEmpty: false });
+      const body = req.body.body === undefined ? undefined : readOptionalString(req.body.body, { field: 'release notes', maxLength: INPUT_LIMITS.markdown, trim: false });
+      const isDraft = req.body.isDraft === undefined ? undefined : readBoolean(req.body.isDraft);
+      const isPrerelease = req.body.isPrerelease === undefined ? undefined : readBoolean(req.body.isPrerelease);
 
       const resolved = await getRepositoryForRequest(req.params.username, req.params.repoName);
       if ('error' in resolved) return res.status(404).json({ error: resolved.error });
@@ -2054,8 +2048,7 @@ export function setupApiRoutes(app: Express) {
       await invalidateRepositoryCache(resolved.repo.id);
       res.json({ success: true });
     } catch (error) {
-      console.error('Release update error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      handleRequestError(res, error, 'Release update error:');
     }
   });
 
@@ -2091,7 +2084,9 @@ export function setupApiRoutes(app: Express) {
     try {
       await releaseBucketReady;
       const userId = (req as any).userId;
-      const { assets = [] } = req.body;
+      if (req.body.assets !== undefined && (!Array.isArray(req.body.assets) || req.body.assets.length > INPUT_LIMITS.releaseAssetCount)) {
+        return res.status(400).json({ error: 'Too many assets' });
+      }
 
       const resolved = await getRepositoryForRequest(req.params.username, req.params.repoName);
       if ('error' in resolved) return res.status(404).json({ error: resolved.error });
@@ -2103,17 +2098,21 @@ export function setupApiRoutes(app: Express) {
       if (release.length === 0) return res.status(404).json({ error: 'Release not found' });
 
       const uploadedAssets = [];
-      for (const asset of assets as any[]) {
+      const requestAssets = Array.isArray(req.body.assets) ? (req.body.assets as any[]) : [];
+      for (const asset of requestAssets) {
         if (!asset?.name || !asset?.dataBase64) continue;
+        const assetName = readString(asset.name, { field: 'asset name', maxLength: INPUT_LIMITS.releaseAssetName, allowEmpty: false });
+        const assetBase64 = readString(asset.dataBase64, { field: 'asset data', maxLength: 5_000_000, allowEmpty: false, trim: false });
+        const assetContentType = readOptionalString(asset.contentType, { field: 'asset content type', maxLength: 120 }) || 'application/octet-stream';
         const assetId = crypto.randomUUID();
-        const safeName = String(asset.name).replace(/[\\/:*?"<>|]/g, '_');
+        const safeName = assetName.replace(/[\\/:*?"<>|]/g, '_');
         const storagePath = `${resolved.repo.id}/${req.params.releaseId}/${assetId}-${safeName}`;
-        const buffer = Buffer.from(asset.dataBase64, 'base64');
+        const buffer = Buffer.from(assetBase64, 'base64');
 
         const { error: uploadError } = await supabaseAdmin.storage
           .from(releaseBucket)
           .upload(storagePath, buffer, {
-            contentType: asset.contentType || 'application/octet-stream',
+            contentType: assetContentType,
             upsert: false,
           });
         if (uploadError) throw uploadError;
@@ -2121,17 +2120,17 @@ export function setupApiRoutes(app: Express) {
         await db.insert(releaseAssets).values({
           id: assetId,
           releaseId: req.params.releaseId,
-          name: asset.name,
+          name: assetName,
           size: Number(asset.size || buffer.length),
-          contentType: asset.contentType || 'application/octet-stream',
+          contentType: assetContentType,
           storagePath,
         });
 
         uploadedAssets.push({
           id: assetId,
-          name: asset.name,
+          name: assetName,
           size: Number(asset.size || buffer.length),
-          contentType: asset.contentType || 'application/octet-stream',
+          contentType: assetContentType,
           downloadUrl: `/api/repos/${req.params.username}/${req.params.repoName}/releases/assets/${assetId}/download`
         });
       }
@@ -2140,8 +2139,7 @@ export function setupApiRoutes(app: Express) {
       await invalidateRepositoryCache(resolved.repo.id);
       res.json(uploadedAssets);
     } catch (error) {
-      console.error('Release asset upload error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      handleRequestError(res, error, 'Release asset upload error:');
     }
   });
 
@@ -2291,8 +2289,10 @@ export function setupApiRoutes(app: Express) {
       const resolved = await getRepositoryForRequest(req.params.username, req.params.repoName);
       if ('error' in resolved) return res.status(404).json({ error: resolved.error });
       const defaultBranch = await getRepositoryDefaultBranch(resolved.repo.id);
-      const { title, description, sourceBranch, targetBranch = defaultBranch } = req.body;
-      if (!title || !sourceBranch) return res.status(400).json({ error: 'title and sourceBranch are required' });
+      const title = readString(req.body.title, { field: 'title', maxLength: INPUT_LIMITS.title, allowEmpty: false });
+      const description = readOptionalString(req.body.description, { field: 'description', maxLength: INPUT_LIMITS.longDescription });
+      const sourceBranch = readBranchName(req.body.sourceBranch, 'source branch');
+      const targetBranch = req.body.targetBranch === undefined ? defaultBranch : readBranchName(req.body.targetBranch, 'target branch');
 
       if (!(await canWriteRepository(resolved.repo, userId))) return res.status(403).json({ error: 'Unauthorized' });
       if (sourceBranch === targetBranch) return res.status(400).json({ error: 'Choose different branches to compare' });
@@ -2317,8 +2317,7 @@ export function setupApiRoutes(app: Express) {
       });
       res.json({ id, title, description, sourceBranch, targetBranch, status: 'open', createdAt: now, updatedAt: now });
     } catch (error) {
-      console.error('Pull request creation error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      handleRequestError(res, error, 'Pull request creation error:');
     }
   });
 
@@ -2380,18 +2379,18 @@ export function setupApiRoutes(app: Express) {
       const id = crypto.randomUUID();
       const now = new Date();
       const nextStatus = ['approved', 'changes_requested', 'commented'].includes(req.body.status) ? req.body.status : 'approved';
+      const comment = readOptionalString(req.body.comment, { field: 'review comment', maxLength: INPUT_LIMITS.issueComment });
       await db.insert(pullRequestReviews).values({
         id,
         pullRequestId: req.params.pullId,
         reviewerId: userId,
         status: nextStatus,
-        comment: req.body.comment || null,
+        comment,
         createdAt: now,
       });
-      res.json({ id, status: nextStatus, comment: req.body.comment || null, createdAt: now });
+      res.json({ id, status: nextStatus, comment, createdAt: now });
     } catch (error) {
-      console.error('Pull request review creation error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      handleRequestError(res, error, 'Pull request review creation error:');
     }
   });
 
@@ -2477,22 +2476,25 @@ export function setupApiRoutes(app: Express) {
       if (repo.length === 0) return res.status(404).json({ error: 'Repository not found' });
       if (!(await requireRepositoryReadAccess(repo[0], (req as any).userId, res))) return;
 
-      const limit = parseInt(req.query.limit as string) || 100;
-      const offset = parseInt(req.query.offset as string) || 0;
-      const branchName = (req.query.branch as string) || 'main';
+      const limit = readInteger(req.query.limit, { field: 'limit', min: 1, max: 200, defaultValue: 100 });
+      const offset = readInteger(req.query.offset, { field: 'offset', min: 0, max: 5000, defaultValue: 0 });
+      const branchName = req.query.branch === undefined ? 'main' : readBranchName(req.query.branch, 'branch');
 
       const branchFilesResult = await getFilesForBranch(repo[0].id, user[0].id, branchName);
       if (!branchFilesResult) return res.status(404).json({ error: 'Branch not found' });
       const repoFiles = branchFilesResult.slice(offset, offset + limit);
       res.json(repoFiles);
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      handleRequestError(res, error, 'Files fetch error:');
     }
   });
 
   app.post('/api/repos/:username/:repoName/files', authenticate, async (req, res) => {
     try {
-      const { path, content, message, branch = 'main' } = req.body;
+      const path = readRepoPath(req.body.path);
+      const content = readString(req.body.content, { field: 'content', maxLength: INPUT_LIMITS.fileContent, allowEmpty: true, trim: false });
+      const message = readOptionalString(req.body.message, { field: 'commit message', maxLength: INPUT_LIMITS.commitMessage });
+      const branch = req.body.branch === undefined ? 'main' : readBranchName(req.body.branch, 'branch');
       const userId = (req as any).userId;
 
       const resolved = await getRepositoryForRequest(req.params.username, req.params.repoName);
@@ -2586,14 +2588,14 @@ export function setupApiRoutes(app: Express) {
       await invalidateRepositoryCache(resolved.repo.id);
       res.json({ success: true });
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      handleRequestError(res, error, 'File write error:');
     }
   });
 
   app.delete('/api/repos/:username/:repoName/files/:path', authenticate, async (req, res) => {
     try {
       const userId = (req as any).userId;
-      const { commitMessage } = req.body;
+      const commitMessage = readOptionalString(req.body.commitMessage, { field: 'commit message', maxLength: INPUT_LIMITS.commitMessage });
       const resolved = await getRepositoryForRequest(req.params.username, req.params.repoName);
       if ('error' in resolved) return res.status(404).json({ error: resolved.error });
       if (!(await canWriteRepository(resolved.repo, userId))) return res.status(403).json({ error: 'Unauthorized' });
@@ -2633,8 +2635,7 @@ export function setupApiRoutes(app: Express) {
       await invalidateRepositoryCache(resolved.repo.id);
       res.json({ success: true });
     } catch (error) {
-      console.error('Delete file error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      handleRequestError(res, error, 'Delete file error:');
     }
   });
 
@@ -2695,7 +2696,7 @@ export function setupApiRoutes(app: Express) {
 
   app.post('/api/repos/:username/:repoName/issues/:issueId/comments', authenticate, async (req, res) => {
     try {
-      const { content } = req.body;
+      const content = readString(req.body.content, { field: 'comment', maxLength: INPUT_LIMITS.issueComment, allowEmpty: false });
       const userId = (req as any).userId;
       const resolved = await getRepositoryForRequest(req.params.username, req.params.repoName);
       if ('error' in resolved) return res.status(404).json({ error: resolved.error });
@@ -2716,13 +2717,13 @@ export function setupApiRoutes(app: Express) {
 
       res.json({ success: true });
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      handleRequestError(res, error, 'Issue comment creation error:');
     }
   });
 
   app.patch('/api/repos/:username/:repoName/issues/:issueId', authenticate, async (req, res) => {
     try {
-      const { status } = req.body;
+      const status = readString(req.body.status, { field: 'status', maxLength: 20, allowEmpty: false, pattern: /^(open|closed)$/ });
       const userId = (req as any).userId;
 
       const resolved = await getRepositoryForRequest(req.params.username, req.params.repoName);
@@ -2739,12 +2740,13 @@ export function setupApiRoutes(app: Express) {
 
       res.json({ success: true });
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      handleRequestError(res, error, 'Issue update error:');
     }
   });
   app.post('/api/repos/:username/:repoName/issues', authenticate, async (req, res) => {
     try {
-      const { title, description } = req.body;
+      const title = readString(req.body.title, { field: 'title', maxLength: INPUT_LIMITS.title, allowEmpty: false });
+      const description = readOptionalString(req.body.description, { field: 'description', maxLength: INPUT_LIMITS.longDescription });
       const userId = (req as any).userId;
 
       const resolved = await getRepositoryForRequest(req.params.username, req.params.repoName);
@@ -2763,14 +2765,14 @@ export function setupApiRoutes(app: Express) {
 
       res.json({ success: true, issueId });
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      handleRequestError(res, error, 'Issue creation error:');
     }
   });
 
   // --- Search ---
   app.get('/api/search', optionalAuthenticate, async (req, res) => {
     try {
-      const q = req.query.q as string;
+      const q = readSearchQuery(req.query.q);
       if (!q) return res.json({ users: [], repositories: [] });
 
       const searchUsers = await db.select({
@@ -2806,13 +2808,18 @@ export function setupApiRoutes(app: Express) {
 
       res.json({ users: searchUsers, repositories: visibleRepos });
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      handleRequestError(res, error, 'Search error:');
     }
   });
 
   app.post('/api/users/:username/pins', authenticate, async (req, res) => {
     try {
-      const { repoIds } = req.body;
+      const repoIds = req.body.repoIds === undefined ? [] : readStringArray(req.body.repoIds, {
+        field: 'repoIds',
+        itemField: 'repo id',
+        maxItems: INPUT_LIMITS.pinCount,
+        maxItemLength: 128,
+      });
       const userId = (req as any).userId;
 
       const user = await db.select().from(users).where(ilike(users.username, req.params.username)).limit(1);
@@ -2828,8 +2835,65 @@ export function setupApiRoutes(app: Express) {
 
       res.json({ success: true });
     } catch (error) {
-      console.error('Error updating pins:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      handleRequestError(res, error, 'Error updating pins:');
+    }
+  });
+
+  // --- DOCUMENTATION ENDPOINT ---
+  app.get("/api/docs/:filename", async (req, res) => {
+    try {
+      const { filename } = req.params;
+      
+      // Security: Only allow reading specific documentation files from the root
+      const allowedFiles = [
+        "LICENSE", "README.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md",
+        "SECURITY.md", "SUPPORT.md", "AUTHORS.md", "CREDITS.md",
+        "ROADMAP.md", "ARCHITECTURE.md", "THE_ANOMALY_MANIFESTO.md",
+        "GLOSSARY.md", "STYLE_GUIDE.md", "CODING_STANDARDS.md",
+        "DEPRECATION_POLICY.md", "BETA_TESTER_AGREEMENT.md",
+        "API_USAGE_POLICY.md", "SERVICE_LEVEL_AGREEMENT.md",
+        "DATA_RETENTION_POLICY.md", "PRIVACY.md", "TERMS.md",
+        "ACCEPTABLE_USE_POLICY.md", "DMCA.md", "TRADEMARK.md",
+        "LAW_ENFORCEMENT_GUIDELINES.md", "EXPORT_COMPLIANCE.md",
+        "ETHICAL_AI_POLICY.md", "INCIDENT_RESPONSE_PLAN.md",
+        "VULNERABILITY_MANAGEMENT.md", "VULNERABILITY_DISCLOSURE_POLICY.md",
+        "ANTI_CORRUPTION_POLICY.md", "ENVIRONMENTAL_IMPACT.md",
+        "DIVERSITY_INCLUSION_CHARTER.md", "ACCESSIBILITY_STATEMENT.md",
+        "DATA_CLASSIFICATION_POLICY.md", "CRYPTOGRAPHIC_STANDARDS.md",
+        "DISASTER_RECOVERY_PROTOCOL.md", "SOVEREIGN_IDENTITY_CHARTER.md",
+        "SUPPLY_CHAIN_ETHICS.md", "WHISTLEBLOWER_POLICY.md",
+        "LOCAL_DEVELOPMENT_GUIDE.md", "TESTING_STANDARDS.md",
+        "BRANCHING_STRATEGY.md", "SOCIAL_MEDIA_POLICY.md",
+        "CODE_REVIEW_CHECKLIST.md", "BRAND_ASSETS_GUIDE.md",
+        "ISSUE_TRIAGE_POLICY.md", "LABEL_GUIDELINES.md",
+        "ACCESSIBILITY_AUDIT.md", "PROJECT_STATUS.md",
+        "RELEASES.md", "USER_MANUAL.md", "API_REFERENCE.md",
+        "SUBPROCESSORS.md", "CSR_POLICY.md", "DPIA_POLICY.md",
+        "PRIVACY_BY_DESIGN.md", "RECORDS_MANAGEMENT.md",
+        "RETENTION_SCHEDULE.md", "CYBER_HYGIENE.md", "SRE_CHARTER.md",
+        "DEVOPS_HANDBOOK.md", "SECURITY_PLAYBOOK.md",
+        "DEPLOYMENT_PLAYBOOK.md", "ANTI_MONEY_LAUNDERING.md",
+        "TAX_GOVERNANCE.md", "GIFTS_POLICY.md", "CONFLICT_OF_INTEREST_FORM.md",
+        "NON_SOLICITATION.md", "ADVISORY_BOARD.md", "BETA_TOS.md",
+        "API_SLA.md", "DATA_SHARING_AGREEMENT.md", "EU_SCC_ADDENDUM.md",
+        "SCHEMA_GUIDE.md", "OPEN_SOURCE_STRATEGY.md", "INTERNAL_AUDIT.md",
+        "COMPLIANCE_MANUAL.md", "REMEDIATION_PLAN.md", "CHANGE_MANAGEMENT.md",
+        "VENDOR_RISK_ASSESSMENT.md", "IT_ASSET_POLICY.md", "TROUBLESHOOTING.md",
+        "STAKEHOLDER_ENGAGEMENT_POLICY.md", "ESG_COMMITMENT.md", "GOVERNANCE_CHARTER.md",
+        "HUMAN_RIGHTS_POLICY.md", "MODERN_SLAVERY_STATEMENT.md", "NDA_TEMPLATE.md",
+        "DATA_PORTABILITY_GUIDE.md", "THIRD_PARTY_LICENSES.md"
+      ];
+
+      if (!allowedFiles.includes(filename)) {
+        return res.status(403).json({ error: "Access denied to requested file." });
+      }
+
+      const filePath = path.join(process.cwd(), filename);
+      const content = await fs.readFile(filePath, "utf-8");
+      res.json({ filename, content });
+    } catch (error) {
+      console.error("Error reading documentation file:", error);
+      res.status(500).json({ error: "Failed to read documentation file." });
     }
   });
 }

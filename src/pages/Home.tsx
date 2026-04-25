@@ -1,11 +1,12 @@
 import React from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { Link } from 'react-router-dom';
-import { Github, Book, Star, Plus, Twitter, History } from 'lucide-react';
+import { Github, Book, Star, Plus, Twitter, History, Linkedin, Youtube, Instagram, X, Folder } from 'lucide-react';
 import { HeroSection } from '../components/ui/hero-section';
 import RuixenBentoCards from '../components/ui/ruixen-bento-cards';
 import { Footer } from '../components/ui/modem-animated-footer';
 import { LoadingScreen, DashboardSkeleton } from '../components/ui/loading-states';
+import { ProtocolHub } from '../components/ui/protocol-hub';
 import { format } from 'date-fns';
 
 export const Home = () => {
@@ -14,6 +15,7 @@ export const Home = () => {
   const [repos, setRepos] = React.useState<any[]>([]);
   const [activity, setActivity] = React.useState<any[]>([]);
   const [isReposLoading, setIsReposLoading] = React.useState(false);
+  const [isMobilePanelOpen, setIsMobilePanelOpen] = React.useState(false);
 
   const userIdentifier = user?.username || user?.firstName || user?.id;
 
@@ -51,23 +53,18 @@ export const Home = () => {
   const isLoading = !isLoaded || (user && isReposLoading);
 
   const socialLinks = [
-    {
-      icon: <Twitter className="w-5 h-5" />,
-      href: "https://twitter.com",
-      label: "Twitter",
-    },
-    {
-      icon: <Github className="w-5 h-5" />,
-      href: "https://github.com/luohino",
-      label: "GitHub",
-    },
+    { icon: <Twitter className="w-5 h-5" />, href: "https://x.com/Luohinoo", label: "X (Twitter)" },
+    { icon: <Github className="w-5 h-5" />, href: "https://github.com/Luohino/", label: "GitHub" },
+    { icon: <Linkedin className="w-5 h-5" />, href: "https://www.linkedin.com/in/luohino-o-43620931b", label: "LinkedIn" },
+    { icon: <Youtube className="w-5 h-5" />, href: "https://youtube.com/@luohino", label: "YouTube" },
+    { icon: <Instagram className="w-5 h-5" />, href: "https://www.instagram.com/luohinoo", label: "Instagram" },
   ];
 
   const navLinks = [
-    { label: "Features", href: "/" },
-    { label: "Documentation", href: "/" },
-    { label: "Open Source", href: "/" },
-    { label: "Privacy", href: "/" },
+    { label: "Documentation", href: "/vault" },
+    { label: "Open Source", href: "/vault" },
+    { label: "Privacy", href: "/docs/PRIVACY.md" },
+    { label: "Sovereign Charter", href: "/docs/SOVEREIGN_IDENTITY_CHARTER.md" },
   ];
 
   if (isLoading) return <DashboardSkeleton />;
@@ -78,6 +75,7 @@ export const Home = () => {
         <div className="bg-[#080808] w-full min-h-screen">
           <HeroSection />
           <RuixenBentoCards />
+          <ProtocolHub />
           <Footer
             brandName="NexusVault"
             brandDescription="The modern platform for hosting repositories and browsing code locally with enhanced performance."
@@ -88,10 +86,75 @@ export const Home = () => {
           />
         </div>
       ) : (
-        <div className="min-h-screen bg-[#080808] text-white">
-          <div className="max-w-[1400px] mx-auto w-full px-4 md:px-8 py-8 flex flex-col md:flex-row gap-8">
-            {/* Left Sidebar */}
-            <div className="w-full md:w-1/4 space-y-8">
+        <div className="min-h-screen bg-[#080808] text-white font-['Inter']">
+          <div className="max-w-[1400px] mx-auto w-full px-4 md:px-8 py-6 md:py-8 flex flex-col md:flex-row gap-8 relative">
+            
+            {/* Mobile Dashboard Toggle */}
+            <button 
+              onClick={() => setIsMobilePanelOpen(true)}
+              className="md:hidden flex items-center justify-between p-4 bg-[#0d0d0d] border-2 border-black shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] mb-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-white flex items-center justify-center border-2 border-black">
+                  <Book className="w-4 h-4 text-red-600" />
+                </div>
+                <span className="text-xs font-black uppercase tracking-widest">Command Panel</span>
+              </div>
+              <Plus className="w-4 h-4 text-zinc-500" />
+            </button>
+
+            {/* Mobile Panel Overlay */}
+            {isMobilePanelOpen && (
+              <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm md:hidden">
+                <div className="absolute right-0 top-0 h-full w-[85%] bg-[#080808] border-l-4 border-black p-6 animate-in slide-in-from-right duration-300">
+                  <button 
+                    onClick={() => setIsMobilePanelOpen(false)}
+                    className="absolute top-6 right-6 text-red-600 p-2"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                  
+                  <div className="mt-12 space-y-10 overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide">
+                    {/* Repos Section */}
+                    <div>
+                      <h2 className="text-[10px] font-black text-red-600 uppercase tracking-[0.3em] mb-6">Top Repositories</h2>
+                      <div className="space-y-2">
+                        {repos.map(repo => (
+                          <Link 
+                            key={repo.id} 
+                            to={`/${userIdentifier}/${repo.name}`}
+                            className="flex items-center gap-3 p-3 bg-[#0d0d0d] border-2 border-black hover:border-red-600 transition-all"
+                            onClick={() => setIsMobilePanelOpen(false)}
+                          >
+                            <Folder className="w-4 h-4 text-zinc-500" />
+                            <span className="text-xs font-bold truncate">{repo.name}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Activity Section */}
+                    <div>
+                      <h2 className="text-[10px] font-black text-red-600 uppercase tracking-[0.3em] mb-6">Recent Activity</h2>
+                      <div className="space-y-4">
+                        {activity.map((item: any) => (
+                          <div key={item.id} className="flex gap-4 p-3 border-b-2 border-zinc-900">
+                            <History className="w-4 h-4 text-zinc-700 shrink-0 mt-1" />
+                            <div className="min-w-0">
+                              <p className="text-[11px] font-bold text-white truncate">{item.message}</p>
+                              <p className="text-[9px] font-black text-zinc-600 uppercase mt-1">{item.repoName}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Desktop Left Sidebar */}
+            <div className="hidden md:block w-1/4 space-y-8">
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xs font-bold text-zinc-500">Top Repositories</h2>
@@ -155,25 +218,28 @@ export const Home = () => {
               </div>
             </div>
 
-            {/* Main Feed Area */}
-            <div className="flex-1 space-y-6">
-              <div className="neo-brutal-card p-10 md:p-16 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 blur-3xl rounded-full -mr-16 -mt-16" />
+             {/* Main Feed Area */}
+            <div className="flex-1 space-y-8">
+              <div className="bg-white text-black p-8 md:p-20 relative overflow-hidden group border-[4px] border-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)]">
+                {/* Institutional Patterns */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-zinc-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-1000 -mr-20 -mt-20"></div>
                 
                 <div className="relative z-10">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 bg-white flex items-center justify-center border-2 border-black shadow-[4px_4px_0px_0px_rgba(220,38,38,1)]">
-                      <img src="/removedbg.png" alt="NexusVault Logo" className="w-8 h-8 object-contain" />
+                  <div className="flex items-center gap-6 mb-10">
+                    <div className="w-16 h-16 bg-black flex items-center justify-center border-4 border-black shadow-[6px_6px_0px_0px_rgba(220,38,38,1)]">
+                      <img src="https://github.com/Luohino.png" alt="User Profile" className="w-12 h-12 object-cover" />
                     </div>
                     <div>
-                      <h2 className="text-3xl font-bold tracking-tight">Welcome to NexusVault</h2>
-                      <p className="text-zinc-500 text-xs font-medium mt-1">Version 1.0 // Active Session</p>
+                      <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none">
+                        Welcome, <span className="text-red-600">{userIdentifier}</span>
+                      </h2>
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mt-2">Active Sovereign Session // NexusVault v1.0</p>
                     </div>
                   </div>
 
-                  <p className="text-zinc-400 text-sm leading-relaxed max-w-xl mb-10">
+                  <p className="font-['Inter'] text-base md:text-lg font-medium text-zinc-500 leading-relaxed max-w-2xl mb-12">
                     Your high-performance workspace for local code management and repository hosting. 
-                    Everything is synced, secure, and styled for impact.
+                    Radical transparency, secure protocols, and institutional-grade engineering.
                   </p>
 
                   <div className="flex flex-wrap gap-4">

@@ -8,3 +8,4 @@ coverage/
 !.env.example
 ./cli_and_gui
 cli_and_gui/
+test.js

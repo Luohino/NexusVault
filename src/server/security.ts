@@ -89,3 +89,61 @@ export const createRateLimitMiddleware = ({
     });
   };
 };
+
+const defaultAllowedOrigins = () =>
+  [
+    process.env.APP_BASE_URL,
+    process.env.APP_URL,
+    process.env.PUBLIC_APP_URL,
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
+    'http://localhost:3002',
+    'http://127.0.0.1:3002',
+  ].filter((value): value is string => Boolean(value));
+
+const normalizeOrigin = (origin: string) => {
+  try {
+    return new URL(origin).origin;
+  } catch {
+    return origin;
+  }
+};
+
+export const createTrustedOriginMiddleware = (allowedOrigins = defaultAllowedOrigins()) => {
+  const allowed = new Set(allowedOrigins.map(normalizeOrigin));
+
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+      return next();
+    }
+
+    const origin = req.headers.origin;
+    const secFetchSite = req.headers['sec-fetch-site'];
+    const hasAuthorization = Boolean(req.headers.authorization);
+
+    if (!origin) {
+      if (hasAuthorization && (!secFetchSite || secFetchSite === 'same-origin' || secFetchSite === 'same-site' || secFetchSite === 'none')) {
+        return next();
+      }
+      return res.status(403).json({ error: 'Blocked cross-origin request' });
+    }
+
+    if (!allowed.has(normalizeOrigin(origin))) {
+      return res.status(403).json({ error: 'Blocked cross-origin request' });
+    }
+
+    next();
+  };
+};
+
+export const requireJsonMutation = (req: Request, res: Response, next: NextFunction) => {
+  if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+    return next();
+  }
+
+  const contentType = req.headers['content-type'] || '';
+  if (!String(contentType).toLowerCase().includes('application/json')) {
+    return res.status(415).json({ error: 'JSON requests only' });
+  }
+
+  next();
+};

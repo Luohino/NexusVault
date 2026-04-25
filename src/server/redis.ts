@@ -73,8 +73,7 @@ export const invalidateRepositoryCache = async (repoId: string) => {
   try {
     const keys = await redisClient.sMembers(indexKey);
     if (keys.length > 0) {
-      await redisClient.del([...keys, indexKey]);
-      return;
+      await redisClient.del(keys as string[]);
     }
     await redisClient.del(indexKey);
   } catch (error) {

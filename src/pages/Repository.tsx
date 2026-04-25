@@ -41,7 +41,7 @@ const IssueDetail = ({ username, repoName, issues, user, repo, onRefresh }: any)
   );
   
   return (
-    <div className="max-w-6xl mx-auto py-8">
+    <div className="max-w-6xl mx-auto py-6 sm:py-8">
       <div className="border-b-[4px] border-black pb-8 mb-10">
         <div className="flex flex-wrap items-center justify-between gap-6 mb-6">
           <h2 className="text-3xl font-black text-white uppercase tracking-tighter">
@@ -101,8 +101,8 @@ const IssueDetail = ({ username, repoName, issues, user, repo, onRefresh }: any)
 
           {/* Comments */}
           {comments.map(comment => (
-            <div key={comment.id} className="border-[3px] border-black bg-white shadow-[10px_10px_0px_0px_rgba(220,38,38,1)] overflow-hidden ml-8 relative">
-               <div className="absolute -left-12 top-6 w-8 h-8 bg-black border-[3px] border-black flex items-center justify-center text-[10px] font-black text-white shadow-[3px_3px_0px_0px_rgba(220,38,38,1)]">
+            <div key={comment.id} className="border-[3px] border-black bg-white shadow-[10px_10px_0px_0px_rgba(220,38,38,1)] overflow-hidden md:ml-8 relative">
+               <div className="hidden md:flex absolute -left-12 top-6 w-8 h-8 bg-black border-[3px] border-black items-center justify-center text-[10px] font-black text-white shadow-[3px_3px_0px_0px_rgba(220,38,38,1)]">
                 {comment.authorUsername[0].toUpperCase()}
               </div>
               <div className="bg-zinc-50 border-b-[3px] border-black px-6 py-3 flex items-center justify-between">
@@ -117,8 +117,8 @@ const IssueDetail = ({ username, repoName, issues, user, repo, onRefresh }: any)
 
           {/* New Comment Form */}
           {user && (
-            <div className="border-[3px] border-black bg-white shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden ml-8 relative">
-              <div className="absolute -left-12 top-6 w-8 h-8 bg-red-600 border-[3px] border-black flex items-center justify-center text-[10px] font-black text-white shadow-[3px_3px_0px_0px_rgba(220,38,38,1)]">
+            <div className="border-[3px] border-black bg-white shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden md:ml-8 relative">
+              <div className="hidden md:flex absolute -left-12 top-6 w-8 h-8 bg-red-600 border-[3px] border-black items-center justify-center text-[10px] font-black text-white shadow-[3px_3px_0px_0px_rgba(220,38,38,1)]">
                 {(user.username || user.firstName || 'U')[0].toUpperCase()}
               </div>
               <form onSubmit={async (e) => {
@@ -231,14 +231,14 @@ const NewIssue = ({ username, repoName, user, getToken }: any) => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
-      <div className="flex gap-6">
+    <div className="max-w-4xl mx-auto py-6 sm:py-8">
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
         <div className="w-12 h-12 bg-zinc-900 border-2 border-black overflow-hidden flex-shrink-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
           <img src={user?.imageUrl} className="w-full h-full object-cover" />
         </div>
         <div className="flex-1">
           <form onSubmit={handleSubmit} className="border-[3px] border-black bg-white shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
-            <div className="bg-zinc-100 border-b-[3px] border-black px-6 py-1 flex items-center gap-2">
+              <div className="bg-zinc-100 border-b-[3px] border-black px-3 sm:px-6 py-1 flex items-center gap-2 overflow-x-auto">
               <button
                 type="button"
                 onClick={() => setActiveTab('write')}
@@ -259,7 +259,7 @@ const NewIssue = ({ username, repoName, user, getToken }: any) => {
               </button>
             </div>
             
-            <div className="p-6 space-y-6 bg-transparent">
+            <div className="p-4 sm:p-6 space-y-6 bg-transparent">
               {activeTab === 'write' ? (
                 <>
                   <input
@@ -1277,86 +1277,112 @@ export const Repository = () => {
     <div className="bg-[#080808] min-h-screen text-white flex-1">
       {/* Repo Header */}
       <div className="bg-[#0d0d0d] border-b border-zinc-900 pt-6">
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-            <div className="flex items-center flex-wrap gap-3 text-2xl">
-              <Book className="w-6 h-6 text-red-600" />
-              <Link to={`/${username}`} className="text-zinc-400 hover:text-white transition-colors font-medium">{username}</Link>
-              <span className="text-zinc-700 font-light">/</span>
-              <Link to={`/${username}/${repoName}`} className="font-bold text-white hover:text-red-500 transition-colors">{repoName}</Link>
-              <span className="text-[11px] font-bold border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-zinc-400 ml-2 uppercase tracking-tight">
-                {repo.isPrivate ? 'Private' : 'Public'}
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="flex border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] group overflow-hidden">
-                <button 
-                  onClick={handleStar}
-                  className={`flex items-center gap-2 px-3 py-1.5 text-[10px] font-black transition-all ${
-                    repo.isStarred 
-                      ? 'bg-red-600 text-white' 
-                      : 'bg-[#121212] text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  <Star className={`w-3.5 h-3.5 ${repo.isStarred ? 'fill-current' : 'text-red-600'}`} />
-                  <span>{repo.isStarred ? 'Unstar' : 'Star'}</span>
-                </button>
-                <div className="bg-black px-3 py-1.5 text-[10px] font-bold text-white border-l-2 border-black">
-                  {repo.starCount || 0}
+        <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
+              <div className="flex-1 space-y-4">
+                <div className="flex items-center flex-wrap gap-3 text-2xl md:text-3xl">
+                  <Book className="w-7 h-7 text-red-600" />
+                  <Link to={`/${username}`} className="text-zinc-400 hover:text-white transition-colors font-medium">{username}</Link>
+                  <span className="text-zinc-700 font-light">/</span>
+                  <Link to={`/${username}/${repoName}`} className="font-black text-white hover:text-red-500 transition-colors tracking-tight">{repoName}</Link>
+                  <span className="text-[10px] font-black border-2 border-zinc-800 bg-zinc-900 px-3 py-1 text-zinc-400 ml-2 tracking-tight">
+                    {repo.isPrivate ? 'Private' : 'Public'}
+                  </span>
                 </div>
+                
+                {repo.description && (
+                  <p className="text-sm md:text-base text-zinc-400 font-medium leading-relaxed max-w-3xl">
+                    {repo.description}
+                  </p>
+                )}
+
+                {topics.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {topics.map((topic: any) => (
+                      <span key={topic.id} className="text-[9px] font-black bg-[#121212] text-red-600 border border-zinc-800 px-2.5 py-1 uppercase tracking-widest hover:border-red-600 cursor-pointer transition-all">
+                        {topic.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
-               {user?.id !== repo.ownerId && (
-                 <Link to={`/fork/${username}/${repoName}`} className="neo-brutal-button !py-1.5 !px-4 !text-[10px]">
-                   Fork
-                 </Link>
-               )}
+              
+              <div className="flex flex-wrap items-center gap-3 self-start md:self-center">
+                <div className="flex border-2 border-black shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] group overflow-hidden">
+                  <button 
+                    onClick={handleStar}
+                    className={`flex items-center gap-2 px-4 py-2 text-[11px] font-black transition-all ${
+                      repo.isStarred 
+                        ? 'bg-red-600 text-white' 
+                        : 'bg-white text-black hover:bg-zinc-100'
+                    }`}
+                  >
+                    <Star className={`w-4 h-4 ${repo.isStarred ? 'fill-current' : 'text-red-600'}`} />
+                    <span>{repo.isStarred ? 'Unstar' : 'Star'}</span>
+                  </button>
+                  <div className="bg-black px-4 py-2 text-[11px] font-black text-white border-l-2 border-black">
+                    {repo.starCount || 0}
+                  </div>
+                </div>
+                 {user?.id !== repo.ownerId && (
+                   <Link to={`/fork/${username}/${repoName}`} className="neo-brutal-button !py-2 !px-6 !text-[11px]">
+                     Fork
+                   </Link>
+                 )}
+              </div>
             </div>
-          </div>
 
           {/* Tabs */}
-          <nav className="flex gap-2 overflow-x-auto pb-4">
-            {[
-              { id: '', label: 'Code', icon: <Code className="w-4 h-4" /> },
-              { id: 'issues', label: 'Issues', icon: <CircleDot className="w-4 h-4" />, count: issues.length },
-              { id: 'commits', label: 'Commits', icon: <History className="w-4 h-4" />, count: commits.length },
-              { id: 'pulls', label: 'Pull requests', icon: <GitPullRequest className="w-4 h-4" />, count: pullRequests.filter((pull: any) => pull.status === 'open').length },
-              { id: 'insights', label: 'Insights', icon: <BarChart3 className="w-4 h-4" /> },
-              { id: 'wiki', label: 'Wiki', icon: <BookOpen className="w-4 h-4" />, count: wikiPages.length },
-              { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" />, condition: user?.id === repo.ownerId }
-            ].map(tab => (
-              (tab.condition === undefined || tab.condition) && (
-                <Link 
-                  key={tab.label}
-                  to={`/${username}/${repoName}${tab.id ? '/' + tab.id : ''}`}
-                  className={`px-6 py-3.5 text-[11px] font-bold flex items-center gap-3 border-[3px] transition-all relative group font-outfit ${
-                    currentTab === tab.id 
-                      ? 'border-black bg-white text-black shadow-[4px_4px_0px_0px_rgba(220,38,38,1)]' 
-                      : 'border-transparent text-zinc-500 hover:text-white hover:border-zinc-800'
-                  }`}
-                >
-                  {tab.icon}
-                  {tab.label}
-                  {tab.count !== undefined && (
-                    <span className={`px-2 py-0.5 text-[9px] font-bold ${currentTab === tab.id ? 'bg-red-600 text-white' : 'bg-zinc-900 text-zinc-500'}`}>
-                      {tab.count}
+          <div className="relative group">
+            <nav className="flex gap-1 overflow-x-auto pb-4 pt-1 px-1 scroll-smooth scrollbar-thin scrollbar-track-zinc-900 scrollbar-thumb-red-600">
+              {[
+                { id: '', label: 'Code', icon: <Code className="w-4 h-4" /> },
+                { id: 'issues', label: 'Issues', icon: <CircleDot className="w-4 h-4" />, count: issues.length },
+                { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" />, condition: user?.id === repo?.ownerId || user?.username === username },
+                { id: 'wiki', label: 'Wiki', icon: <BookOpen className="w-4 h-4" />, count: wikiPages.length },
+                { id: 'pulls', label: 'Pull requests', icon: <GitPullRequest className="w-4 h-4" />, count: pullRequests.filter((pull: any) => pull.status === 'open').length },
+                { id: 'commits', label: 'Commits', icon: <History className="w-4 h-4" />, count: commits.length },
+                { id: 'insights', label: 'Insights', icon: <BarChart3 className="w-4 h-4" /> },
+              ].map(tab => (
+                (tab.condition === undefined || tab.condition) && (
+                  <Link 
+                    key={tab.label}
+                    to={`/${username}/${repoName}${tab.id ? '/' + tab.id : ''}`}
+                    className={`shrink-0 whitespace-nowrap px-4 sm:px-6 py-2.5 text-[11px] font-black flex items-center gap-2 sm:gap-3 border-[3px] transition-all relative group font-inter tracking-tight ${
+                      currentTab === tab.id 
+                        ? 'border-black bg-white text-black shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] z-10' 
+                        : 'border-transparent text-zinc-500 hover:text-white hover:border-zinc-800 bg-[#121212]/30'
+                    }`}
+                  >
+                    <div className={`transition-colors ${currentTab === tab.id ? 'text-red-600' : 'group-hover:text-red-500'}`}>
+                      {tab.icon}
+                    </div>
+                    <span className={tab.id === '' || tab.id === 'settings' || currentTab === tab.id ? 'inline' : 'hidden sm:inline'}>
+                      {tab.label}
                     </span>
-                  )}
-                </Link>
-              )
-            ))}
-          </nav>
+                    {tab.count !== undefined && (
+                      <span className={`px-1.5 py-0.5 text-[8px] font-black border ${currentTab === tab.id ? 'bg-red-600 text-white border-black' : 'bg-zinc-800 text-zinc-600 border-zinc-700'}`}>
+                        {tab.count}
+                      </span>
+                    )}
+                  </Link>
+                )
+              ))}
+            </nav>
+            {/* Sovereign Gradient Mask */}
+            <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-[#0d0d0d] to-transparent pointer-events-none md:hidden"></div>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-8">
+      <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-8 py-6 sm:py-8">
         <Routes>
           <Route path="/" element={
             <div className="flex flex-col lg:flex-row gap-8">
               <div className="flex-1 space-y-6">
                 {/* Action Bar */}
                  <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                     <div className="relative">
                     <button
                       onClick={() => setIsBranchMenuOpen(!isBranchMenuOpen)}
@@ -1367,7 +1393,7 @@ export const Repository = () => {
                       <ChevronDown className="w-3.5 h-3.5 text-zinc-600" />
                     </button>
                     {isBranchMenuOpen && (
-                      <div className="absolute left-0 top-full mt-2 w-72 bg-white border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(220,38,38,1)] z-50">
+                      <div className="absolute left-0 top-full mt-2 w-[min(18rem,calc(100vw-2rem))] bg-white border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(220,38,38,1)] z-50">
                         <div className="bg-red-600 border-b-[3px] border-black px-4 py-2 text-[10px] font-black text-white uppercase tracking-widest">Branches</div>
                         <div className="max-h-64 overflow-y-auto p-2">
                           {branches.map((branch: any) => (
@@ -1405,54 +1431,53 @@ export const Repository = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-3 relative">
+                  <div className="flex w-full sm:w-auto items-center gap-3 relative">
                     {user && user.id === repo.ownerId && (
-                      <div className="relative" ref={addFileRef}>
-                        <button 
+                      <div className="relative">
+                        <button
                           onClick={() => setIsAddFileOpen(!isAddFileOpen)}
-                          className="flex items-center gap-2 bg-zinc-800 border border-zinc-700 px-5 py-2 text-xs font-bold text-white hover:bg-zinc-700 transition-all active:scale-95"
+                          className="flex items-center gap-2 bg-white text-black border-[3px] border-black px-4 py-2 text-[11px] font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"
                         >
-                          Add file <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isAddFileOpen ? 'rotate-180' : ''}`} />
+                          Add file <ChevronDown className="w-3.5 h-3.5" />
                         </button>
-                        
                         {isAddFileOpen && (
-                          <div className="absolute right-0 mt-3 w-56 bg-white border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(220,38,38,1)] z-50 overflow-hidden animate-in zoom-in-95 duration-200">
-                            <div className="bg-red-600 px-4 py-2 border-b-[3px] border-black flex items-center justify-between">
-                              <span className="text-[10px] font-black text-white">file operations</span>
-                              <div className="flex gap-1">
-                                <div className="w-1 h-1 bg-white"></div>
-                                <div className="w-1 h-1 bg-white/40"></div>
+                          <>
+                            <div className="fixed inset-0 z-40 md:hidden bg-black/60 backdrop-blur-sm" onClick={() => setIsAddFileOpen(false)}></div>
+                            <div className="fixed md:absolute right-0 left-0 md:left-auto bottom-0 md:bottom-auto md:top-full mb-0 md:mt-3 w-full md:w-64 bg-white border-t-[4px] md:border-[4px] border-black shadow-[0px_-10px_40px_rgba(0,0,0,0.3)] md:shadow-[10px_10px_0px_0px_rgba(220,38,38,1)] z-50 animate-in slide-in-from-bottom md:slide-in-from-top duration-300">
+                              <div className="md:hidden bg-red-600 px-6 py-5 border-b-[4px] border-black flex items-center justify-between">
+                                <span className="text-[11px] font-black text-white uppercase tracking-[0.2em] italic">Add_Operation_Protocol</span>
+                                <X className="w-6 h-6 text-white cursor-pointer" onClick={() => setIsAddFileOpen(false)} />
+                              </div>
+                              <div className="p-3 md:p-2">
+                                <Link 
+                                  to={`/${username}/${repoName}/new/${encodeURIComponent(currentBranchName)}`}
+                                  className="flex items-center gap-4 w-full p-4 md:p-3 text-[11px] font-black text-black hover:bg-red-50 transition-colors group uppercase tracking-widest"
+                                  onClick={() => setIsAddFileOpen(false)}
+                                >
+                                  <div className="w-8 h-8 bg-black text-white flex items-center justify-center group-hover:bg-red-600 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                    <Plus className="w-4 h-4" />
+                                  </div>
+                                  Create new file
+                                </Link>
+                                <button 
+                                  className="flex items-center gap-4 w-full p-4 md:p-3 text-[11px] font-black text-black hover:bg-red-50 transition-colors group border-t-2 border-zinc-100 uppercase tracking-widest"
+                                  onClick={() => {
+                                    setIsAddFileOpen(false);
+                                    navigate(`/${username}/${repoName}/upload/${encodeURIComponent(currentBranchName)}`);
+                                  }}
+                                >
+                                  <div className="w-8 h-8 bg-black text-white flex items-center justify-center group-hover:bg-red-600 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                    <Upload className="w-4 h-4" />
+                                  </div>
+                                  Upload files
+                                </button>
                               </div>
                             </div>
-                            <div className="p-1">
-                              <Link 
-                                to={`/${username}/${repoName}/new/${encodeURIComponent(currentBranchName)}`}
-                                className="flex items-center gap-3 w-full p-3 text-[11px] font-black text-black hover:bg-red-50 transition-colors group"
-                                onClick={() => setIsAddFileOpen(false)}
-                              >
-                                <div className="w-6 h-6 bg-black text-white flex items-center justify-center group-hover:bg-red-600 transition-colors">
-                                  <Plus className="w-3.5 h-3.5" />
-                                </div>
-                                Create new file
-                              </Link>
-                              <button 
-                                className="flex items-center gap-3 w-full p-3 text-[11px] font-black text-black hover:bg-red-50 transition-colors group border-t border-zinc-100"
-                                onClick={() => {
-                                  setIsAddFileOpen(false);
-                                  navigate(`/${username}/${repoName}/upload/${encodeURIComponent(currentBranchName)}`);
-                                }}
-                              >
-                                <div className="w-6 h-6 bg-black text-white flex items-center justify-center group-hover:bg-red-600 transition-colors">
-                                  <Upload className="w-3.5 h-3.5" />
-                                </div>
-                                Upload files
-                              </button>
-                            </div>
-                          </div>
+                          </>
                         )}
                       </div>
                     )}
-                    <button className="neo-brutal-button flex items-center gap-2 !py-2 !px-5 !text-xs">
+                    <button className="neo-brutal-button flex items-center gap-2 !py-2 !px-5 !text-xs w-full sm:w-auto justify-center">
                       <Code className="w-4 h-4" /> Code
                     </button>
                   </div>
@@ -1460,8 +1485,8 @@ export const Repository = () => {
 
                 {/* File Browser */}
                 <div className="border-[3px] border-black bg-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
-                  <div className="bg-white border-b-[3px] border-black px-6 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                  <div className="bg-white border-b-[3px] border-black px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex items-center gap-4 min-w-0">
                       {commits.length > 0 ? (
                         <img 
                           src={commits[0].authorAvatarUrl} 
