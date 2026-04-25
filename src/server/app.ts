@@ -33,9 +33,14 @@ export async function createApp() {
   }));
 
   try {
+    console.log('Sovereign Ingestion: Initializing application core...');
+    if (!process.env.DATABASE_URL) {
+      console.error('CRITICAL: DATABASE_URL is missing from environment.');
+    }
     await initializeRedis();
+    console.log('Sovereign Ingestion: Core systems operational.');
   } catch (error) {
-    console.error('Redis initialization failed, continuing with in-memory fallback:', error);
+    console.error('Institutional Warning: Core initialization anomaly:', error);
   }
 
   // API routes

@@ -104,6 +104,22 @@ export const initializeRedis = async () => {
     console.warn('Redis disconnected');
   });
 
-  await redisClient.connect();
-  return redisClient;
+  // High-Fidelity Connection Protocol: 2-second timeout to prevent serverless hang
+  const connectPromise = redisClient.connect();
+  const timeoutPromise = new Promise((_, reject) => 
+    setTimeout(() => reject(new Error('Redis connection timeout')), 2000)
+  );
+
+  try {
+    await Promise.race([connectPromise, timeoutPromise]);
+    return redisClient;
+  } catch (error) {
+    console.error('Institutional Warning: Redis connection failed or timed out:', error);
+    // Ensure we don't try to use a half-connected client
+    if (redisClient) {
+      redisClient.disconnect().catch(() => {});
+      redisClient = null;
+    }
+    return null;
+  }
 };
