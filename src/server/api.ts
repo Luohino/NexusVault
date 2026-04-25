@@ -96,7 +96,7 @@ export function setupApiRoutes(app: Express) {
   const releaseBucketReady = ensureReleaseStorageBucket();
 
   // Dynamic Sitemap Generator for Search Engines
-  app.get('/api/sitemap.xml', async (req: Request, res: Response) => {
+  app.get(['/sitemap.xml', '/api/sitemap.xml'], async (req: Request, res: Response) => {
     try {
       const allUsers = await db.select({ username: users.username }).from(users);
       const allRepos = await db.select({ 
