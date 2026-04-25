@@ -229,7 +229,7 @@ export const Home = () => {
                 <div className="relative z-10">
                   <div className="flex items-center gap-6 mb-10">
                     <div className="w-16 h-16 bg-black flex items-center justify-center border-4 border-black shadow-[6px_6px_0px_0px_rgba(220,38,38,1)]">
-                      <img src="https://github.com/Luohino.png" alt="User Profile" className="w-12 h-12 object-cover" />
+                      <img src={user.imageUrl} alt="User Profile" className="w-12 h-12 object-cover" />
                     </div>
                     <div>
                       <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none">

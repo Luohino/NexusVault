@@ -229,6 +229,7 @@ export const Profile = () => {
         title={`${username} (${profileUser.displayName || username})`}
         description={profileUser.bio || `View ${username}'s repositories and contributions on NexusVault.`}
         username={username}
+        image={profileUser.avatarUrl}
       />
       <div className="bg-[#080808] min-h-screen text-white">
       <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-8 py-6 sm:py-8 md:py-10 flex flex-col md:flex-row gap-6 md:gap-10">

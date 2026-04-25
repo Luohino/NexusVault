@@ -1,0 +1,35 @@
+# NexusVault Sovereign Indexing Protocol
+# Optimized for Global Search Visibility (Google, Bing, Yandex, Baidu, DuckDuckGo)
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+Disallow: /auth/
+Disallow: /settings/
+
+# Specifically authorize major global crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: bingbot
+Allow: /
+
+User-agent: Yandex
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Sitemap Location (The Source of Truth)
+Sitemap: https://nexusvault-luohino.vercel.app/sitemap.xml
+
+# Crawl-delay for aggressive bots to preserve server stability
+Crawl-delay: 1
