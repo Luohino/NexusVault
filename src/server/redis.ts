@@ -20,7 +20,7 @@ export const getCachedRepositoryJson = async <T>(repoId: string, suffix: string)
 
   try {
     const cached = await redisClient.get(getRepositoryCacheKey(repoId, suffix));
-    if (!cached) return null;
+    if (!cached || typeof cached !== 'string') return null;
     return JSON.parse(cached) as T;
   } catch (error) {
     console.error('Redis repository cache read error:', error);

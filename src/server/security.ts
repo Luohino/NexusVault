@@ -109,6 +109,8 @@ const defaultAllowedOrigins = () =>
     process.env.APP_URL,
     process.env.PUBLIC_APP_URL,
     process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined,
+    process.env.VERCEL_BRANCH_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : undefined,
     'http://localhost:3002',
     'http://127.0.0.1:3002',
   ].filter((value): value is string => Boolean(value));

@@ -16,7 +16,7 @@ if (!connectionString) {
 // Technical Hardening: Add connection timeout, SSL, and optimize for serverless
 const client = postgres(connectionString as string, {
   connect_timeout: 10,
-  max: 1, // Limit to 1 connection per serverless function to prevent pool exhaustion
-  ssl: 'require' // Ensure secure handshake with Supabase
+  max: 1,
+  ssl: { rejectUnauthorized: false }
 });
 export const db = drizzle(client, { schema });
