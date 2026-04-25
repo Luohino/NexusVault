@@ -36,6 +36,7 @@ export const Signup = () => {
             path="/signup" 
             signInUrl="/login" 
             forceRedirectUrl="/"
+            afterSignUpUrl="/"
             appearance={{
               baseTheme: dark,
               elements: {

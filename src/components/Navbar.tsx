@@ -97,9 +97,12 @@ export const Navbar = () => {
     }
   };
 
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = React.useState(false);
+
   if (!isSignedIn || !user) return null;
 
   return (
+    <>
     <nav className="bg-[#080808] text-white py-4 px-4 md:px-8 flex items-center justify-between border-b-2 border-black sticky top-0 z-50">
       <div className="flex items-center gap-8 flex-1">
         <Link to="/" className="group">
@@ -124,6 +127,12 @@ export const Navbar = () => {
       </div>
 
       <div className="flex items-center gap-6">
+        <button
+          onClick={() => { setIsMobileSearchOpen(!isMobileSearchOpen); setIsDropdownOpen(false); setIsNotificationsOpen(false); }}
+          className="md:hidden text-zinc-400 hover:text-red-600 transition-colors"
+        >
+          <Search className="w-5 h-5" />
+        </button>
         <Link to="/new" className="text-zinc-400 hover:text-red-600 transition-colors">
           <Plus className="w-5 h-5" />
         </Link>
@@ -315,5 +324,23 @@ export const Navbar = () => {
         </div>
       </div>
     </nav>
+
+    {/* Mobile Search Bar */}
+    {isMobileSearchOpen && (
+      <div className="md:hidden bg-[#080808] border-b-2 border-black px-4 py-3 sticky top-[57px] z-40">
+        <form onSubmit={(e) => { handleSearch(e); setIsMobileSearchOpen(false); }} className="relative">
+          <input
+            type="text"
+            placeholder="Search users, repos..."
+            className="w-full bg-[#0d0d0d] border-2 border-zinc-800 py-2.5 px-4 pl-10 text-xs font-bold text-white placeholder-zinc-600 focus:border-red-600 outline-none transition-all"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            autoFocus
+          />
+          <Search className="w-4 h-4 absolute left-3.5 top-3 text-zinc-600" />
+        </form>
+      </div>
+    )}
+    </>
   );
 };

@@ -746,6 +746,7 @@ export const Repository = () => {
   const [analyzedCount, setAnalyzedCount] = useState(0);
   const [uploadFiles, setUploadFiles] = useState<{ file: File, path: string }[]>([]);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadLoading, setUploadLoading] = useState(false);
   const [commitSummary, setCommitSummary] = useState('Add files via upload');
   const [commitDescription, setCommitDescription] = useState('');
   const [isDragging, setIsDragging] = useState(false);
@@ -893,7 +894,7 @@ export const Repository = () => {
 
   const handleUploadSubmit = async () => {
     if (uploadFiles.length === 0) return;
-    setLoading(true);
+    setUploadLoading(true);
     setUploadProgress(0);
     const failures: string[] = [];
     const skippedLarge: string[] = [];
@@ -903,7 +904,7 @@ export const Repository = () => {
       const token = await getToken();
       if (!token) {
         alert("Session expired. Please log in again.");
-        setLoading(false);
+        setUploadLoading(false);
         return;
       }
 
@@ -918,7 +919,17 @@ export const Repository = () => {
         }
 
         try {
-          const content = await item.file.text();
+          const isImage = item.file.type.startsWith('image/');
+          const content = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            if (isImage) {
+              reader.readAsDataURL(item.file);
+            } else {
+              reader.readAsText(item.file);
+            }
+          });
           const res = await fetch(`/api/repos/${username}/${repoName}/files`, {
             method: 'POST',
             headers: { 
@@ -957,7 +968,7 @@ export const Repository = () => {
       console.error("Global upload error:", err);
       alert("A critical error occurred. Please check your connection and try again.");
     } finally {
-      setLoading(false);
+      setUploadLoading(false);
       setUploadProgress(0);
     }
   };
@@ -2466,6 +2477,14 @@ export const Repository = () => {
                     return (
                       <div className="p-16 prose prose-invert max-w-none prose-headings:font-black prose-headings:uppercase prose-headings:italic prose-headings:tracking-tighter prose-p:font-medium prose-p:text-zinc-400">
                         <MarkdownViewer content={file.content} />
+                      </div>
+                    );
+                  }
+                  
+                  if (file.content.startsWith('data:image/')) {
+                    return (
+                      <div className="p-16 flex justify-center items-center min-h-[400px]">
+                        <img src={file.content} alt={file.path} className="max-w-full max-h-[800px] border-[4px] border-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)] object-contain bg-zinc-900/50" />
                       </div>
                     );
                   }

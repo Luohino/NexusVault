@@ -24,8 +24,9 @@ export const applySecurityHeaders = (_req: Request, res: Response, next: NextFun
   // Sovereign CSP: Authorizing Clerk, Google OAuth, and Platform Assets
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.accounts.dev https://clerk.com https://accounts.google.com",
-    "connect-src 'self' https://*.clerk.accounts.dev https://*.supabase.co wss://*.clerk.accounts.dev https://accounts.google.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.clerk.accounts.dev https://clerk.com https://accounts.google.com http://localhost:* http://127.0.0.1:*",
+    "worker-src 'self' blob:",
+    "connect-src 'self' ws://localhost:* wss://localhost:* ws://127.0.0.1:* wss://127.0.0.1:* https://*.clerk.accounts.dev https://*.supabase.co wss://*.clerk.accounts.dev https://accounts.google.com",
     "img-src 'self' data: blob: https://*.clerk.com https://img.clerk.com https://github.com https://*.githubusercontent.com https://*.googleusercontent.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
     "font-src 'self' https://fonts.gstatic.com",
