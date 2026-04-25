@@ -155,6 +155,12 @@ export const requireJsonMutation = (req: Request, res: Response, next: NextFunct
     return next();
   }
 
+  // Allow empty-body mutations (e.g. star/unstar, simple toggles)
+  const contentLength = parseInt(req.headers['content-length'] || '0', 10);
+  if (contentLength === 0 && !req.headers['content-type']) {
+    return next();
+  }
+
   const contentType = req.headers['content-type'] || '';
   if (!String(contentType).toLowerCase().includes('application/json')) {
     return res.status(415).json({ error: 'JSON requests only' });
