@@ -2252,10 +2252,10 @@ export const Repository = () => {
                         }
                         handleUploadSubmit();
                       }}
-                      disabled={uploadFiles.length === 0 || loading}
+                      disabled={uploadFiles.length === 0 || uploadLoading}
                       className="bg-red-600 text-white px-10 py-4 text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-b-4 border-r-4 border-black active:translate-x-1 active:translate-y-1 active:shadow-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {loading ? 'Processing...' : 'Commit Changes'}
+                      {uploadLoading ? 'Processing...' : 'Commit Changes'}
                     </button>
                     <button 
                       onClick={() => navigate(`/${username}/${repoName}`)}
