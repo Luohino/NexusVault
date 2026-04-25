@@ -7,9 +7,15 @@ dotenv.config();
 
 const connectionString = process.env.DATABASE_URL;
 
-if (!connectionString || connectionString.includes('[YOUR-PASSWORD]')) {
-  console.error('ERROR: DATABASE_URL is not set or contains placeholder password.');
+if (!connectionString) {
+  console.error('CRITICAL: DATABASE_URL is not set.');
+} else if (connectionString.includes('[YOUR-PASSWORD]')) {
+  console.error('CRITICAL: DATABASE_URL contains placeholder password.');
 }
 
-const client = postgres(connectionString as string);
+// Technical Hardening: Add connection timeout and optimize for serverless
+const client = postgres(connectionString as string, {
+  connect_timeout: 10,
+  max: 1 // Limit to 1 connection per serverless function to prevent pool exhaustion
+});
 export const db = drizzle(client, { schema });
