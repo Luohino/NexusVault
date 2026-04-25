@@ -240,7 +240,7 @@ export const RepositoryAdminPanel = ({ username, repoName, branches, settings, r
             Rename branch
             <select value={renameBranch} onChange={(e) => setRenameBranch(e.target.value)} className="mt-2 w-full border-2 border-black px-3 py-2 bg-white">
               <option value="">Choose branch</option>
-              {branches.filter((branch: any) => branch.name !== (settings?.defaultBranch || 'main')).map((branch: any) => <option key={branch.id} value={branch.name}>{branch.name}</option>)}
+              {branches.map((branch: any) => <option key={branch.id} value={branch.name}>{branch.name}</option>)}
             </select>
           </label>
           <label className="block text-sm font-bold">

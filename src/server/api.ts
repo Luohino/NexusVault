@@ -2829,8 +2829,15 @@ export function setupApiRoutes(app: Express) {
   // --- Search ---
   app.get('/api/search', optionalAuthenticate, async (req, res) => {
     try {
-      const q = readSearchQuery(req.query.q);
+      let q = readSearchQuery(req.query.q);
       if (!q) return res.json({ users: [], repositories: [] });
+
+      let ownerFilter = null;
+      const ownerMatch = q.match(/^owner:([a-zA-Z0-9._-]+)\s*(.*)/i);
+      if (ownerMatch) {
+        ownerFilter = ownerMatch[1];
+        q = ownerMatch[2] || '';
+      }
 
       const searchUsers = await db.select({
         id: users.id,
@@ -2839,7 +2846,7 @@ export function setupApiRoutes(app: Express) {
         avatarUrl: users.avatarUrl
       }).from(users).where(or(ilike(users.username, `%${q}%`), ilike(users.displayName, `%${q}%`))).limit(5);
 
-      const searchRepos = await db.select({
+      let repoQuery = db.select({
         id: repositories.id,
         name: repositories.name,
         description: repositories.description,
@@ -2848,7 +2855,14 @@ export function setupApiRoutes(app: Express) {
         isPrivate: repositories.isPrivate,
       }).from(repositories)
         .leftJoin(users, eq(repositories.ownerId, users.id))
-        .where(ilike(repositories.name, `%${q}%`)).limit(10);
+        .where(
+          and(
+            q ? ilike(repositories.name, `%${q}%`) : undefined,
+            ownerFilter ? ilike(users.username, ownerFilter) : undefined
+          )
+        ).limit(10);
+
+      const searchRepos = await repoQuery;
 
       const currentUserId = (req as any).userId;
       const visibleRepos = [];

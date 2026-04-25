@@ -222,9 +222,13 @@ const NewIssue = ({ username, repoName, user, getToken }: any) => {
       if (res.ok) {
         const data = await res.json();
         navigate(`/${username}/${repoName}/issues/${data.issueId}`);
+      } else {
+        const errorData = await res.text();
+        alert(`Failed to create issue: ${res.status} - ${errorData}`);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      alert(`Network error: ${e.message}`);
     } finally {
       setIsSubmitting(false);
     }

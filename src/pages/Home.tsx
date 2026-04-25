@@ -248,9 +248,9 @@ export const Home = () => {
                     <Link to="/new" className="neo-brutal-button flex items-center gap-2">
                       <Plus className="w-4 h-4" /> Create Repository
                     </Link>
-                    <button className="px-6 py-3 border-2 border-zinc-800 text-xs font-bold hover:border-white hover:text-white transition-all">
+                    <Link to="/search" className="px-6 py-3 border-2 border-zinc-800 text-xs font-bold hover:border-white hover:text-white transition-all text-center">
                       Explore Community
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
