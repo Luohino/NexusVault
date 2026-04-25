@@ -779,7 +779,7 @@ export const Repository = () => {
         const path = (f as any).webkitRelativePath || f.name;
         return { file: f, path };
       });
-      setUploadFiles(prev => [...prev, ...newFiles].slice(0, 100));
+      setUploadFiles(prev => [...prev, ...newFiles].slice(0, 20));
     }
   };
 
@@ -794,11 +794,29 @@ export const Repository = () => {
     const items = e.dataTransfer.items;
     
     const traverseEntry = async (entry: any, path = "") => {
+      // HARD LIMIT CHECK: Stop scanning if we hit 20 files
+      if (filesWithPaths.length >= 20) return;
+
+      // SKIP SYSTEM JUNK: Comprehensive list for 100+ languages/frameworks
+      const skipDirs = [
+        'node_modules', '.git', '.next', 'dist', 'build', 'target', 'vendor', 'out', // Web/Rust/Go
+        '__pycache__', 'venv', '.venv', '.pytest_cache', '.mypy_cache', // Python
+        '.dart_tool', '.pub-cache', '.fvm', // Dart/Flutter
+        '.gradle', '.idea', '.settings', 'bin', 'obj', '.vs', // Java/Kotlin/C#/C++
+        '.terraform', '.serverless', '.aws-sam', // DevOps
+        '.bundle', 'vendor/bundle', // Ruby
+        '.vscode', '.DS_Store', 'logs' // General Junk
+      ];
+      if (entry.isDirectory && skipDirs.includes(entry.name)) {
+        console.warn(`Sovereign Filter: Skipping system directory ${entry.name}`);
+        return;
+      }
+
       if (entry.isFile) {
         try {
           const file = await new Promise<File>((resolve, reject) => entry.file(resolve, reject));
           filesWithPaths.push({ file, path: path + file.name });
-          setAnalyzedCount(prev => prev + 1);
+          setAnalyzedCount(prev => Math.min(20, prev + 1));
         } catch (e) {
           console.error("File read error:", e);
         }
@@ -809,16 +827,16 @@ export const Repository = () => {
         let hasChildren = false;
         try {
           let entries = await readEntries();
-          while (entries.length > 0) {
+          while (entries.length > 0 && filesWithPaths.length < 20) {
             hasChildren = true;
-            // Process entries in parallel for massive speed boost
+            // Process entries in parallel
             await Promise.all(entries.map(child => traverseEntry(child, path + entry.name + "/")));
             entries = await readEntries();
           }
-          if (!hasChildren) {
+          if (!hasChildren && filesWithPaths.length < 20) {
             const gitkeep = new File([""], ".gitkeep", { type: "text/plain" });
             filesWithPaths.push({ file: gitkeep, path: path + entry.name + "/.gitkeep" });
-            setAnalyzedCount(prev => prev + 1);
+            setAnalyzedCount(prev => Math.min(20, prev + 1));
           }
         } catch (e) {
           console.error("Directory read error:", e);
@@ -830,6 +848,7 @@ export const Repository = () => {
       if (items && items.length > 0) {
         const rootPromises = [];
         for (let i = 0; i < items.length; i++) {
+          if (filesWithPaths.length >= 20) break;
           const item = items[i];
           const entry = item.webkitGetAsEntry?.();
           if (entry) {
@@ -838,7 +857,7 @@ export const Repository = () => {
             const file = item.getAsFile();
             if (file) {
               filesWithPaths.push({ file, path: file.name });
-              setAnalyzedCount(prev => prev + 1);
+              setAnalyzedCount(prev => Math.min(20, prev + 1));
             }
           }
         }
@@ -849,7 +868,7 @@ export const Repository = () => {
       if (filesWithPaths.length === 0) {
         const files = e.dataTransfer.files;
         if (files && files.length > 0) {
-          for (let i = 0; i < files.length; i++) {
+          for (let i = 0; i < Math.min(files.length, 20); i++) {
             filesWithPaths.push({ file: files[i], path: files[i].name });
           }
           setAnalyzedCount(filesWithPaths.length);
@@ -861,7 +880,7 @@ export const Repository = () => {
         setUploadFiles(prev => {
           const combined = [...prev, ...filesWithPaths];
           const unique = combined.filter((v, i, a) => a.findIndex(t => t.path === v.path) === i);
-          return unique.slice(0, 1000);
+          return unique.slice(0, 20); // Hard 20 file limit
         });
       }
     } catch (err) {
@@ -2069,10 +2088,28 @@ export const Repository = () => {
                           <Activity className="w-6 h-6 animate-pulse text-red-500" />
                         </div>
                         <div className="text-left">
-                          <span className="block text-sm font-black text-black uppercase italic -skew-x-6">Ingestion Analysis Active</span>
-                          <span className="block text-[9px] font-bold text-zinc-500 uppercase tracking-widest">{uploadFiles.length} items detected in local_tree</span>
+                          <span className="block text-sm font-black text-black uppercase italic -skew-x-6">
+                            {uploadFiles.length >= 20 ? 'Vault Limit Reached' : 'Ingestion Analysis Active'}
+                          </span>
+                          <span className="block text-[9px] font-bold text-zinc-500 uppercase tracking-widest">
+                            {uploadFiles.length} / 20 items detected in local_tree
+                          </span>
                         </div>
                       </div>
+
+                      {uploadFiles.length >= 20 && (
+                        <div className="bg-red-50 border-2 border-red-600 p-4 mb-6 animate-in fade-in slide-in-from-top-2">
+                          <div className="flex items-start gap-3">
+                            <Shield className="w-5 h-5 text-red-600 shrink-0" />
+                            <div className="text-left">
+                              <p className="text-[10px] font-black text-red-600 uppercase tracking-tight leading-tight">Institutional_Security_Cap</p>
+                              <p className="text-[9px] font-bold text-red-900 mt-1 leading-relaxed">
+                                Bulk ingestion is limited to 20 files per session. System directories (node_modules, .git) are automatically filtered for platform integrity.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Language Breakdown */}
                       <div className="grid grid-cols-2 gap-2 mb-6">
