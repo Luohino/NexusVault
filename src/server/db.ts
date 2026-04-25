@@ -13,10 +13,9 @@ if (!connectionString) {
   console.error('CRITICAL: DATABASE_URL contains placeholder password.');
 }
 
-// Technical Hardening: Add connection timeout, SSL, and optimize for serverless
+// Serverless optimized connection
 const client = postgres(connectionString as string, {
   connect_timeout: 10,
   max: 1,
-  ssl: { rejectUnauthorized: false }
 });
 export const db = drizzle(client, { schema });
