@@ -1277,13 +1277,23 @@ export const Repository = () => {
   };
 
   const handleSaveRepoSettings = async (nextSettings: any) => {
+    // Optimistic UI update so it feels instant
+    const previousSettings = repoSettings;
+    setRepoSettings(nextSettings);
+    
     const token = await getToken();
     const res = await fetch(`/api/repos/${username}/${repoName}/settings`, {
       method: 'PATCH',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(nextSettings)
     });
-    if (res.ok) setRepoSettings(await res.json());
+    
+    if (res.ok) {
+      setRepoSettings(await res.json());
+    } else {
+      // Revert if failed
+      setRepoSettings(previousSettings);
+    }
   };
 
   const handleCreateWikiPage = async () => {
