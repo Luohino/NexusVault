@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useUser, useAuth } from '@clerk/clerk-react';
-import { Book, Star, GitFork, Code, CircleDot, GitPullRequest, Settings, File as FileIcon, Folder as FolderIcon, GitBranch, ChevronDown, Tag, Activity, Eye, Pencil, Trash, Copy, Terminal, Monitor, User, UserPlus, Plus, Upload, History, Globe, TagIcon, Package, Download, FileArchive, X, BarChart3, Shield, Hash, BookOpen } from 'lucide-react';
+import { Book, Star, Code, CircleDot, GitPullRequest, Settings, File as FileIcon, Folder as FolderIcon, GitBranch, ChevronDown, Tag, Activity, Pencil, Trash, Copy, Terminal, Monitor, User, UserPlus, Plus, Upload, History, Globe, TagIcon, Package, Download, FileArchive, X, BarChart3, Shield, Hash, BookOpen } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { MarkdownViewer } from '../components/ui/MarkdownViewer';
 import Prism from 'prismjs';
@@ -78,7 +78,7 @@ const IssueDetail = ({ username, repoName, issues, user, repo, onRefresh }: any)
         </div>
         <div className="flex flex-wrap items-center gap-6">
           <span className={`px-4 py-1.5 border-[3px] border-black text-white text-[10px] font-black uppercase tracking-widest flex items-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${issue.status === 'open' ? 'bg-green-600' : 'bg-purple-600'}`}>
-            <CircleDot className="w-4 h-4 mr-2" /> {issue.status === 'open' ? 'Active' : 'Archived'}
+            <CircleDot className="size-4 mr-2" /> {issue.status === 'open' ? 'Active' : 'Archived'}
           </span>
           <span className="text-xs font-bold text-zinc-400">
             <span className="text-white uppercase font-black tracking-tight">{issue.creatorUsername}</span> deployed this anomaly on {format(new Date(issue.createdAt), 'MMM d, yyyy')}
@@ -102,7 +102,7 @@ const IssueDetail = ({ username, repoName, issues, user, repo, onRefresh }: any)
           {/* Comments */}
           {comments.map(comment => (
             <div key={comment.id} className="border-[3px] border-black bg-white shadow-[10px_10px_0px_0px_rgba(220,38,38,1)] overflow-hidden md:ml-8 relative">
-               <div className="hidden md:flex absolute -left-12 top-6 w-8 h-8 bg-black border-[3px] border-black items-center justify-center text-[10px] font-black text-white shadow-[3px_3px_0px_0px_rgba(220,38,38,1)]">
+               <div className="hidden md:flex absolute -left-12 top-6 size-8 bg-black border-[3px] border-black items-center justify-center text-[10px] font-black text-white shadow-[3px_3px_0px_0px_rgba(220,38,38,1)]">
                 {comment.authorUsername[0].toUpperCase()}
               </div>
               <div className="bg-zinc-50 border-b-[3px] border-black px-6 py-3 flex items-center justify-between">
@@ -118,7 +118,7 @@ const IssueDetail = ({ username, repoName, issues, user, repo, onRefresh }: any)
           {/* New Comment Form */}
           {user && (
             <div className="border-[3px] border-black bg-white shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden md:ml-8 relative">
-              <div className="hidden md:flex absolute -left-12 top-6 w-8 h-8 bg-red-600 border-[3px] border-black items-center justify-center text-[10px] font-black text-white shadow-[3px_3px_0px_0px_rgba(220,38,38,1)]">
+              <div className="hidden md:flex absolute -left-12 top-6 size-8 bg-red-600 border-[3px] border-black items-center justify-center text-[10px] font-black text-white shadow-[3px_3px_0px_0px_rgba(220,38,38,1)]">
                 {(user.username || user.firstName || 'U')[0].toUpperCase()}
               </div>
               <form onSubmit={async (e) => {
@@ -179,8 +179,8 @@ const IssueDetail = ({ username, repoName, issues, user, repo, onRefresh }: any)
           <div className="border-[3px] border-black bg-[#0d0d0d] p-6 shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
             <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-4">Assigned Personnel</h3>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 border-2 border-dashed border-zinc-800 flex items-center justify-center">
-                <User className="w-4 h-4 text-zinc-800" />
+              <div className="size-8 border-2 border-dashed border-zinc-800 flex items-center justify-center">
+                <User className="size-4 text-zinc-800" />
               </div>
               <span className="text-xs font-bold text-zinc-600 italic">No operators assigned</span>
             </div>
@@ -237,8 +237,8 @@ const NewIssue = ({ username, repoName, user, getToken }: any) => {
   return (
     <div className="max-w-4xl mx-auto py-6 sm:py-8">
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-        <div className="w-12 h-12 bg-zinc-900 border-2 border-black overflow-hidden flex-shrink-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <img src={user?.imageUrl} className="w-full h-full object-cover" />
+        <div className="size-12 bg-zinc-900 border-2 border-black overflow-hidden shrink-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <img src={user?.imageUrl} className="size-full object-cover" />
         </div>
         <div className="flex-1">
           <form onSubmit={handleSubmit} className="border-[3px] border-black bg-white shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
@@ -272,14 +272,14 @@ const NewIssue = ({ username, repoName, user, getToken }: any) => {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
-                    className="w-full px-4 py-3 border-[3px] border-black font-black uppercase tracking-tight focus:outline-none focus:ring-0 focus:border-red-600 text-sm text-black placeholder-zinc-400 bg-zinc-50"
+                    className="w-full px-4 py-3 border-[3px] border-black font-black uppercase tracking-tight focus:outline-none focus:ring-0 focus:border-red-600 text-sm text-black placeholder:text-zinc-400 bg-zinc-50"
                   />
                   <textarea
                     placeholder="Describe the objective or anomaly..."
                     rows={12}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full px-4 py-3 border-[3px] border-black font-mono text-xs focus:outline-none focus:ring-0 focus:border-red-600 bg-zinc-50 text-black placeholder-zinc-400"
+                    className="w-full px-4 py-3 border-[3px] border-black font-mono text-xs focus:outline-none focus:ring-0 focus:border-red-600 bg-zinc-50 text-black placeholder:text-zinc-400"
                   />
                 </>
               ) : (
@@ -356,20 +356,20 @@ const CommitDetailView = ({ username, repoName, commits }: { username: string, r
       <div className="border-[4px] border-black bg-zinc-900 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
         <div className="p-10 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center gap-6">
-            <div className="w-16 h-16 bg-black border-2 border-zinc-800 flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(220,38,38,0.5)]">
-              <img src={commit.authorAvatarUrl} className="w-full h-full object-cover" />
+            <div className="size-16 bg-black border-2 border-zinc-800 flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(220,38,38,0.5)]">
+              <img src={commit.authorAvatarUrl} className="size-full object-cover" />
             </div>
             <div className="space-y-2">
               <h2 className="text-xl font-black text-white italic">{commit.message}</h2>
               <div className="flex items-center gap-4 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
                 <span>Operator: <span className="text-red-500">{commit.authorUsername}</span></span>
-                <span className="w-1 h-1 bg-zinc-800 rounded-full"></span>
+                <span className="size-1 bg-zinc-800 rounded-full"></span>
                 <span>Committed: <span className="text-zinc-400">{format(new Date(commit.timestamp), 'MMM d, yyyy · HH:mm')}</span></span>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-4 bg-black border-2 border-zinc-800 px-6 py-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-             <Code className="w-4 h-4 text-red-600" />
+             <Code className="size-4 text-red-600" />
              <span className="text-xs font-mono text-zinc-400 font-bold uppercase tracking-widest">{commit.id}</span>
           </div>
         </div>
@@ -378,7 +378,7 @@ const CommitDetailView = ({ username, repoName, commits }: { username: string, r
       {/* Changed Files List */}
       <div className="space-y-8">
         <h3 className="text-xs font-black text-zinc-600 uppercase tracking-[0.3em] flex items-center gap-4">
-          <Activity className="w-4 h-4 text-red-600" />
+          <Activity className="size-4 text-red-600" />
           Modified_Buffer_Segments ({changedFiles.length})
         </h3>
         
@@ -392,7 +392,7 @@ const CommitDetailView = ({ username, repoName, commits }: { username: string, r
               <div key={file.id} className="border-[4px] border-black bg-[#0d0d0d] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
                 <div className="bg-zinc-900 border-b-[4px] border-black px-8 py-4 flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <FileIcon className="w-4 h-4 text-red-600" />
+                    <FileIcon className="size-4 text-red-600" />
                     <span className="text-[11px] font-black text-white uppercase tracking-widest italic">{file.path}</span>
                   </div>
                   <div className="flex items-center gap-3">
@@ -463,7 +463,7 @@ const TagDetailView = ({
       <div className="border-[4px] border-black bg-[#0d0d0d] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
         <div className="bg-zinc-900 border-b-[4px] border-black px-10 py-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <TagIcon className="w-5 h-5 text-red-600" />
+            <TagIcon className="size-5 text-red-600" />
             <h2 className="text-[11px] font-black text-white uppercase tracking-[0.2em] italic">Tag_Record_Not_Found</h2>
           </div>
           <Link to={`/${username}/${repoName}/tags`} className="text-[10px] font-black text-zinc-400 hover:text-white uppercase tracking-widest">
@@ -484,8 +484,8 @@ const TagDetailView = ({
           <div className="absolute inset-y-0 right-0 w-96 bg-black/10 -skew-x-[35deg] translate-x-16"></div>
           <div className="relative space-y-3">
             <div className="flex items-center gap-4">
-              <span className="w-10 h-10 bg-black text-white flex items-center justify-center border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(255,255,255,0.25)]">
-                <TagIcon className="w-5 h-5 text-red-500" />
+              <span className="size-10 bg-black text-white flex items-center justify-center border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(255,255,255,0.25)]">
+                <TagIcon className="size-5 text-red-500" />
               </span>
               <h2 className="text-2xl font-black text-white italic">{tag.name}</h2>
             </div>
@@ -493,13 +493,13 @@ const TagDetailView = ({
               <span>
                 Created <span className="text-white">{tag.createdAt ? format(new Date(tag.createdAt), 'MMM dd, yyyy') : 'Recently'}</span>
               </span>
-              <span className="w-1 h-1 bg-black"></span>
+              <span className="size-1 bg-black"></span>
               <span>
                 Age <span className="text-white">{tag.createdAt ? formatDistanceToNow(new Date(tag.createdAt), { addSuffix: true }) : 'unknown'}</span>
               </span>
               {tag.creator && (
                 <>
-                  <span className="w-1 h-1 bg-black"></span>
+                  <span className="size-1 bg-black"></span>
                   <span>
                     Author <span className="text-white">{tag.creator.username}</span>
                   </span>
@@ -570,7 +570,7 @@ const formatBytes = (bytes: number) => {
   if (!bytes) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB'];
   const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
-  return `${(bytes / Math.pow(1024, index)).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+  return `${(bytes / (1024 ** index)).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
 };
 
 const ReleaseDetailView = ({
@@ -597,7 +597,7 @@ const ReleaseDetailView = ({
       <div className="border-[4px] border-black bg-[#0d0d0d] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
         <div className="bg-zinc-900 border-b-[4px] border-black px-10 py-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Package className="w-5 h-5 text-red-600" />
+            <Package className="size-5 text-red-600" />
             <h2 className="text-[11px] font-black text-white uppercase tracking-[0.2em] italic">Release_Record_Not_Found</h2>
           </div>
           <Link to={`/${username}/${repoName}/releases`} className="text-[10px] font-black text-zinc-400 hover:text-white uppercase tracking-widest">
@@ -618,8 +618,8 @@ const ReleaseDetailView = ({
           <div className="absolute inset-y-0 right-0 w-96 bg-black/10 -skew-x-[35deg] translate-x-16"></div>
           <div className="relative space-y-4 min-w-0">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="w-10 h-10 bg-black text-white flex items-center justify-center border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(255,255,255,0.25)]">
-                <Package className="w-5 h-5 text-red-500" />
+              <span className="size-10 bg-black text-white flex items-center justify-center border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(255,255,255,0.25)]">
+                <Package className="size-5 text-red-500" />
               </span>
               <h2 className="text-2xl font-black text-white italic break-words">{release.title}</h2>
               {release.isDraft && (
@@ -631,16 +631,16 @@ const ReleaseDetailView = ({
             </div>
             <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-red-100">
               <Link to={`/${username}/${repoName}/tags/${encodeURIComponent(release.tagName)}`} className="inline-flex items-center gap-2 bg-black text-white px-2 py-1 hover:bg-white hover:text-black transition-colors">
-                <TagIcon className="w-4 h-4" />
+                <TagIcon className="size-4" />
                 {release.tagName}
               </Link>
-              <span className="w-1 h-1 bg-black"></span>
+              <span className="size-1 bg-black"></span>
               <span>
                 {release.publishedAt ? 'Published' : 'Created'} <span className="text-white">{format(new Date(release.publishedAt || release.createdAt), 'MMM dd, yyyy')}</span>
               </span>
               {release.author?.username && (
                 <>
-                  <span className="w-1 h-1 bg-black"></span>
+                  <span className="size-1 bg-black"></span>
                   <span>
                     Author <span className="text-white">{release.author.username}</span>
                   </span>
@@ -693,14 +693,14 @@ const ReleaseDetailView = ({
                       href={asset.downloadUrl}
                       className="flex items-center gap-3 px-5 py-4 hover:bg-red-50 transition-colors"
                     >
-                      <span className="w-8 h-8 bg-black text-white flex items-center justify-center flex-shrink-0">
-                        <FileArchive className="w-4 h-4 text-red-600" />
+                      <span className="size-8 bg-black text-white flex items-center justify-center shrink-0">
+                        <FileArchive className="size-4 text-red-600" />
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-black text-black truncate">{asset.name}</p>
                         <p className="text-[10px] font-bold text-zinc-500">{formatBytes(asset.size)}</p>
                       </div>
-                      <Download className="w-4 h-4 text-black" />
+                      <Download className="size-4 text-black" />
                     </a>
                   ))
                 ) : (
@@ -1333,7 +1333,7 @@ export const Repository = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
               <div className="flex-1 space-y-4">
                 <div className="flex items-center flex-wrap gap-3 text-2xl md:text-3xl">
-                  <Book className="w-7 h-7 text-red-600" />
+                  <Book className="size-7 text-red-600" />
                   <Link to={`/${username}`} className="text-zinc-400 hover:text-white transition-colors font-medium">{username}</Link>
                   <span className="text-zinc-700 font-light">/</span>
                   <Link to={`/${username}/${repoName}`} className="font-black text-white hover:text-red-500 transition-colors tracking-tight">{repoName}</Link>
@@ -1369,7 +1369,7 @@ export const Repository = () => {
                         : 'bg-white text-black hover:bg-zinc-100'
                     }`}
                   >
-                    <Star className={`w-4 h-4 ${repo.isStarred ? 'fill-current' : 'text-red-600'}`} />
+                    <Star className={`size-4 ${repo.isStarred ? 'fill-current' : 'text-red-600'}`} />
                     <span>{repo.isStarred ? 'Unstar' : 'Star'}</span>
                   </button>
                   <div className="bg-black px-4 py-2 text-[11px] font-black text-white border-l-2 border-black">
@@ -1388,13 +1388,13 @@ export const Repository = () => {
           <div className="relative group">
             <nav className="flex gap-1 overflow-x-auto pb-4 pt-1 px-1 scroll-smooth scrollbar-thin scrollbar-track-zinc-900 scrollbar-thumb-red-600">
               {[
-                { id: '', label: 'Code', icon: <Code className="w-4 h-4" /> },
-                { id: 'issues', label: 'Issues', icon: <CircleDot className="w-4 h-4" />, count: issues.length },
-                { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" />, condition: user?.id === repo?.ownerId || user?.username === username },
-                { id: 'wiki', label: 'Wiki', icon: <BookOpen className="w-4 h-4" />, count: wikiPages.length },
-                { id: 'pulls', label: 'Pull requests', icon: <GitPullRequest className="w-4 h-4" />, count: pullRequests.filter((pull: any) => pull.status === 'open').length },
-                { id: 'commits', label: 'Commits', icon: <History className="w-4 h-4" />, count: commits.length },
-                { id: 'insights', label: 'Insights', icon: <BarChart3 className="w-4 h-4" /> },
+                { id: '', label: 'Code', icon: <Code className="size-4" /> },
+                { id: 'issues', label: 'Issues', icon: <CircleDot className="size-4" />, count: issues.length },
+                { id: 'settings', label: 'Settings', icon: <Settings className="size-4" />, condition: user?.id === repo?.ownerId || user?.username === username },
+                { id: 'wiki', label: 'Wiki', icon: <BookOpen className="size-4" />, count: wikiPages.length },
+                { id: 'pulls', label: 'Pull requests', icon: <GitPullRequest className="size-4" />, count: pullRequests.filter((pull: any) => pull.status === 'open').length },
+                { id: 'commits', label: 'Commits', icon: <History className="size-4" />, count: commits.length },
+                { id: 'insights', label: 'Insights', icon: <BarChart3 className="size-4" /> },
               ].map(tab => (
                 (tab.condition === undefined || tab.condition) && (
                   <Link 
@@ -1422,7 +1422,7 @@ export const Repository = () => {
               ))}
             </nav>
             {/* Sovereign Gradient Mask */}
-            <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-[#0d0d0d] to-transparent pointer-events-none md:hidden"></div>
+            <div className="absolute right-0 top-0 bottom-4 w-12 bg-linear-to-l from-[#0d0d0d] to-transparent pointer-events-none md:hidden"></div>
           </div>
         </div>
       </div>
@@ -1440,9 +1440,9 @@ export const Repository = () => {
                       onClick={() => setIsBranchMenuOpen(!isBranchMenuOpen)}
                       className="flex items-center gap-2 bg-[#121212] border border-zinc-800 px-4 py-2 text-xs font-bold text-white hover:border-zinc-600 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group"
                     >
-                      <GitBranch className="w-3.5 h-3.5 text-red-600" />
+                      <GitBranch className="size-3.5 text-red-600" />
                       <span className="group-hover:text-red-500 transition-colors">{currentBranchName}</span>
-                      <ChevronDown className="w-3.5 h-3.5 text-zinc-600" />
+                      <ChevronDown className="size-3.5 text-zinc-600" />
                     </button>
                     {isBranchMenuOpen && (
                       <div className="absolute left-0 top-full mt-2 w-[min(18rem,calc(100vw-2rem))] bg-white border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(220,38,38,1)] z-50">
@@ -1475,10 +1475,10 @@ export const Repository = () => {
                     </div>
                     <div className="hidden md:flex items-center gap-5 text-xs font-bold text-zinc-500">
                       <span className="flex items-center gap-1.5 hover:text-white cursor-pointer transition-colors">
-                        <GitBranch className="w-3.5 h-3.5" /> <strong>{branches.length || 1}</strong> Branch
+                        <GitBranch className="size-3.5" /> <strong>{branches.length || 1}</strong> Branch
                       </span>
                       <span className="flex items-center gap-1.5 hover:text-white cursor-pointer transition-colors">
-                        <Tag className="w-3.5 h-3.5" /> <strong>0</strong> Tags
+                        <Tag className="size-3.5" /> <strong>0</strong> Tags
                       </span>
                     </div>
                   </div>
@@ -1490,7 +1490,7 @@ export const Repository = () => {
                           onClick={() => setIsAddFileOpen(!isAddFileOpen)}
                           className="flex items-center gap-2 bg-white text-black border-[3px] border-black px-4 py-2 text-[11px] font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"
                         >
-                          Add file <ChevronDown className="w-3.5 h-3.5" />
+                          Add file <ChevronDown className="size-3.5" />
                         </button>
                         {isAddFileOpen && (
                           <>
@@ -1498,7 +1498,7 @@ export const Repository = () => {
                             <div className="fixed md:absolute right-0 left-0 md:left-auto bottom-0 md:bottom-auto md:top-full mb-0 md:mt-3 w-full md:w-64 bg-white border-t-[4px] md:border-[4px] border-black shadow-[0px_-10px_40px_rgba(0,0,0,0.3)] md:shadow-[10px_10px_0px_0px_rgba(220,38,38,1)] z-50 animate-in slide-in-from-bottom md:slide-in-from-top duration-300">
                               <div className="md:hidden bg-red-600 px-6 py-5 border-b-[4px] border-black flex items-center justify-between">
                                 <span className="text-[11px] font-black text-white uppercase tracking-[0.2em] italic">Add_Operation_Protocol</span>
-                                <X className="w-6 h-6 text-white cursor-pointer" onClick={() => setIsAddFileOpen(false)} />
+                                <X className="size-6 text-white cursor-pointer" onClick={() => setIsAddFileOpen(false)} />
                               </div>
                               <div className="p-3 md:p-2">
                                 <Link 
@@ -1506,8 +1506,8 @@ export const Repository = () => {
                                   className="flex items-center gap-4 w-full p-4 md:p-3 text-[11px] font-black text-black hover:bg-red-50 transition-colors group uppercase tracking-widest"
                                   onClick={() => setIsAddFileOpen(false)}
                                 >
-                                  <div className="w-8 h-8 bg-black text-white flex items-center justify-center group-hover:bg-red-600 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                    <Plus className="w-4 h-4" />
+                                  <div className="size-8 bg-black text-white flex items-center justify-center group-hover:bg-red-600 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                    <Plus className="size-4" />
                                   </div>
                                   Create new file
                                 </Link>
@@ -1518,8 +1518,8 @@ export const Repository = () => {
                                     navigate(`/${username}/${repoName}/upload/${encodeURIComponent(currentBranchName)}`);
                                   }}
                                 >
-                                  <div className="w-8 h-8 bg-black text-white flex items-center justify-center group-hover:bg-red-600 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                    <Upload className="w-4 h-4" />
+                                  <div className="size-8 bg-black text-white flex items-center justify-center group-hover:bg-red-600 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                    <Upload className="size-4" />
                                   </div>
                                   Upload files
                                 </button>
@@ -1530,7 +1530,7 @@ export const Repository = () => {
                       </div>
                     )}
                     <button className="neo-brutal-button flex items-center gap-2 !py-2 !px-5 !text-xs w-full sm:w-auto justify-center">
-                      <Code className="w-4 h-4" /> Code
+                      <Code className="size-4" /> Code
                     </button>
                   </div>
                 </div>
@@ -1543,16 +1543,16 @@ export const Repository = () => {
                         <img 
                           src={commits[0].authorAvatarUrl} 
                           alt={commits[0].authorUsername}
-                          className="w-10 h-10 border-[3px] border-black -rotate-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] object-cover"
+                          className="size-10 border-[3px] border-black -rotate-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] object-cover"
                         />
                       ) : repo.owner?.avatarUrl ? (
                         <img 
                           src={repo.owner.avatarUrl} 
                           alt={username}
-                          className="w-10 h-10 border-[3px] border-black -rotate-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] object-cover"
+                          className="size-10 border-[3px] border-black -rotate-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] object-cover"
                         />
                       ) : (
-                        <div className="w-10 h-10 bg-red-600 border-[3px] border-black flex items-center justify-center text-sm font-black italic -rotate-6 text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] font-outfit">
+                        <div className="size-10 bg-red-600 border-[3px] border-black flex items-center justify-center text-sm font-black italic -rotate-6 text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] font-outfit">
                           {username[0].toUpperCase()}
                         </div>
                       )}
@@ -1562,7 +1562,7 @@ export const Repository = () => {
                           <span className="text-[10px] font-semibold text-zinc-400">authorized operator</span>
                         </div>
                         <div className="text-[10px] font-semibold text-zinc-500 flex items-center gap-2 !not-italic">
-                          <Activity className="w-3 h-3 text-red-600" /> Latest commit: <span className="!not-italic">{commits.length > 0 ? commits[0].message : 'initial sync protocol'}</span>
+                          <Activity className="size-3 text-red-600" /> Latest commit: <span className="!not-italic">{commits.length > 0 ? commits[0].message : 'initial sync protocol'}</span>
                         </div>
                       </div>
                     </div>
@@ -1598,7 +1598,7 @@ export const Repository = () => {
                                   onClick={() => navigator.clipboard.writeText(`https://nexusvault.io/${username}/${repoName}.git`)}
                                   className="p-2.5 bg-black text-white hover:bg-red-600 transition-all border-2 border-transparent active:scale-90"
                                 >
-                                  <Copy className="w-4 h-4" />
+                                  <Copy className="size-4" />
                                 </button>
                               </div>
                             </div>
@@ -1612,14 +1612,14 @@ export const Repository = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                            <div className="space-y-5">
                               <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-red-600 border-[3px] border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                                  <Terminal className="w-5 h-5 text-white" />
+                                <div className="size-10 bg-red-600 border-[3px] border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                  <Terminal className="size-5 text-white" />
                                 </div>
                                 <h3 className="text-xs font-black text-white uppercase tracking-widest italic -skew-x-12">New repository_init</h3>
                               </div>
                               <div className="bg-black border-[3px] border-black p-8 relative group shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]">
                                 <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <Copy className="w-4 h-4 text-zinc-700 hover:text-red-500 cursor-pointer" />
+                                  <Copy className="size-4 text-zinc-700 hover:text-red-500 cursor-pointer" />
                                 </div>
                                 <pre className="text-[10px] font-bold text-zinc-400 leading-7">
                                   <span className="text-red-500">echo</span> "# {repoName}" <span className="text-red-500">&gt;&gt;</span> README.md<br/>
@@ -1635,14 +1635,14 @@ export const Repository = () => {
 
                            <div className="space-y-5">
                               <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-black border-[3px] border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                                  <Monitor className="w-5 h-5 text-white" />
+                                <div className="size-10 bg-black border-[3px] border-black flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                  <Monitor className="size-5 text-white" />
                                 </div>
                                 <h3 className="text-xs font-black text-white uppercase tracking-widest italic -skew-x-12">Push existing_data</h3>
                               </div>
                               <div className="bg-black border-[3px] border-black p-8 relative group shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]">
                                 <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <Copy className="w-4 h-4 text-zinc-700 hover:text-red-500 cursor-pointer" />
+                                  <Copy className="size-4 text-zinc-700 hover:text-red-500 cursor-pointer" />
                                 </div>
                                 <pre className="text-[10px] font-bold text-zinc-400 leading-7">
                                   <span className="text-red-500">git</span> remote add origin https://nexusvault.io/{username}/{repoName}.git<br/>
@@ -1656,9 +1656,9 @@ export const Repository = () => {
                         {/* Onboarding Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pt-6">
                            <div className="border-[3px] border-black bg-white p-10 flex flex-col items-center text-center group hover:bg-zinc-50 transition-all shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
-                              <div className="absolute top-0 right-0 w-16 h-16 bg-red-600/5 -rotate-45 translate-x-8 -translate-y-8"></div>
-                              <div className="w-20 h-20 bg-black border-[3px] border-black flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_rgba(220,38,38,1)]">
-                                <Monitor className="w-10 h-10 text-white group-hover:text-red-500" />
+                              <div className="absolute top-0 right-0 size-16 bg-red-600/5 -rotate-45 translate-x-8 -translate-y-8"></div>
+                              <div className="size-20 bg-black border-[3px] border-black flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_rgba(220,38,38,1)]">
+                                <Monitor className="size-10 text-white group-hover:text-red-500" />
                               </div>
                               <h4 className="text-lg font-black text-black mb-3 uppercase italic tracking-tighter">Initialize Codespace</h4>
                               <p className="text-[11px] text-zinc-500 font-black uppercase mb-8 leading-tight">Secure virtual environment for rapid operational development.</p>
@@ -1668,9 +1668,9 @@ export const Repository = () => {
                            </div>
 
                            <div className="border-[3px] border-black bg-white p-10 flex flex-col items-center text-center group hover:bg-zinc-50 transition-all shadow-[10px_10px_0px_0px_rgba(220,38,38,1)] relative overflow-hidden">
-                              <div className="absolute top-0 right-0 w-16 h-16 bg-black/5 -rotate-45 translate-x-8 -translate-y-8"></div>
-                              <div className="w-20 h-20 bg-red-600 border-[3px] border-black flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                                <UserPlus className="w-10 h-10 text-white group-hover:rotate-12 transition-transform" />
+                              <div className="absolute top-0 right-0 size-16 bg-black/5 -rotate-45 translate-x-8 -translate-y-8"></div>
+                              <div className="size-20 bg-red-600 border-[3px] border-black flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                <UserPlus className="size-10 text-white group-hover:rotate-12 transition-transform" />
                               </div>
                               <h4 className="text-lg font-black text-black mb-3 uppercase italic tracking-tighter">Enlist Collaborators</h4>
                               <p className="text-[11px] text-zinc-500 font-black uppercase mb-8 leading-tight">Invite authorized operators to contribute to this secure vault.</p>
@@ -1686,7 +1686,7 @@ export const Repository = () => {
                         {currentPath !== undefined && (
                           <div className="bg-[#0a0a0a] border-b-[3px] border-black px-6 py-2.5 flex items-center gap-2 text-[10px] font-bold">
                             <div className="flex items-center gap-1.5 text-zinc-500 font-outfit uppercase tracking-tighter">
-                              <FolderIcon className="w-3.5 h-3.5" />
+                              <FolderIcon className="size-3.5" />
                               <button onClick={() => setCurrentPath('')} className="hover:text-red-500 transition-colors">{repoName}</button>
                             </div>
                             {currentPath.split('/').filter(Boolean).map((part, i, arr) => (
@@ -1744,7 +1744,7 @@ export const Repository = () => {
                                     className="flex items-center px-6 py-2.5 hover:bg-white/5 group transition-all cursor-pointer border-l-[3px] border-l-transparent hover:border-l-red-600"
                                   >
                                     <div className="w-1/3 flex items-center">
-                                      <FolderIcon className="w-4 h-4 text-zinc-500 mr-3 group-hover:text-red-500 transition-colors" />
+                                      <FolderIcon className="size-4 text-zinc-500 mr-3 group-hover:text-red-500 transition-colors" />
                                       <span className="text-[13px] font-bold text-white transition-colors truncate font-outfit group-hover:text-red-500">
                                         {name}
                                       </span>
@@ -1767,7 +1767,7 @@ export const Repository = () => {
                               return (
                                 <div key={file.id} className="flex items-center px-6 py-2.5 hover:bg-white/5 group transition-all cursor-pointer border-l-[3px] border-l-transparent hover:border-l-red-600">
                                   <div className="w-1/3 flex items-center">
-                                    <FileIcon className="w-4 h-4 text-zinc-500 mr-3 group-hover:text-red-500 transition-colors" />
+                                    <FileIcon className="size-4 text-zinc-500 mr-3 group-hover:text-red-500 transition-colors" />
                                     <Link 
                                       to={`/${username}/${repoName}/blob/${encodeURIComponent(currentBranchName)}/${file.path}`} 
                                       className="text-[13px] font-bold text-white transition-colors truncate font-outfit group-hover:text-red-500"
@@ -1812,14 +1812,14 @@ export const Repository = () => {
                   <div className="neo-brutal-card mt-10 !shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                     <div className="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
                       <div className="flex items-center gap-2.5 text-xs font-bold text-white">
-                        <Book className="w-4.5 h-4.5 text-red-600" /> README.md
+                        <Book className="size-4.5 text-red-600" /> README.md
                       </div>
                       {user && user.id === repo.ownerId && (
                         <Link 
                           to={`/${username}/${repoName}/edit/${encodeURIComponent(currentBranchName)}/${readmeFile.path}`} 
                           className="p-1.5 text-zinc-500 hover:text-red-500 transition-colors"
                         >
-                          <Pencil className="w-4 h-4" />
+                          <Pencil className="size-4" />
                         </Link>
                       )}
                     </div>
@@ -1844,7 +1844,7 @@ export const Repository = () => {
                         }}
                         className="p-1.5 text-zinc-500 hover:text-red-500 transition-colors"
                       >
-                        <Pencil className="w-4 h-4" />
+                        <Pencil className="size-4" />
                       </button>
                     )}
                   </div>
@@ -1862,7 +1862,7 @@ export const Repository = () => {
                       <div className="flex flex-wrap gap-2">
                         {topics.map((topic: any) => (
                           <span key={topic.id || topic.name} className="inline-flex items-center gap-1 bg-red-600 text-white px-2 py-1 text-[10px] font-black border-2 border-black">
-                            <Hash className="w-3 h-3" />
+                            <Hash className="size-3" />
                             {topic.name}
                           </span>
                         ))}
@@ -1878,19 +1878,19 @@ export const Repository = () => {
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-red-500 hover:text-red-400 transition-colors mb-6 text-sm group"
                     >
-                      <Globe className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                      <Globe className="size-4 group-hover:scale-110 transition-transform" />
                       <span className="underline">{repo.websiteUrl}</span>
                     </a>
                   )}
                   <div className="space-y-4 text-xs font-bold text-zinc-400">
                     <div className="flex items-center gap-3 hover:text-white cursor-pointer transition-colors group">
-                      <Book className="w-4 h-4 text-red-600 group-hover:scale-110 transition-transform"/> Readme
+                      <Book className="size-4 text-red-600 group-hover:scale-110 transition-transform"/> Readme
                     </div>
                     <div className="flex items-center gap-3 hover:text-white cursor-pointer transition-colors group">
-                      <Activity className="w-4 h-4 text-red-600 group-hover:scale-110 transition-transform"/> Activity
+                      <Activity className="size-4 text-red-600 group-hover:scale-110 transition-transform"/> Activity
                     </div>
                     <div className="flex items-center gap-3 hover:text-white cursor-pointer transition-colors group">
-                      <Star className="w-4 h-4 text-red-600 group-hover:scale-110 transition-transform"/> {repo.starCount || 0} stars
+                      <Star className="size-4 text-red-600 group-hover:scale-110 transition-transform"/> {repo.starCount || 0} stars
                     </div>
                   </div>
                 </div>
@@ -1912,10 +1912,10 @@ export const Repository = () => {
                             <img
                               src={contributor.avatarUrl}
                               alt={contributor.username}
-                              className="w-9 h-9 border-[3px] border-black object-cover shadow-[3px_3px_0px_0px_rgba(220,38,38,1)]"
+                              className="size-9 border-[3px] border-black object-cover shadow-[3px_3px_0px_0px_rgba(220,38,38,1)]"
                             />
                           ) : (
-                            <div className="w-9 h-9 bg-red-600 border-[3px] border-black flex items-center justify-center text-xs font-black text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="size-9 bg-red-600 border-[3px] border-black flex items-center justify-center text-xs font-black text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
                               {contributor.username?.[0]?.toUpperCase()}
                             </div>
                           )}
@@ -1951,7 +1951,7 @@ export const Repository = () => {
                           <div className="bg-red-600 border-b-[3px] border-black px-4 py-3 relative overflow-hidden">
                             <div className="absolute inset-y-0 right-0 w-28 bg-black/10 -skew-x-[35deg] translate-x-8"></div>
                             <div className="relative flex items-center gap-2 min-w-0">
-                              <Package className="w-4 h-4 text-white flex-shrink-0" />
+                              <Package className="size-4 text-white shrink-0" />
                               <span className="text-sm font-black text-white italic truncate">{releases[0].title}</span>
                             </div>
                           </div>
@@ -1982,12 +1982,12 @@ export const Repository = () => {
                           className="group flex items-center justify-between gap-3 border-[3px] border-black bg-white text-black p-4 shadow-[7px_7px_0px_0px_rgba(220,38,38,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] transition-all"
                         >
                           <span className="flex items-center gap-2 min-w-0">
-                            <span className="w-7 h-7 bg-black text-white flex items-center justify-center flex-shrink-0">
-                              <TagIcon className="w-4 h-4 text-red-600" />
+                            <span className="size-7 bg-black text-white flex items-center justify-center shrink-0">
+                              <TagIcon className="size-4 text-red-600" />
                             </span>
                             <span className="font-mono font-black text-black truncate">{tags[0].name}</span>
                           </span>
-                          <span className="text-[10px] font-bold text-zinc-500 flex-shrink-0">
+                          <span className="text-[10px] font-bold text-zinc-500 shrink-0">
                             {tags[0].createdAt ? formatDistanceToNow(new Date(tags[0].createdAt), { addSuffix: true }) : 'recently'}
                           </span>
                         </Link>
@@ -2054,7 +2054,7 @@ export const Repository = () => {
                               <div key={lang} className="text-xs font-bold text-white flex items-center justify-between">
                                 <span className="flex items-center gap-2.5">
                                   <span 
-                                    className="w-2.5 h-2.5 rounded-full" 
+                                    className="size-2.5 rounded-full" 
                                     style={{ backgroundColor: languageColors[lang] || '#dc2626' }}
                                   /> {lang}
                                 </span>
@@ -2087,8 +2087,8 @@ export const Repository = () => {
                 <div className="bg-red-600 border-b-[3px] border-black px-6 py-4 flex items-center justify-between">
                   <h2 className="text-[10px] font-black text-white uppercase italic tracking-widest">Vault_Ingestion_Protocol</h2>
                   <div className="flex gap-1.5">
-                    <div className="w-1.5 h-1.5 bg-black"></div>
-                    <div className="w-1.5 h-1.5 bg-black/40"></div>
+                    <div className="size-1.5 bg-black"></div>
+                    <div className="size-1.5 bg-black/40"></div>
                   </div>
                 </div>
                 <div 
@@ -2104,21 +2104,21 @@ export const Repository = () => {
                     id="file-upload" 
                     className="hidden" 
                     multiple 
-                    // @ts-ignore - support folder selection
+                    // @ts-expect-error - support folder selection
                     webkitdirectory=""
                     onChange={handleFileChange}
                   />
                   {isAnalyzing ? (
                     <div className="p-20 flex flex-col items-center justify-center text-center">
-                      <div className="w-16 h-16 border-[4px] border-zinc-200 border-t-red-600 rounded-full animate-spin mb-6"></div>
+                      <div className="size-16 border-[4px] border-zinc-200 border-t-red-600 rounded-full animate-spin mb-6"></div>
                       <h3 className="text-lg font-black text-black uppercase italic -skew-x-6 mb-2">Deep Scanning Local Tree...</h3>
                       <p className="text-xs font-black text-zinc-500 uppercase tracking-widest animate-pulse">Detected {analyzedCount} items so far</p>
                     </div>
                   ) : uploadFiles.length > 0 ? (
                     <div className="w-full max-w-md space-y-4 py-8">
                       <div className="flex items-center justify-center gap-3 mb-6">
-                        <div className="w-12 h-12 bg-black text-white flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(220,38,38,1)]">
-                          <Activity className="w-6 h-6 animate-pulse text-red-500" />
+                        <div className="size-12 bg-black text-white flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(220,38,38,1)]">
+                          <Activity className="size-6 animate-pulse text-red-500" />
                         </div>
                         <div className="text-left">
                           <span className="block text-sm font-black text-black uppercase italic -skew-x-6">
@@ -2133,7 +2133,7 @@ export const Repository = () => {
                       {uploadFiles.length >= 20 && (
                         <div className="bg-red-50 border-2 border-red-600 p-4 mb-6 animate-in fade-in slide-in-from-top-2">
                           <div className="flex items-start gap-3">
-                            <Shield className="w-5 h-5 text-red-600 shrink-0" />
+                            <Shield className="size-5 text-red-600 shrink-0" />
                             <div className="text-left">
                               <p className="text-[10px] font-black text-red-600 uppercase tracking-tight leading-tight">Institutional_Security_Cap</p>
                               <p className="text-[9px] font-bold text-red-900 mt-1 leading-relaxed">
@@ -2193,8 +2193,8 @@ export const Repository = () => {
                     </div>
                   ) : (
                     <>
-                      <div className="w-20 h-20 bg-black text-white flex items-center justify-center mb-6 shadow-[6px_6px_0px_0px_rgba(220,38,38,1)] group-hover:scale-110 transition-transform">
-                        <Upload className="w-10 h-10" />
+                      <div className="size-20 bg-black text-white flex items-center justify-center mb-6 shadow-[6px_6px_0px_0px_rgba(220,38,38,1)] group-hover:scale-110 transition-transform">
+                        <Upload className="size-10" />
                       </div>
                       <h3 className="text-xl font-black text-black uppercase italic -skew-x-6 mb-2">Drag files here to add them to your vault</h3>
                       <p className="text-xs font-black text-zinc-500 uppercase tracking-tighter">Or <span className="text-red-600 underline">choose your files</span> from local storage</p>
@@ -2206,8 +2206,8 @@ export const Repository = () => {
               {/* Commit Changes Section */}
               <div className="border-[3px] border-black bg-[#121212] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
                 <div className="bg-zinc-900 border-b-[3px] border-black px-8 py-6 flex items-center gap-6">
-                   <div className="w-12 h-12 bg-red-600 border-2 border-black flex items-center justify-center text-white font-black italic -rotate-3 overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                     <img src={user?.imageUrl} className="w-full h-full object-cover" />
+                   <div className="size-12 bg-red-600 border-2 border-black flex items-center justify-center text-white font-black italic -rotate-3 overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                     <img src={user?.imageUrl} className="size-full object-cover" />
                    </div>
                    <h3 className="text-sm font-black text-white uppercase italic tracking-widest">Commit_Metadata</h3>
                 </div>
@@ -2236,13 +2236,13 @@ export const Repository = () => {
                   
                   <div className="pt-6 border-t border-zinc-900 space-y-6">
                     <div className="flex items-center gap-4 group cursor-pointer">
-                      <div className="w-5 h-5 border-2 border-red-600 bg-red-600/10 flex items-center justify-center">
-                        <div className="w-2.5 h-2.5 bg-red-600"></div>
+                      <div className="size-5 border-2 border-red-600 bg-red-600/10 flex items-center justify-center">
+                        <div className="size-2.5 bg-red-600"></div>
                       </div>
                       <span className="text-xs font-black text-white uppercase tracking-tighter">Commit directly to the <span className="bg-zinc-800 px-2 py-0.5 font-mono text-[10px]">main</span> branch.</span>
                     </div>
                     <div className="flex items-center gap-4 group cursor-pointer opacity-40">
-                      <div className="w-5 h-5 border-2 border-zinc-800 flex items-center justify-center"></div>
+                      <div className="size-5 border-2 border-zinc-800 flex items-center justify-center"></div>
                       <span className="text-xs font-black text-zinc-500 uppercase tracking-tighter">Create a new branch for this commit and start a pull request.</span>
                     </div>
                   </div>
@@ -2315,7 +2315,7 @@ export const Repository = () => {
                     name="content"
                     placeholder="Enter file content here" 
                     rows={16}
-                    className="w-full bg-[#080808] px-6 py-6 text-white focus:outline-none font-mono text-sm resize-y"
+                    className="w-full bg-[#080808] p-6 text-white focus:outline-none font-mono text-sm resize-y"
                   ></textarea>
                 </div>
                 <div className="bg-zinc-900/30 border-t border-zinc-800 p-8">
@@ -2371,12 +2371,12 @@ export const Repository = () => {
                     <div className="bg-zinc-900 border-b-[3px] border-black px-8 py-5 flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className="flex gap-1.5">
-                          <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></div>
-                          <div className="w-2 h-2 rounded-full bg-zinc-700"></div>
-                          <div className="w-2 h-2 rounded-full bg-zinc-700"></div>
+                          <div className="size-2 rounded-full bg-red-600 animate-pulse"></div>
+                          <div className="size-2 rounded-full bg-zinc-700"></div>
+                          <div className="size-2 rounded-full bg-zinc-700"></div>
                         </div>
                         <div className="flex items-center gap-3 text-[11px] font-black text-white uppercase tracking-widest italic">
-                          <Terminal className="w-4 h-4 text-red-600" />
+                          <Terminal className="size-4 text-red-600" />
                           Editing_Buffer: <span className="text-red-500">{file.path}</span>
                         </div>
                       </div>
@@ -2400,7 +2400,7 @@ export const Repository = () => {
                         defaultValue={file.content}
                         placeholder="Enter system instructions..." 
                         spellCheck={false}
-                        className="w-full bg-[#050505] px-10 py-10 text-zinc-300 focus:text-white focus:outline-none font-mono text-sm resize-y min-h-[500px] selection:bg-red-600/30 border-b-[3px] border-black"
+                        className="w-full bg-[#050505] p-10 text-zinc-300 focus:text-white focus:outline-none font-mono text-sm resize-y min-h-[500px] selection:bg-red-600/30 border-b-[3px] border-black"
                         style={{ lineHeight: '1.6' }}
                       ></textarea>
                     </div>
@@ -2437,12 +2437,12 @@ export const Repository = () => {
               <div className="bg-zinc-900 border-b-[4px] border-black px-10 py-6 flex items-center justify-between">
                 <div className="flex items-center gap-5">
                   <div className="flex gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.5)]"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-zinc-800"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-zinc-800"></div>
+                    <div className="size-2.5 rounded-full bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.5)]"></div>
+                    <div className="size-2.5 rounded-full bg-zinc-800"></div>
+                    <div className="size-2.5 rounded-full bg-zinc-800"></div>
                   </div>
                   <div className="flex items-center gap-4 text-[11px] font-black text-white uppercase tracking-[0.2em] italic">
-                    <FileIcon className="w-4 h-4 text-red-600" />
+                    <FileIcon className="size-4 text-red-600" />
                     Vault_Archive: <span className="text-red-500">{location.pathname.split('/blob/')[1]?.split('/').slice(1).join('/')}</span>
                   </div>
                 </div>
@@ -2453,7 +2453,7 @@ export const Repository = () => {
                         to={`/${username}/${repoName}/edit/${encodeURIComponent(currentBranchName)}/${location.pathname.split('/blob/')[1]?.split('/').slice(1).join('/')}`} 
                         className="flex items-center gap-2.5 text-[10px] font-black text-zinc-400 hover:text-white transition-colors uppercase tracking-widest group"
                       >
-                        <Pencil className="w-3.5 h-3.5 text-red-600 group-hover:scale-110 transition-transform" />
+                        <Pencil className="size-3.5 text-red-600 group-hover:scale-110 transition-transform" />
                         Edit_File
                       </Link>
                       <div className="w-px h-4 bg-zinc-800"></div>
@@ -2466,7 +2466,7 @@ export const Repository = () => {
                         }}
                         className="flex items-center gap-2.5 text-[10px] font-black text-zinc-400 hover:text-red-600 transition-colors uppercase tracking-widest group"
                       >
-                        <Trash className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                        <Trash className="size-3.5 group-hover:scale-110 transition-transform" />
                         Delete
                       </button>
                 </div>
@@ -2538,10 +2538,10 @@ export const Repository = () => {
               <div className="bg-zinc-900/50 border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-6 text-[10px] font-bold">
                   <span className="text-white flex items-center gap-2">
-                    <CircleDot className="w-4 h-4 text-green-500" /> {issues.filter(i => i.status === 'open').length} Open
+                    <CircleDot className="size-4 text-green-500" /> {issues.filter(i => i.status === 'open').length} Open
                   </span>
                   <span className="text-zinc-500 flex items-center gap-2 hover:text-white cursor-pointer transition-colors">
-                    <CircleDot className="w-4 h-4" /> {issues.filter(i => i.status === 'closed').length} Closed
+                    <CircleDot className="size-4" /> {issues.filter(i => i.status === 'closed').length} Closed
                   </span>
                 </div>
                 {user && (
@@ -2553,14 +2553,14 @@ export const Repository = () => {
               <div className="divide-y divide-zinc-900 bg-black">
                 {issues.length === 0 ? (
                   <div className="p-24 text-center">
-                    <CircleDot className="w-12 h-12 text-zinc-800 mx-auto mb-6" />
+                    <CircleDot className="size-12 text-zinc-800 mx-auto mb-6" />
                     <h3 className="text-xl font-bold tracking-tight mb-2">Welcome to issues.</h3>
                     <p className="text-zinc-500 text-[10px] font-bold">Track bugs, features, and madness here.</p>
                   </div>
                 ) : (
                   issues.map(issue => (
                     <div key={issue.id} className="flex items-start px-6 py-4 hover:bg-zinc-900/50 transition-all group">
-                      <CircleDot className={`w-4 h-4 mt-1 mr-4 ${issue.status === 'open' ? 'text-green-500' : 'text-purple-500'}`} />
+                      <CircleDot className={`size-4 mt-1 mr-4 ${issue.status === 'open' ? 'text-green-500' : 'text-purple-500'}`} />
                       <div>
                         <Link to={`/${username}/${repoName}/issues/${issue.id}`} className="text-base font-bold text-zinc-200 group-hover:text-red-500 transition-colors">
                           {issue.title}
@@ -2672,7 +2672,7 @@ export const Repository = () => {
 
               <div className="border-4 border-black bg-white text-black p-8 shadow-[8px_8px_0px_0px_rgba(220,38,38,1)]">
                 <div className="flex items-center gap-3 mb-6">
-                  <Shield className="w-5 h-5 text-red-600" />
+                  <Shield className="size-5 text-red-600" />
                   <h3 className="text-lg font-black">Branch protection</h3>
                 </div>
                 <div className="space-y-4">
@@ -2767,7 +2767,7 @@ export const Repository = () => {
             <div className="border-[4px] border-black bg-[#0d0d0d] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
               <div className="bg-zinc-900 border-b-[4px] border-black px-10 py-6 flex items-center justify-between">
                 <div className="flex items-center gap-5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.5)] animate-pulse"></div>
+                  <div className="size-2.5 rounded-full bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.5)] animate-pulse"></div>
                   <h2 className="text-[11px] font-black text-white uppercase tracking-[0.2em] italic">Operational_Logs_Archive</h2>
                 </div>
                 <div className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
@@ -2777,7 +2777,7 @@ export const Repository = () => {
               <div className="divide-y-4 divide-black bg-black">
                 {commits.length === 0 ? (
                   <div className="p-32 text-center">
-                    <Activity className="w-16 h-16 text-zinc-800 mx-auto mb-8 animate-pulse" />
+                    <Activity className="size-16 text-zinc-800 mx-auto mb-8 animate-pulse" />
                     <h3 className="text-2xl font-black text-white uppercase italic -skew-x-6 mb-4">No operational history found.</h3>
                     <p className="text-zinc-600 text-[11px] font-black uppercase tracking-widest">The vault remains in its initial state.</p>
                   </div>
@@ -2788,20 +2788,20 @@ export const Repository = () => {
                       to={`/${username}/${repoName}/commits/${commit.id}`}
                       className="group relative flex items-center gap-8 px-10 py-8 hover:bg-zinc-900/40 transition-all border-l-[10px] border-transparent hover:border-red-600 cursor-pointer"
                     >
-                      <div className="w-12 h-12 bg-black border-2 border-zinc-800 flex items-center justify-center text-white font-black italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex-shrink-0 group-hover:border-red-600 transition-colors">
-                        <img src={commit.authorAvatarUrl} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+                      <div className="size-12 bg-black border-2 border-zinc-800 flex items-center justify-center text-white font-black italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden shrink-0 group-hover:border-red-600 transition-colors">
+                        <img src={commit.authorAvatarUrl} className="size-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
                       </div>
                       <div className="flex-1 min-w-0 space-y-2">
                         <div className="flex items-center gap-4">
                           <span className="text-sm font-black text-zinc-200 group-hover:text-red-500 transition-colors truncate">{commit.message}</span>
                           <div className="hidden md:flex items-center gap-2 bg-zinc-900 px-3 py-1 border border-zinc-800">
-                            <Code className="w-3 h-3 text-red-600" />
+                            <Code className="size-3 text-red-600" />
                             <span className="text-[9px] font-mono text-zinc-500">{commit.id.substring(0, 7)}</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-6 text-[10px] font-black text-zinc-600 uppercase tracking-tighter">
                           <span>Operator: <span className="text-zinc-400">{commit.authorUsername}</span></span>
-                          <span className="w-1 h-1 bg-zinc-800 rounded-full"></span>
+                          <span className="size-1 bg-zinc-800 rounded-full"></span>
                           <span>Timestamp: <span className="text-zinc-400">{format(new Date(commit.timestamp), 'MMM d, yyyy · HH:mm')}</span></span>
                         </div>
                       </div>
@@ -2858,8 +2858,8 @@ export const Repository = () => {
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
-                                  <span className="w-8 h-8 bg-black text-white flex items-center justify-center">
-                                    <TagIcon className="w-4 h-4 text-red-600" />
+                                  <span className="size-8 bg-black text-white flex items-center justify-center">
+                                    <TagIcon className="size-4 text-red-600" />
                                   </span>
                                   <h3 className="text-base font-black text-black font-mono">{tag.name}</h3>
                                 </div>
@@ -2894,7 +2894,7 @@ export const Repository = () => {
                                   }}
                                   className="p-2 text-zinc-500 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
                                 >
-                                  <Trash className="w-4 h-4" />
+                                  <Trash className="size-4" />
                                 </button>
                               )}
                             </div>
@@ -2905,7 +2905,7 @@ export const Repository = () => {
                   ) : (
                     <div className="flex items-center justify-center py-16">
                       <div className="text-center">
-                        <TagIcon className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
+                        <TagIcon className="size-12 text-zinc-700 mx-auto mb-4" />
                         <p className="text-zinc-400 text-sm">No tags yet</p>
                         <p className="text-zinc-600 text-xs mt-2">Create a tag to mark release points in your repository history</p>
                       </div>
@@ -2965,7 +2965,7 @@ export const Repository = () => {
                                   }}
                                   className="inline-flex items-center gap-2 text-xs font-black text-red-600 hover:text-black transition-colors uppercase tracking-widest"
                                 >
-                                  <TagIcon className="w-4 h-4" />
+                                  <TagIcon className="size-4" />
                                   {release.tagName}
                                 </span>
                                 {release.isDraft && (
@@ -2996,7 +2996,7 @@ export const Repository = () => {
                                 className="self-start p-2 text-zinc-500 hover:text-red-600 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
                                 title="Delete release"
                               >
-                                <Trash className="w-4 h-4" />
+                                <Trash className="size-4" />
                               </button>
                             )}
                           </div>
@@ -3007,7 +3007,7 @@ export const Repository = () => {
                   ) : (
                     <div className="flex items-center justify-center py-16">
                       <div className="text-center">
-                        <Package className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
+                        <Package className="size-12 text-zinc-700 mx-auto mb-4" />
                         <p className="text-zinc-400 text-sm">No releases yet</p>
                         <p className="text-zinc-600 text-xs mt-2">Create a release to share production-ready versions of your code</p>
                       </div>
@@ -3318,7 +3318,7 @@ Add your changelog here..."
                   className="p-2 text-zinc-500 hover:text-white transition-colors"
                   title="Close"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="size-5" />
                 </button>
               </div>
 
@@ -3463,7 +3463,7 @@ Add your changelog here..."
                         }}
                         onDrop={handleReleaseAssetDrop}
                       >
-                        <Upload className={`w-6 h-6 ${isDraggingReleaseAsset ? 'text-white' : 'text-red-600'}`} />
+                        <Upload className={`size-6 ${isDraggingReleaseAsset ? 'text-white' : 'text-red-600'}`} />
                         <span className="text-xs font-bold text-zinc-300 text-center">
                           {isDraggingReleaseAsset ? 'Drop binaries here' : 'Attach or drop release binaries'}
                         </span>
@@ -3483,7 +3483,7 @@ Add your changelog here..."
                         <div className="divide-y divide-zinc-900 border border-zinc-900">
                           {newReleaseAssets.map((file, index) => (
                             <div key={`${file.name}-${index}`} className="flex items-center gap-3 px-3 py-2 bg-black">
-                              <FileArchive className="w-4 h-4 text-red-600 flex-shrink-0" />
+                              <FileArchive className="size-4 text-red-600 shrink-0" />
                               <div className="min-w-0 flex-1">
                                 <p className="text-xs font-bold text-zinc-200 truncate">{file.name}</p>
                                 <p className="text-[10px] text-zinc-600">{formatBytes(file.size)}</p>
@@ -3493,7 +3493,7 @@ Add your changelog here..."
                                 className="p-1 text-zinc-600 hover:text-red-500"
                                 title="Remove asset"
                               >
-                                <X className="w-4 h-4" />
+                                <X className="size-4" />
                               </button>
                             </div>
                           ))}

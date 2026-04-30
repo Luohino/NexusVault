@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { UserButton, useUser, SignedOut, SignedIn } from "@clerk/clerk-react";
+import { UserButton, useUser, SignedOut } from "@clerk/clerk-react";
 import AboutSection2 from '../components/ui/about-section-2';
 
 export const About = () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Shield, Scale, Zap, Globe, Book, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 const PROTOCOLS = [
   {

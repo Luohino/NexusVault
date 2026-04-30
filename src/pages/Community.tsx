@@ -4,11 +4,11 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import { Github, Twitter, Linkedin, Youtube, Instagram } from 'lucide-react';
 
 const SOCIAL_LINKS = [
-  { icon: <Twitter className="w-5 h-5" />, href: "https://x.com/Luohinoo", label: "Twitter" },
-  { icon: <Github className="w-5 h-5" />, href: "https://github.com/Luohino/", label: "GitHub" },
-  { icon: <Linkedin className="w-5 h-5" />, href: "https://www.linkedin.com/in/luohino-o-43620931b", label: "LinkedIn" },
-  { icon: <Youtube className="w-5 h-5" />, href: "https://youtube.com/@luohino", label: "YouTube" },
-  { icon: <Instagram className="w-5 h-5" />, href: "https://www.instagram.com/luohinoo", label: "Instagram" },
+  { icon: <Twitter className="size-5" />, href: "https://x.com/Luohinoo", label: "Twitter" },
+  { icon: <Github className="size-5" />, href: "https://github.com/Luohino/", label: "GitHub" },
+  { icon: <Linkedin className="size-5" />, href: "https://www.linkedin.com/in/luohino-o-43620931b", label: "LinkedIn" },
+  { icon: <Youtube className="size-5" />, href: "https://youtube.com/@luohino", label: "YouTube" },
+  { icon: <Instagram className="size-5" />, href: "https://www.instagram.com/luohinoo", label: "Instagram" },
 ];
 
 export const Community = () => {
@@ -108,7 +108,7 @@ export const Community = () => {
                 </span>
 
                 {/* Round Circle Icon */}
-                <div className="w-14 h-14 rounded-full border-2 border-white bg-white flex items-center justify-center text-gray-400 group-hover:text-black group-hover:border-black transition-all duration-300 shadow-md">
+                <div className="size-14 rounded-full border-2 border-white bg-white flex items-center justify-center text-gray-400 group-hover:text-black group-hover:border-black transition-all duration-300 shadow-md">
                   {social.icon}
                 </div>
               </a>

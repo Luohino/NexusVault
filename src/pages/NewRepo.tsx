@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser, useAuth } from '@clerk/clerk-react';
-import { Book, Shield, FileText, ChevronDown, Check, Plus, Upload, X } from 'lucide-react';
+import { Book, Shield, FileText, ChevronDown, Check, Plus } from 'lucide-react';
 import { LoadingScreen } from '../components/ui/loading-states';
 
 const GITIGNORE_TEMPLATES = [
@@ -155,11 +155,11 @@ yarn-error.log
         
         {/* Institutional Header */}
         <div className="bg-white text-black p-8 md:p-12 mb-16 border-[4px] border-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)] relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-zinc-100 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-1000 opacity-50"></div>
+          <div className="absolute top-0 right-0 size-32 bg-zinc-100 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-1000 opacity-50"></div>
           <div className="relative z-10">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-10 h-10 bg-black flex items-center justify-center border-2 border-black">
-                <Plus className="w-6 h-6 text-white" />
+              <div className="size-10 bg-black flex items-center justify-center border-2 border-black">
+                <Plus className="size-6 text-white" />
               </div>
               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">Construction Protocol 101</span>
             </div>
@@ -182,7 +182,7 @@ yarn-error.log
           {/* Section 01: General */}
           <div className="space-y-10">
             <div className="flex items-center gap-4">
-              <div className="bg-red-600 text-white w-10 h-10 flex items-center justify-center border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-black italic">01</div>
+              <div className="bg-red-600 text-white size-10 flex items-center justify-center border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-black italic">01</div>
               <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500 italic">General_Specifications</h2>
             </div>
 
@@ -190,11 +190,11 @@ yarn-error.log
               <div className="w-full md:w-auto">
                 <label className="block text-[10px] font-black text-zinc-500 mb-3 uppercase tracking-widest">Operator</label>
                 <div className="bg-[#0d0d0d] border-[3px] border-black p-4 text-xs font-black text-white hover:border-red-600 transition-all flex items-center gap-4 cursor-default shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <div className="w-6 h-6 bg-zinc-800 overflow-hidden border-2 border-black">
-                    <img src={user.imageUrl} alt="" className="w-full h-full object-cover" />
+                  <div className="size-6 bg-zinc-800 overflow-hidden border-2 border-black">
+                    <img src={user.imageUrl} alt="" className="size-full object-cover" />
                   </div>
                   <span className="tracking-widest">{userIdentifier}</span>
-                  <ChevronDown className="w-4 h-4 text-zinc-700 ml-auto" />
+                  <ChevronDown className="size-4 text-zinc-700 ml-auto" />
                 </div>
               </div>
               <div className="hidden md:flex items-center justify-center h-14 text-3xl font-black text-zinc-800">/</div>
@@ -220,7 +220,7 @@ yarn-error.log
 
             {name.toLowerCase() === userIdentifier.toLowerCase() && name.length > 0 && (
               <div className="bg-white border-[4px] border-black p-8 flex flex-col md:flex-row items-center gap-8 shadow-[12px_12px_0px_0px_rgba(220,38,38,1)] animate-in zoom-in-95 duration-300">
-                <div className="w-16 h-16 bg-red-600 flex items-center justify-center border-[3px] border-black shrink-0 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                <div className="size-16 bg-red-600 flex items-center justify-center border-[3px] border-black shrink-0 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                   <span className="text-white text-3xl font-black italic">!</span>
                 </div>
                 <div className="flex-1 text-center md:text-left">
@@ -251,7 +251,7 @@ yarn-error.log
           {/* Section 02: Protocols */}
           <div className="space-y-12 pt-20 border-t-4 border-zinc-900">
             <div className="flex items-center gap-4">
-              <div className="bg-black text-white w-10 h-10 flex items-center justify-center border-[3px] border-zinc-800 shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] font-black italic">02</div>
+              <div className="bg-black text-white size-10 flex items-center justify-center border-[3px] border-zinc-800 shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] font-black italic">02</div>
               <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500 italic">Security_Protocols</h2>
             </div>
 
@@ -260,13 +260,13 @@ yarn-error.log
                 onClick={() => setIsPrivate(false)}
                 className={`p-8 border-[3px] cursor-pointer transition-all flex gap-6 relative group ${!isPrivate ? 'border-red-600 bg-red-600/5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]' : 'border-zinc-900 bg-[#0d0d0d] hover:border-zinc-700'}`}
               >
-                <div className={`w-12 h-12 flex items-center justify-center border-2 ${!isPrivate ? 'bg-red-600 text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'bg-zinc-900 text-zinc-700 border-zinc-800'}`}>
-                  <Book className="w-6 h-6" />
+                <div className={`size-12 flex items-center justify-center border-2 ${!isPrivate ? 'bg-red-600 text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'bg-zinc-900 text-zinc-700 border-zinc-800'}`}>
+                  <Book className="size-6" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-black text-xs uppercase tracking-widest">Public_Access</h4>
-                    {!isPrivate && <Check className="w-5 h-5 text-red-600 stroke-[4px]" />}
+                    {!isPrivate && <Check className="size-5 text-red-600 stroke-[4px]" />}
                   </div>
                   <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter leading-tight">Universal visibility. Selective contribution rights.</p>
                 </div>
@@ -276,13 +276,13 @@ yarn-error.log
                 onClick={() => setIsPrivate(true)}
                 className={`p-8 border-[3px] cursor-pointer transition-all flex gap-6 relative group ${isPrivate ? 'border-red-600 bg-red-600/5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]' : 'border-zinc-900 bg-[#0d0d0d] hover:border-zinc-700'}`}
               >
-                <div className={`w-12 h-12 flex items-center justify-center border-2 ${isPrivate ? 'bg-red-600 text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'bg-zinc-900 text-zinc-700 border-zinc-800'}`}>
-                  <Shield className="w-6 h-6" />
+                <div className={`size-12 flex items-center justify-center border-2 ${isPrivate ? 'bg-red-600 text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'bg-zinc-900 text-zinc-700 border-zinc-800'}`}>
+                  <Shield className="size-6" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-black text-xs uppercase tracking-widest">Private_Vault</h4>
-                    {isPrivate && <Check className="w-5 h-5 text-red-600 stroke-[4px]" />}
+                    {isPrivate && <Check className="size-5 text-red-600 stroke-[4px]" />}
                   </div>
                   <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter leading-tight">Restricted access. Authorized personnel only.</p>
                 </div>
@@ -297,7 +297,7 @@ yarn-error.log
               <div className="divide-y-2 divide-black">
                 <div className="p-6 flex items-center justify-between hover:bg-zinc-900/50 transition-colors group">
                   <div className="flex items-center gap-6">
-                    <div className="p-3 bg-black border-2 border-zinc-800 text-zinc-700 group-hover:text-red-600 transition-colors"><FileText className="w-5 h-5" /></div>
+                    <div className="p-3 bg-black border-2 border-zinc-800 text-zinc-700 group-hover:text-red-600 transition-colors"><FileText className="size-5" /></div>
                     <div>
                       <p className="text-xs font-black uppercase tracking-widest">Integrate README.MD</p>
                       <p className="text-[9px] font-bold text-zinc-600 uppercase mt-1">Detailed operational manual for the project.</p>
@@ -305,13 +305,13 @@ yarn-error.log
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" className="sr-only peer" checked={addReadme} onChange={() => setAddReadme(!addReadme)} />
-                    <div className="w-12 h-6 bg-zinc-900 border-2 border-black rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-black after:rounded-none after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600"></div>
+                    <div className="w-12 h-6 bg-zinc-900 border-2 border-black rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-black after:rounded-none after:size-4 after:transition-all peer-checked:bg-red-600"></div>
                   </label>
                 </div>
 
                 <div className="p-6 flex items-center justify-between hover:bg-zinc-900/50 transition-colors group">
                   <div className="flex items-center gap-6">
-                    <div className="p-3 bg-black border-2 border-zinc-800 text-zinc-700 group-hover:text-red-600 transition-colors"><FileText className="w-5 h-5" /></div>
+                    <div className="p-3 bg-black border-2 border-zinc-800 text-zinc-700 group-hover:text-red-600 transition-colors"><FileText className="size-5" /></div>
                     <div>
                       <p className="text-xs font-black uppercase tracking-widest">Integrate .NVIGNORE</p>
                       <p className="text-[9px] font-bold text-zinc-600 uppercase mt-1">Buffer exclusion protocols for version control.</p>
@@ -319,13 +319,13 @@ yarn-error.log
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" className="sr-only peer" checked={addNvignore} onChange={() => setAddNvignore(!addNvignore)} />
-                    <div className="w-12 h-6 bg-zinc-900 border-2 border-black rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-black after:rounded-none after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600"></div>
+                    <div className="w-12 h-6 bg-zinc-900 border-2 border-black rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-black after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-black after:rounded-none after:size-4 after:transition-all peer-checked:bg-red-600"></div>
                   </label>
                 </div>
 
                 <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-zinc-900/50 transition-colors group">
                   <div className="flex items-center gap-6">
-                    <div className="p-3 bg-black border-2 border-zinc-800 text-zinc-700 group-hover:text-red-600 transition-colors"><Shield className="w-5 h-5" /></div>
+                    <div className="p-3 bg-black border-2 border-zinc-800 text-zinc-700 group-hover:text-red-600 transition-colors"><Shield className="size-5" /></div>
                     <div>
                       <p className="text-xs font-black uppercase tracking-widest">Sovereign_License</p>
                       <p className="text-[9px] font-bold text-zinc-600 uppercase mt-1">Define the legal framework of this repository.</p>
@@ -341,7 +341,7 @@ yarn-error.log
                         <option key={l.key} value={l.key}>{l.name}</option>
                       ))}
                     </select>
-                    <ChevronDown className="w-5 h-5 text-red-600 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <ChevronDown className="size-5 text-red-600 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
                 </div>
               </div>
@@ -357,7 +357,7 @@ yarn-error.log
             >
               <div className="relative z-10 flex items-center gap-3">
                 {isSubmitting ? 'Initializing_Vault...' : 'Authorize construction'}
-                {!isSubmitting && <Plus className="w-5 h-5" />}
+                {!isSubmitting && <Plus className="size-5" />}
               </div>
             </button>
             <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest italic max-w-sm">

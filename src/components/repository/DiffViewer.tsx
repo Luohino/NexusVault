@@ -28,12 +28,14 @@ const buildDiff = (before = '', after = ''): DiffLine[] => {
 
   while (i < oldLines.length || j < newLines.length) {
     if (i < oldLines.length && j < newLines.length && oldLines[i] === newLines[j]) {
-      diff.push({ type: 'same', oldNumber: oldNumber++, newNumber: newNumber++, text: oldLines[i++] });
-      j++;
+      diff.push({ type: 'same', oldNumber: oldNumber, newNumber: newNumber, text: oldLines[i] });
+      oldNumber += 1; newNumber += 1; i += 1; j += 1;
     } else if (j < newLines.length && (i === oldLines.length || table[i][j + 1] >= table[i + 1][j])) {
-      diff.push({ type: 'added', newNumber: newNumber++, text: newLines[j++] });
+      diff.push({ type: 'added', newNumber: newNumber, text: newLines[j] });
+      newNumber += 1; j += 1;
     } else if (i < oldLines.length) {
-      diff.push({ type: 'removed', oldNumber: oldNumber++, text: oldLines[i++] });
+      diff.push({ type: 'removed', oldNumber: oldNumber, text: oldLines[i] });
+      oldNumber += 1; i += 1;
     }
   }
 

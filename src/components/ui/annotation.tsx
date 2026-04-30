@@ -1,5 +1,5 @@
 import React from 'react';
-import { HtmlLabel, Label, Connector, CircleSubject, LineSubject, Annotation, AnnotationLabelProps } from '@visx/annotation';
+import { HtmlLabel, Label, Connector, CircleSubject, LineSubject, AnnotationLabelProps } from '@visx/annotation';
 import { LinePath } from '@visx/shape';
 import { ScaleTime, ScaleLinear } from '@visx/scale';
 

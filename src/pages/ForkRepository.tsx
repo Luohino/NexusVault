@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useUser, useAuth } from '@clerk/clerk-react';
-import { GitBranch, Book, Info, AlertCircle, ChevronDown, Check } from 'lucide-react';
+import { GitBranch, Info, AlertCircle, ChevronDown, Check } from 'lucide-react';
 
 export const ForkRepository = () => {
   const { username: sourceUsername, repoName: sourceRepoName } = useParams<{ username: string, repoName: string }>();
@@ -68,7 +68,7 @@ export const ForkRepository = () => {
 
   if (!isLoaded || !sourceRepo) return (
     <div className="flex-1 bg-[#080808] flex items-center justify-center">
-      <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="size-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
 
@@ -76,8 +76,8 @@ export const ForkRepository = () => {
     <div className="flex-1 bg-[#080808] text-white py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 bg-zinc-900 border-2 border-zinc-800 flex items-center justify-center">
-            <GitBranch className="w-6 h-6 text-red-600" />
+          <div className="size-12 bg-zinc-900 border-2 border-zinc-800 flex items-center justify-center">
+            <GitBranch className="size-6 text-red-600" />
           </div>
           <div>
             <h1 className="text-3xl font-black uppercase tracking-tighter">Create a new fork</h1>
@@ -88,7 +88,7 @@ export const ForkRepository = () => {
         <form onSubmit={handleFork} className="space-y-8">
           {error && (
             <div className="bg-red-600/10 border-2 border-red-600 p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-              <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+              <AlertCircle className="size-5 text-red-600 shrink-0" />
               <span className="text-sm font-bold uppercase tracking-tight">{error}</span>
             </div>
           )}
@@ -100,12 +100,12 @@ export const ForkRepository = () => {
                 <div className="relative group">
                   <div className="w-full bg-black border-2 border-zinc-800 p-3 flex items-center justify-between cursor-not-allowed opacity-70">
                     <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-zinc-800 overflow-hidden">
-                        {user?.imageUrl && <img src={user.imageUrl} className="w-full h-full object-cover" />}
+                      <div className="size-6 bg-zinc-800 overflow-hidden">
+                        {user?.imageUrl && <img src={user.imageUrl} className="size-full object-cover" />}
                       </div>
                       <span className="text-sm font-bold uppercase tracking-tight">{user?.username}</span>
                     </div>
-                    <ChevronDown className="w-4 h-4 text-zinc-600" />
+                    <ChevronDown className="size-4 text-zinc-600" />
                   </div>
                   <p className="mt-2 text-[10px] font-bold text-zinc-600 uppercase">You are creating a fork in your personal account.</p>
                 </div>
@@ -126,7 +126,7 @@ export const ForkRepository = () => {
                     className="w-full bg-black border-2 border-zinc-800 p-3 text-sm font-bold uppercase tracking-tight focus:border-red-600 outline-none transition-all"
                   />
                   <div className="mt-2 flex items-center gap-2 text-[10px] font-bold text-green-500 uppercase">
-                    <Check className="w-3 h-3" /> {repoName} is available
+                    <Check className="size-3" /> {repoName} is available
                   </div>
                 </div>
               </div>
@@ -146,7 +146,7 @@ export const ForkRepository = () => {
 
             <div className="pt-4 border-t border-zinc-900 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-center gap-3 text-zinc-500">
-                <GitBranch className="w-5 h-5" />
+                <GitBranch className="size-5" />
                 <div className="text-[10px] font-black uppercase tracking-tight">
                   Forking from <span className="text-red-600">{sourceUsername}/{sourceRepoName}</span>
                 </div>
@@ -159,7 +159,7 @@ export const ForkRepository = () => {
               >
                 {isForking ? (
                   <span className="flex items-center gap-3">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="size-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     CREATING FORK...
                   </span>
                 ) : 'CREATE FORK'}
@@ -168,7 +168,7 @@ export const ForkRepository = () => {
           </div>
 
           <div className="p-6 border-2 border-dashed border-zinc-900 bg-zinc-900/10 flex items-start gap-4">
-            <Info className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+            <Info className="size-5 text-red-600 shrink-0 mt-0.5" />
             <p className="text-[11px] font-bold text-zinc-500 uppercase leading-relaxed">
               Your fork will include the <span className="text-white">main</span> branch and all current files. 
               You can contribute changes back to the upstream repository by creating a pull request.

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react';
-import { Github, Search, Plus, Bell, LogOut, User, Folder, Settings, Book } from 'lucide-react';
+import { Search, Plus, Bell, LogOut, User, Folder, Book } from 'lucide-react';
 
 export const Navbar = () => {
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { isSignedIn, user } = useUser();
   const { signOut } = useClerk();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { getToken } = useAuth();

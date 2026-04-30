@@ -5,7 +5,7 @@ import { Book, Shield, Scale, Zap, Users, Globe, FileText, ChevronRight, ArrowLe
 const CATEGORIES = [
   {
     title: "Core Lore & Identity",
-    icon: <Book className="w-6 h-6 text-white" />,
+    icon: <Book className="size-6 text-white" />,
     color: "bg-red-600",
     files: [
       { name: "The Anomaly Manifesto", path: "THE_ANOMALY_MANIFESTO.md" },
@@ -18,7 +18,7 @@ const CATEGORIES = [
   },
   {
     title: "Legal & Privacy Hub",
-    icon: <Scale className="w-6 h-6 text-white" />,
+    icon: <Scale className="size-6 text-white" />,
     color: "bg-zinc-900",
     files: [
       { name: "Official License", path: "LICENSE" },
@@ -33,7 +33,7 @@ const CATEGORIES = [
   },
   {
     title: "Security & Sovereignty",
-    icon: <Shield className="w-6 h-6 text-white" />,
+    icon: <Shield className="size-6 text-white" />,
     color: "bg-red-600",
     files: [
       { name: "Security Policy", path: "SECURITY.md" },
@@ -48,7 +48,7 @@ const CATEGORIES = [
   },
   {
     title: "Engineering & SRE",
-    icon: <Zap className="w-6 h-6 text-white" />,
+    icon: <Zap className="size-6 text-white" />,
     color: "bg-zinc-900",
     files: [
       { name: "Coding Standards", path: "CODING_STANDARDS.md" },
@@ -63,7 +63,7 @@ const CATEGORIES = [
   },
   {
     title: "Ethics & Governance",
-    icon: <Globe className="w-6 h-6 text-white" />,
+    icon: <Globe className="size-6 text-white" />,
     color: "bg-red-600",
     files: [
       { name: "ESG Commitment", path: "ESG_COMMITMENT.md" },
@@ -78,7 +78,7 @@ const CATEGORIES = [
   },
   {
     title: "Operations & Support",
-    icon: <Users className="w-6 h-6 text-white" />,
+    icon: <Users className="size-6 text-white" />,
     color: "bg-zinc-900",
     files: [
       { name: "User Manual", path: "USER_MANUAL.md" },
@@ -103,7 +103,7 @@ export const DocumentationIndex: React.FC = () => {
             to="/" 
             className="group inline-flex items-center gap-3 bg-black text-white px-5 py-2 md:px-6 md:py-3 font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-red-600 transition-all shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
           >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="size-4 group-hover:-translate-x-1 transition-transform" />
             Back to Command
           </Link>
         </div>
@@ -142,10 +142,10 @@ export const DocumentationIndex: React.FC = () => {
                       className="flex items-center justify-between p-2 text-[13px] font-bold text-zinc-500 hover:text-black hover:bg-zinc-50 transition-colors border-b border-transparent hover:border-zinc-100"
                     >
                       <div className="flex items-center gap-3">
-                        <FileText className="w-4 h-4 text-zinc-300" />
+                        <FileText className="size-4 text-zinc-300" />
                         {file.name}
                       </div>
-                      <ChevronRight className="w-3 h-3 text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <ChevronRight className="size-3 text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </Link>
                   ))}
                 </div>

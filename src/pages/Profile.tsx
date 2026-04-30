@@ -238,9 +238,9 @@ export const Profile = () => {
           <div className="relative group">
             <div className="w-full max-w-[260px] md:max-w-none mx-auto md:mx-0 aspect-square bg-[#0d0d0d] border-2 border-zinc-800 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[10px_10px_0px_0px_rgba(220,38,38,0.3)] transition-all overflow-hidden rounded-full md:rounded-none">
               {profileUser.avatarUrl ? (
-                <img src={profileUser.avatarUrl} className="w-full h-full object-cover" />
+                <img src={profileUser.avatarUrl} className="size-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-7xl font-black text-zinc-900 bg-zinc-800/20">
+                <div className="size-full flex items-center justify-center text-7xl font-black text-zinc-900 bg-zinc-800/20">
                   {username ? username[0].toUpperCase() : 'U'}
                 </div>
               )}
@@ -351,7 +351,7 @@ export const Profile = () => {
               )}
               
               <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-500">
-                <Users className="w-4 h-4 text-zinc-600" />
+                <Users className="size-4 text-zinc-600" />
                 <span className="hover:text-red-500 cursor-pointer transition-colors"><strong className="text-white font-bold">{profileUser.followersCount || 0}</strong> followers</span>
                 <span className="text-zinc-800 px-0.5">·</span>
                 <span className="hover:text-red-500 cursor-pointer transition-colors"><strong className="text-white font-bold">{profileUser.followingCount || 0}</strong> following</span>
@@ -364,11 +364,11 @@ export const Profile = () => {
           <div className="space-y-3 pt-4 border-t border-zinc-900">
             {profileUser.location && (
               <div className="flex items-center gap-3 text-zinc-500 text-xs font-bold">
-                <MapPin className="w-4 h-4 text-red-600" /> {profileUser.location}
+                <MapPin className="size-4 text-red-600" /> {profileUser.location}
               </div>
             )}
             <div className="flex items-center gap-3 text-zinc-500 text-xs font-bold">
-              <Calendar className="w-4 h-4 text-red-600" /> Joined {profileUser.joinedAt ? format(new Date(profileUser.joinedAt), 'MMMM yyyy') : 'April 2026'}
+              <Calendar className="size-4 text-red-600" /> Joined {profileUser.joinedAt ? format(new Date(profileUser.joinedAt), 'MMMM yyyy') : 'April 2026'}
             </div>
           </div>
         </div>
@@ -377,11 +377,11 @@ export const Profile = () => {
         <div className="flex-1 space-y-8">
           <nav className="flex gap-1 border-b border-zinc-900 relative z-20 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {[
-              { id: 'overview', icon: <Book className="w-4 h-4" />, label: 'Overview' },
-              { id: 'repositories', icon: <Folder className="w-4 h-4" />, label: 'Repositories', count: reposTotalCount },
-              { id: 'followers', icon: <Users className="w-4 h-4" />, label: 'Followers', count: profileUser.followersCount || 0 },
-              { id: 'following', icon: <Users className="w-4 h-4" />, label: 'Following', count: profileUser.followingCount || 0 },
-              { id: 'stars', icon: <Star className="w-4 h-4" />, label: 'Stars', count: profileUser.starsCount || 0 },
+              { id: 'overview', icon: <Book className="size-4" />, label: 'Overview' },
+              { id: 'repositories', icon: <Folder className="size-4" />, label: 'Repositories', count: reposTotalCount },
+              { id: 'followers', icon: <Users className="size-4" />, label: 'Followers', count: profileUser.followersCount || 0 },
+              { id: 'following', icon: <Users className="size-4" />, label: 'Following', count: profileUser.followingCount || 0 },
+              { id: 'stars', icon: <Star className="size-4" />, label: 'Stars', count: profileUser.starsCount || 0 },
             ].map((t) => (
               <Link
                 key={t.id}
@@ -411,7 +411,7 @@ export const Profile = () => {
                     <div className="neo-brutal-card !p-0 overflow-hidden">
                       <div className="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
                          <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400">
-                           <Book className="w-4 h-4 text-red-600" /> {username} / README.md
+                           <Book className="size-4 text-red-600" /> {username} / README.md
                          </div>
                       </div>
                       <div className="p-6 md:p-8">
@@ -466,7 +466,7 @@ export const Profile = () => {
                                      {repo.language && (
                                        <span className="flex items-center gap-2">
                                          <span 
-                                           className="w-3 h-3 rounded-full" 
+                                           className="size-3 rounded-full" 
                                            style={{ 
                                              backgroundColor: languageColors[repo.language] || '#888',
                                              boxShadow: `0 0 8px ${languageColors[repo.language] || '#888'}44`
@@ -476,7 +476,7 @@ export const Profile = () => {
                                        </span>
                                      )}
                                      <span className="flex items-center gap-2">
-                                       <Star className="w-4 h-4 text-red-600" /> {repo.starCount || 0}
+                                       <Star className="size-4 text-red-600" /> {repo.starCount || 0}
                                      </span>
                                    </div>
                                  </div>
@@ -545,11 +545,11 @@ export const Profile = () => {
                             <div className="flex items-center gap-1.5">
                               <span className="text-[9px]">Less</span>
                               <div className="flex gap-1">
-                                <div className="w-3 h-3 bg-zinc-800/50 border border-black/10" />
-                                <div className="w-3 h-3 bg-red-950 border border-black/10" />
-                                <div className="w-3 h-3 bg-red-800 border border-black/10" />
-                                <div className="w-3 h-3 bg-red-700 border border-black/10" />
-                                <div className="w-3 h-3 bg-red-500 border border-black/10" />
+                                <div className="size-3 bg-zinc-800/50 border border-black/10" />
+                                <div className="size-3 bg-red-950 border border-black/10" />
+                                <div className="size-3 bg-red-800 border border-black/10" />
+                                <div className="size-3 bg-red-700 border border-black/10" />
+                                <div className="size-3 bg-red-500 border border-black/10" />
                               </div>
                               <span className="text-[9px]">More</span>
                             </div>
@@ -583,7 +583,7 @@ export const Profile = () => {
               <div className="col-span-full space-y-6">
                 <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between mb-2">
                   <div className="relative flex-1 w-full">
-                    <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                    <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-zinc-600" />
                     <input 
                       type="text" 
                       placeholder="Find a repository..."
@@ -625,13 +625,13 @@ export const Profile = () => {
                             <div className="flex items-center gap-6 text-[11px] font-bold text-zinc-500">
                               {repo.language && (
                                 <span className="flex items-center gap-2">
-                                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: languageColors[repo.language] || '#888' }} />
+                                  <span className="size-3 rounded-full" style={{ backgroundColor: languageColors[repo.language] || '#888' }} />
                                   {repo.language}
                                 </span>
                               )}
                               {repo.starCount > 0 && (
                                 <span className="flex items-center gap-1.5 text-zinc-400">
-                                  <Star className="w-3.5 h-3.5 fill-red-600 text-red-600" /> {repo.starCount}
+                                  <Star className="size-3.5 fill-red-600 text-red-600" /> {repo.starCount}
                                 </span>
                               )}
                               <span>Updated on {format(new Date(repo.updatedAt), 'MMM d')}</span>
@@ -646,7 +646,7 @@ export const Profile = () => {
                                   : 'bg-zinc-900 border-zinc-800 text-zinc-600 hover:text-red-500'
                               }`}
                             >
-                              <Star className={`w-5 h-5 ${repo.isStarred ? 'fill-current' : ''}`} />
+                              <Star className={`size-5 ${repo.isStarred ? 'fill-current' : ''}`} />
                             </button>
                           </div>
                         </div>
@@ -691,11 +691,11 @@ export const Profile = () => {
                   socialList.map(item => (
                     <div key={item.id} className="p-4 sm:p-6 border-b border-zinc-900 hover:bg-zinc-900/20 transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 group animate-in fade-in slide-in-from-top-1 duration-200">
                       <div className="flex items-start gap-4 min-w-0">
-                        <Link to={`/${item.username}`} className="w-12 h-12 bg-zinc-800 border-2 border-zinc-900 overflow-hidden shrink-0 group-hover:border-red-600 transition-colors">
+                        <Link to={`/${item.username}`} className="size-12 bg-zinc-800 border-2 border-zinc-900 overflow-hidden shrink-0 group-hover:border-red-600 transition-colors">
                           {item.avatarUrl ? (
-                            <img src={item.avatarUrl} className="w-full h-full object-cover" />
+                            <img src={item.avatarUrl} className="size-full object-cover" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-lg font-black text-zinc-700">
+                            <div className="size-full flex items-center justify-center text-lg font-black text-zinc-700">
                               {item.username[0].toUpperCase()}
                             </div>
                           )}
@@ -748,11 +748,11 @@ export const Profile = () => {
                         <div className="flex items-center gap-6 text-[10px] font-bold text-zinc-600">
                           {repo.language && (
                             <span className="flex items-center gap-1.5">
-                              <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: languageColors[repo.language] || '#888' }} />
+                              <span className="size-2.5 rounded-full" style={{ backgroundColor: languageColors[repo.language] || '#888' }} />
                               {repo.language}
                             </span>
                           )}
-                          <span className="flex items-center gap-1"><Star className="w-3 h-3 text-red-600 fill-current" /> {repo.starCount}</span>
+                          <span className="flex items-center gap-1"><Star className="size-3 text-red-600 fill-current" /> {repo.starCount}</span>
                           <span>Updated on {format(new Date(repo.updatedAt), 'MMM d')}</span>
                         </div>
                       </div>
@@ -778,7 +778,7 @@ export const Profile = () => {
             <div className="flex items-center justify-between p-6 border-b border-zinc-900 bg-zinc-900/50 shrink-0">
               <h2 className="text-lg font-black text-white">Edit pinned items</h2>
               <button onClick={() => setIsPinModalOpen(false)} className="text-zinc-500 hover:text-white transition-colors">
-                <X className="w-6 h-6" />
+                <X className="size-6" />
               </button>
             </div>
             
@@ -786,7 +786,7 @@ export const Profile = () => {
               <p className="text-sm text-zinc-400 mb-6">Select up to six public repositories you'd like to show to anyone.</p>
               
               <div className="relative mb-6">
-                <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-zinc-600" />
                 <input 
                   type="text" 
                   placeholder="Filter repositories"
@@ -817,17 +817,17 @@ export const Profile = () => {
                             : 'border-zinc-900 bg-zinc-900/10 hover:border-zinc-800'
                         }`}
                       >
-                        <div className={`w-5 h-5 border-2 mr-4 flex items-center justify-center transition-all ${
+                        <div className={`size-5 border-2 mr-4 flex items-center justify-center transition-all ${
                           isSelected ? 'border-red-600 bg-red-600' : 'border-zinc-800 group-hover:border-zinc-700'
                         }`}>
-                          {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
+                          {isSelected && <Check className="size-3.5 text-white" />}
                         </div>
-                        <Book className={`w-4 h-4 mr-3 ${isSelected ? 'text-red-500' : 'text-zinc-500'}`} />
+                        <Book className={`size-4 mr-3 ${isSelected ? 'text-red-500' : 'text-zinc-500'}`} />
                         <span className={`text-sm font-bold flex-1 ${isSelected ? 'text-white' : 'text-zinc-300'}`}>
                           {repo.name}
                         </span>
                         <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-600">
-                          <Star className="w-3.5 h-3.5" /> {repo.starCount || 0}
+                          <Star className="size-3.5" /> {repo.starCount || 0}
                         </div>
                       </div>
                     );

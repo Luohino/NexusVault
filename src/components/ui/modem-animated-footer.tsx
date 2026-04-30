@@ -1,12 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import {
-  NotepadTextDashed,
-  Twitter,
-  Linkedin,
-  Github,
-  Mail,
-} from "lucide-react";
 import { cn } from "../../lib/utils";
 
 interface FooterLink {
@@ -42,7 +34,7 @@ export const Footer = ({
   return (
     <section className={cn("relative w-full mt-0 overflow-hidden", className)}>
       <footer className="border-t bg-[#FEFCE8] relative border-yellow-200">
-        <div className="max-w-7xl flex flex-col justify-between mx-auto min-h-[22rem] sm:min-h-[25rem] relative p-4 py-10">
+        <div className="max-w-7xl flex flex-col justify-between mx-auto min-h-88 sm:min-h-100 relative p-4 py-10">
           <div className="flex flex-col w-full">
             <div className="w-full flex flex-col items-center">
               <div className="space-y-2 flex flex-col items-center flex-1">
@@ -98,7 +90,7 @@ export const Footer = ({
 
         {/* Large background text - FIXED */}
         <div 
-          className="bg-gradient-to-b from-black/10 via-black/5 to-transparent bg-clip-text text-transparent leading-none absolute left-1/2 -translate-x-1/2 bottom-12 md:bottom-8 font-extrabold tracking-tighter pointer-events-none select-none text-center px-4"
+          className="bg-linear-to-b from-black/10 via-black/5 to-transparent bg-clip-text text-transparent leading-none absolute left-1/2 -translate-x-1/2 bottom-12 md:bottom-8 font-extrabold tracking-tighter pointer-events-none select-none text-center px-4"
           style={{
             fontSize: 'clamp(3rem, 12vw, 10rem)',
             maxWidth: '95vw'
@@ -108,7 +100,7 @@ export const Footer = ({
         </div>
 
         {/* Bottom shadow - Removed lines to keep it clean */}
-        <div className="bg-gradient-to-t from-[#FEFCE8] via-[#FEFCE8]/80 blur-[1em] to-transparent absolute bottom-0 w-full h-24 pointer-events-none"></div>
+        <div className="bg-linear-to-t from-[#FEFCE8] via-[#FEFCE8]/80 blur-[1em] to-transparent absolute bottom-0 w-full h-24 pointer-events-none"></div>
       </footer>
     </section>
   );

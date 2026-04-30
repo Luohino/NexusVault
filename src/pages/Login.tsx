@@ -39,7 +39,7 @@ export const Login = () => {
             appearance={{
               baseTheme: dark,
               elements: {
-                formButtonPrimary: 'bg-[#dc2626] hover:bg-red-500 border-none text-white font-black rounded-none py-4 px-4 transition-all uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(220,38,38,0.4)]',
+                formButtonPrimary: 'bg-[#dc2626] hover:bg-red-500 border-none text-white font-black rounded-none p-4 transition-all uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(220,38,38,0.4)]',
                 card: 'bg-black/40 backdrop-blur-3xl border-2 border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.5)] w-full rounded-none p-4',
                 headerTitle: 'text-3xl font-[1000] italic tracking-[calc(-0.05em)] text-white uppercase mb-2',
                 headerSubtitle: 'text-gray-400 font-medium text-xs uppercase',

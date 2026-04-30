@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { db } from './db.js';
 import { users, repositories, commits, files, fileVersions, issues, issueComments, stars, followers, tags, releases, releaseAssets, branches, branchFiles, pullRequests, repositoryTopics, repositorySettings, wikiPages, pullRequestReviews, repositoryCollaborators, repositoryInvitations, notifications } from './schema.js';
-import { eq, and, or, like, ilike, desc, sql, gte, inArray } from 'drizzle-orm';
+import { eq, and, or, ilike, desc, sql, inArray } from 'drizzle-orm';
 import { detectLanguage } from './utils/language.js';
 import { canReviewPullRequest, countApprovedReviews, evaluateDirectWritePolicy, getDefaultBranchName } from './repositoryRules.js';
 import crypto from 'crypto';
@@ -186,14 +186,6 @@ export function setupApiRoutes(app: Express) {
     if (await canReadRepository(repo, userId)) return true;
     res.status(403).json({ error: 'Repository access denied' });
     return false;
-  };
-
-  const canAdminRepository = async (repo: any, userId: string) => {
-    if (repo.ownerId === userId) return true;
-    const collaborator = await db.select().from(repositoryCollaborators)
-      .where(and(eq(repositoryCollaborators.repositoryId, repo.id), eq(repositoryCollaborators.userId, userId), eq(repositoryCollaborators.role, 'admin')))
-      .limit(1);
-    return collaborator.length > 0;
   };
 
   const getRepositoryDefaultBranch = async (repoId: string) => {

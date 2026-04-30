@@ -1,8 +1,7 @@
 import { Separator } from "@/components/ui/separator";
-import { Github, Mail, Linkedin } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
-import { UserButton, useUser, SignedOut, SignedIn } from "@clerk/clerk-react";
+import { UserButton, useUser, SignedOut } from "@clerk/clerk-react";
 
 export function HeroSection() {
   const { isSignedIn, isLoaded } = useUser();

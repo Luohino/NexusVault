@@ -35,7 +35,7 @@ export const DocumentViewer: React.FC = () => {
     return (
       <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-black border-t-red-600 animate-spin" />
+          <div className="size-12 border-4 border-black border-t-red-600 animate-spin" />
           <span className="font-mono text-sm font-bold uppercase tracking-widest">Accessing Archive...</span>
         </div>
       </div>
@@ -50,7 +50,7 @@ export const DocumentViewer: React.FC = () => {
           onClick={() => navigate('/vault')}
           className="group flex items-center gap-2 mb-8 px-4 py-2 bg-white border-2 border-black hover:bg-black hover:text-white transition-all duration-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
         >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          <ArrowLeft className="size-5 group-hover:-translate-x-1 transition-transform" />
           <span className="font-mono text-sm font-bold uppercase tracking-tight">Return to Vault</span>
         </button>
 
@@ -58,10 +58,10 @@ export const DocumentViewer: React.FC = () => {
         <div className="bg-white border-4 border-black p-8 md:p-12 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
           <div className="flex items-center gap-4 mb-10 pb-6 border-b-2 border-zinc-100">
             <div className="p-3 bg-red-600 text-white border-2 border-black">
-              {filename?.toLowerCase().includes('security') ? <Shield className="w-8 h-8" /> : 
-               filename?.toLowerCase().includes('license') ? <Scale className="w-8 h-8" /> :
-               filename?.toLowerCase().includes('performance') ? <Zap className="w-8 h-8" /> :
-               <FileText className="w-8 h-8" />}
+              {filename?.toLowerCase().includes('security') ? <Shield className="size-8" /> : 
+               filename?.toLowerCase().includes('license') ? <Scale className="size-8" /> :
+               filename?.toLowerCase().includes('performance') ? <Zap className="size-8" /> :
+               <FileText className="size-8" />}
             </div>
             <div>
               <h1 className="text-3xl font-black uppercase tracking-tighter leading-none mb-1">

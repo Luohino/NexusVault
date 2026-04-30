@@ -16,6 +16,7 @@ export const CommitDiffPage = ({ username, repoName, commits }: { username: stri
     fetch(`/api/repos/${username}/${repoName}/commits/${commitId}/files`)
       .then(res => res.json())
       .then(data => setChangedFiles(Array.isArray(data) ? data : []))
+      .catch(console.error)
       .finally(() => setLoading(false));
   }, [username, repoName, commitId]);
 
@@ -39,7 +40,7 @@ export const CommitDiffPage = ({ username, repoName, commits }: { username: stri
       </div>
 
       <div className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.25em] text-zinc-500">
-        <Activity className="w-4 h-4 text-red-600" />
+        <Activity className="size-4 text-red-600" />
         {changedFiles.length} changed files
       </div>
 
@@ -48,11 +49,11 @@ export const CommitDiffPage = ({ username, repoName, commits }: { username: stri
           <div key={file.id || file.path} className="border-[3px] border-black bg-black shadow-[10px_10px_0px_0px_rgba(220,38,38,1)] overflow-hidden">
             <div className="bg-white text-black border-b-[3px] border-black px-5 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <FileIcon className="w-4 h-4 text-red-600 flex-shrink-0" />
+                <FileIcon className="size-4 text-red-600 shrink-0" />
                 <span className="text-sm font-black truncate">{file.path}</span>
               </div>
               <Link to={`/${username}/${repoName}/blob/main/${file.path}`} className="inline-flex items-center gap-2 text-[10px] font-black text-red-600 hover:text-black">
-                <Code className="w-3.5 h-3.5" />
+                <Code className="size-3.5" />
                 View file
               </Link>
             </div>

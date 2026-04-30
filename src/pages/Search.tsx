@@ -30,7 +30,7 @@ export const Search = () => {
           <div className="sticky top-24 space-y-8">
             <div>
               <h3 className="text-xs text-zinc-400 font-bold mb-4 flex items-center">
-                <span className="w-1.5 h-1.5 bg-red-600 mr-2"></span>
+                <span className="size-1.5 bg-red-600 mr-2"></span>
                 Filter results
               </h3>
               <nav className="space-y-2">
@@ -43,7 +43,7 @@ export const Search = () => {
                   }`}
                 >
                   <div className="flex items-center">
-                    <Book className={`w-4 h-4 mr-3 ${activeTab === 'repos' ? 'text-red-500' : 'text-zinc-500'}`} />
+                    <Book className={`size-4 mr-3 ${activeTab === 'repos' ? 'text-red-500' : 'text-zinc-500'}`} />
                     <span className="text-sm font-semibold">Repositories</span>
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 border ${
@@ -61,7 +61,7 @@ export const Search = () => {
                   }`}
                 >
                   <div className="flex items-center">
-                    <Users className={`w-4 h-4 mr-3 ${activeTab === 'users' ? 'text-red-500' : 'text-zinc-500'}`} />
+                    <Users className={`size-4 mr-3 ${activeTab === 'users' ? 'text-red-500' : 'text-zinc-500'}`} />
                     <span className="text-sm font-semibold">Users</span>
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 border ${
@@ -96,7 +96,7 @@ export const Search = () => {
                 Found {activeTab === 'repos' ? results.repositories.length : results.users.length} matching entities for <span className="text-red-500 font-bold">"{query}"</span>
               </p>
             </div>
-            <SearchIcon className="w-8 h-8 text-zinc-800" />
+            <SearchIcon className="size-8 text-zinc-800" />
           </div>
 
           {loading ? (
@@ -108,8 +108,8 @@ export const Search = () => {
           ) : activeTab === 'repos' ? (
             results.repositories.length === 0 ? (
               <div className="border-2 border-dashed border-zinc-800 py-24 flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-zinc-900 flex items-center justify-center mb-6">
-                  <Terminal className="w-8 h-8 text-zinc-700" />
+                <div className="size-16 bg-zinc-900 flex items-center justify-center mb-6">
+                  <Terminal className="size-8 text-zinc-700" />
                 </div>
                 <h3 className="text-xl font-bold text-zinc-400 mb-2">No repositories found</h3>
                 <p className="text-zinc-600 text-sm max-w-sm">
@@ -125,12 +125,12 @@ export const Search = () => {
                     className="group block border-2 border-zinc-900 bg-zinc-900/10 p-6 hover:border-red-600/50 transition-all duration-300 relative overflow-hidden"
                   >
                     <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ExternalLink className="w-4 h-4 text-red-500" />
+                      <ExternalLink className="size-4 text-red-500" />
                     </div>
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-zinc-800 flex items-center justify-center text-red-500 group-hover:bg-red-600 group-hover:text-white transition-colors duration-300">
-                          <Book className="w-5 h-5" />
+                        <div className="size-10 bg-zinc-800 flex items-center justify-center text-red-500 group-hover:bg-red-600 group-hover:text-white transition-colors duration-300">
+                          <Book className="size-5" />
                         </div>
                         <div>
                           <h4 className="text-xl font-bold text-white group-hover:text-red-500 transition-colors">
@@ -138,7 +138,7 @@ export const Search = () => {
                           </h4>
                           <div className="flex items-center mt-1 space-x-4 text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">
                             <span className="flex items-center">
-                              <span className="w-1.5 h-1.5 bg-red-600 mr-1.5"></span>
+                              <span className="size-1.5 bg-red-600 mr-1.5"></span>
                               {repo.isPrivate ? 'Private' : 'Public'}
                             </span>
                             <span>Updated recently</span>
@@ -166,11 +166,11 @@ export const Search = () => {
                     to={`/${user.username}`}
                     className="group flex items-center p-4 border-2 border-zinc-900 hover:border-red-600/50 bg-zinc-900/10 transition-all"
                   >
-                    <div className="w-12 h-12 bg-zinc-800 mr-4 flex items-center justify-center text-zinc-500 group-hover:bg-red-600 group-hover:text-white transition-all overflow-hidden">
+                    <div className="size-12 bg-zinc-800 mr-4 flex items-center justify-center text-zinc-500 group-hover:bg-red-600 group-hover:text-white transition-all overflow-hidden">
                       {user.avatarUrl ? (
-                        <img src={user.avatarUrl} alt={user.username} className="w-full h-full object-cover" />
+                        <img src={user.avatarUrl} alt={user.username} className="size-full object-cover" />
                       ) : (
-                        <Users className="w-6 h-6" />
+                        <Users className="size-6" />
                       )}
                     </div>
                     <div>

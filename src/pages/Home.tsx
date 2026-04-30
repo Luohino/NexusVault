@@ -1,11 +1,11 @@
 import React from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { Link } from 'react-router-dom';
-import { Github, Book, Star, Plus, Twitter, History, Linkedin, Youtube, Instagram, X, Folder } from 'lucide-react';
+import { Github, Book, Plus, Twitter, History, Linkedin, Youtube, Instagram, X, Folder } from 'lucide-react';
 import { HeroSection } from '../components/ui/hero-section';
 import RuixenBentoCards from '../components/ui/ruixen-bento-cards';
 import { Footer } from '../components/ui/modem-animated-footer';
-import { LoadingScreen, DashboardSkeleton } from '../components/ui/loading-states';
+import { DashboardSkeleton } from '../components/ui/loading-states';
 import { ProtocolHub } from '../components/ui/protocol-hub';
 import { format } from 'date-fns';
 import { SEO } from '../components/SEO';
@@ -54,11 +54,11 @@ export const Home = () => {
   const isLoading = !isLoaded || (user && isReposLoading);
 
   const socialLinks = [
-    { icon: <Twitter className="w-5 h-5" />, href: "https://x.com/Luohinoo", label: "X (Twitter)" },
-    { icon: <Github className="w-5 h-5" />, href: "https://github.com/Luohino/", label: "GitHub" },
-    { icon: <Linkedin className="w-5 h-5" />, href: "https://www.linkedin.com/in/luohino-o-43620931b", label: "LinkedIn" },
-    { icon: <Youtube className="w-5 h-5" />, href: "https://youtube.com/@luohino", label: "YouTube" },
-    { icon: <Instagram className="w-5 h-5" />, href: "https://www.instagram.com/luohinoo", label: "Instagram" },
+    { icon: <Twitter className="size-5" />, href: "https://x.com/Luohinoo", label: "X (Twitter)" },
+    { icon: <Github className="size-5" />, href: "https://github.com/Luohino/", label: "GitHub" },
+    { icon: <Linkedin className="size-5" />, href: "https://www.linkedin.com/in/luohino-o-43620931b", label: "LinkedIn" },
+    { icon: <Youtube className="size-5" />, href: "https://youtube.com/@luohino", label: "YouTube" },
+    { icon: <Instagram className="size-5" />, href: "https://www.instagram.com/luohinoo", label: "Instagram" },
   ];
 
   const navLinks = [
@@ -97,12 +97,12 @@ export const Home = () => {
               className="md:hidden flex items-center justify-between p-4 bg-[#0d0d0d] border-2 border-black shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] mb-4"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-white flex items-center justify-center border-2 border-black">
-                  <Book className="w-4 h-4 text-red-600" />
+                <div className="size-8 bg-white flex items-center justify-center border-2 border-black">
+                  <Book className="size-4 text-red-600" />
                 </div>
                 <span className="text-xs font-black uppercase tracking-widest">Command Panel</span>
               </div>
-              <Plus className="w-4 h-4 text-zinc-500" />
+              <Plus className="size-4 text-zinc-500" />
             </button>
 
             {/* Mobile Panel Overlay */}
@@ -113,7 +113,7 @@ export const Home = () => {
                     onClick={() => setIsMobilePanelOpen(false)}
                     className="absolute top-6 right-6 text-red-600 p-2"
                   >
-                    <X className="w-6 h-6" />
+                    <X className="size-6" />
                   </button>
                   
                   <div className="mt-12 space-y-10 overflow-y-auto h-[calc(100vh-100px)] scrollbar-hide">
@@ -128,7 +128,7 @@ export const Home = () => {
                             className="flex items-center gap-3 p-3 bg-[#0d0d0d] border-2 border-black hover:border-red-600 transition-all"
                             onClick={() => setIsMobilePanelOpen(false)}
                           >
-                            <Folder className="w-4 h-4 text-zinc-500" />
+                            <Folder className="size-4 text-zinc-500" />
                             <span className="text-xs font-bold truncate">{repo.name}</span>
                           </Link>
                         ))}
@@ -141,7 +141,7 @@ export const Home = () => {
                       <div className="space-y-4">
                         {activity.map((item: any) => (
                           <div key={item.id} className="flex gap-4 p-3 border-b-2 border-zinc-900">
-                            <History className="w-4 h-4 text-zinc-700 shrink-0 mt-1" />
+                            <History className="size-4 text-zinc-700 shrink-0 mt-1" />
                             <div className="min-w-0">
                               <p className="text-[11px] font-bold text-white truncate">{item.message}</p>
                               <p className="text-[9px] font-black text-zinc-600 uppercase mt-1">{item.repoName}</p>
@@ -177,8 +177,8 @@ export const Home = () => {
                         to={`/${userIdentifier}/${repo.name}`}
                         className="sidebar-item"
                       >
-                        <div className="w-5 h-5 bg-zinc-800 flex-shrink-0 flex items-center justify-center overflow-hidden border border-black">
-                          {user.imageUrl ? <img src={user.imageUrl} className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold">{(userIdentifier || 'U')[0].toUpperCase()}</span>}
+                        <div className="size-5 bg-zinc-800 shrink-0 flex items-center justify-center overflow-hidden border border-black">
+                          {user.imageUrl ? <img src={user.imageUrl} className="size-full object-cover" /> : <span className="text-[10px] font-bold">{(userIdentifier || 'U')[0].toUpperCase()}</span>}
                         </div>
                         <span className="truncate font-medium hover:text-red-500 transition-colors">
                           {userIdentifier}/<span className="text-white font-bold">{repo.name}</span>
@@ -197,8 +197,8 @@ export const Home = () => {
                   ) : (
                     activity.map((item: any) => (
                       <div key={item.id} className="flex gap-3 items-start group">
-                        <div className="mt-1 w-5 h-5 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0">
-                          <History className="w-3 h-3 text-red-600" />
+                        <div className="mt-1 size-5 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0">
+                          <History className="size-3 text-red-600" />
                         </div>
                         <div className="space-y-1">
                           <Link 
@@ -224,12 +224,12 @@ export const Home = () => {
             <div className="flex-1 space-y-8">
               <div className="bg-white text-black p-8 md:p-20 relative overflow-hidden group border-[4px] border-black shadow-[12px_12px_0px_0px_rgba(220,38,38,1)]">
                 {/* Institutional Patterns */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-zinc-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-1000 -mr-20 -mt-20"></div>
+                <div className="absolute top-0 right-0 size-64 bg-zinc-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-1000 -mr-20 -mt-20"></div>
                 
                 <div className="relative z-10">
                   <div className="flex items-center gap-6 mb-10">
-                    <div className="w-16 h-16 bg-black flex items-center justify-center border-4 border-black shadow-[6px_6px_0px_0px_rgba(220,38,38,1)]">
-                      <img src={user.imageUrl} alt="User Profile" className="w-12 h-12 object-cover" />
+                    <div className="size-16 bg-black flex items-center justify-center border-4 border-black shadow-[6px_6px_0px_0px_rgba(220,38,38,1)]">
+                      <img src={user.imageUrl} alt="User Profile" className="size-12 object-cover" />
                     </div>
                     <div>
                       <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none">
@@ -246,7 +246,7 @@ export const Home = () => {
 
                   <div className="flex flex-wrap gap-4">
                     <Link to="/new" className="neo-brutal-button flex items-center gap-2">
-                      <Plus className="w-4 h-4" /> Create Repository
+                      <Plus className="size-4" /> Create Repository
                     </Link>
                     <Link to="/search" className="px-6 py-3 border-2 border-zinc-800 text-xs font-bold hover:border-white hover:text-white transition-all text-center">
                       Explore Community
