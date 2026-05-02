@@ -6,6 +6,20 @@ coverage/
 *.log
 .env*
 !.env.example
-./cli_and_gui
-cli_and_gui/
-test.js
+testing/
+
+# --- AI-Driven Development Files (PROTECTED) ---
+.antigravity/
+graphify-out/
+.gemini/
+ai_brain/
+init_ai_project.py
+structureForNewProject.md
+AI_CONTEXT.md
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+.agents/
+.claude/
+.codex/
+.cursor/

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { GitBranch, Info, AlertCircle, ChevronDown, Check } from 'lucide-react';
+import { INPUT_LIMITS } from '../utils/inputLimits';
 
 export const ForkRepository = () => {
   const { username: sourceUsername, repoName: sourceRepoName } = useParams<{ username: string, repoName: string }>();
@@ -123,6 +124,7 @@ export const ForkRepository = () => {
                     value={repoName}
                     onChange={(e) => setRepoName(e.target.value)}
                     required
+                    maxLength={INPUT_LIMITS.repoName}
                     className="w-full bg-black border-2 border-zinc-800 p-3 text-sm font-bold uppercase tracking-tight focus:border-red-600 outline-none transition-all"
                   />
                   <div className="mt-2 flex items-center gap-2 text-[10px] font-bold text-green-500 uppercase">
@@ -140,6 +142,7 @@ export const ForkRepository = () => {
                 rows={3}
                 className="w-full bg-black border-2 border-zinc-800 p-4 text-sm font-medium focus:border-red-600 outline-none transition-all resize-none"
                 placeholder="What's this fork for?"
+                maxLength={INPUT_LIMITS.repoDescription}
               />
               <p className="text-[10px] font-bold text-zinc-600 uppercase">By default, forks are named the same as their upstream repository.</p>
             </div>

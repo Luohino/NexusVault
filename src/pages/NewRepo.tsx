@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { Book, Shield, FileText, ChevronDown, Check, Plus } from 'lucide-react';
 import { LoadingScreen } from '../components/ui/loading-states';
+import { INPUT_LIMITS } from '../utils/inputLimits';
 
 const GITIGNORE_TEMPLATES = [
   { name: 'None', value: '' },
@@ -207,9 +208,10 @@ yarn-error.log
                   className="block w-full bg-[#0d0d0d] border-[3px] border-black p-4 text-xs font-black text-white focus:border-red-600 outline-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] placeholder:text-zinc-800 placeholder:italic"
                   value={name}
                   placeholder="E.G. QUANTUM-ENGINE"
+                  maxLength={INPUT_LIMITS.repoName}
                   onChange={(e) => {
                     const newName = e.target.value.replace(/[^a-zA-Z0-9-_]/g, '');
-                    setName(newName);
+                    setName(newName.slice(0, INPUT_LIMITS.repoName));
                     if (newName.toLowerCase() === userIdentifier.toLowerCase()) {
                       setAddReadme(true);
                     }
@@ -243,6 +245,7 @@ yarn-error.log
                 rows={3}
                 value={description}
                 placeholder="DEFINE THE PURPOSE OF THIS VAULT..."
+                maxLength={INPUT_LIMITS.repoDescription}
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>

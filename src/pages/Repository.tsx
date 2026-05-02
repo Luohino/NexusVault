@@ -95,7 +95,12 @@ const IssueDetail = ({ username, repoName, issues, user, repo, onRefresh }: any)
               <span className="text-[10px] font-bold text-zinc-500 uppercase">Original Payload</span>
             </div>
             <div className="p-8">
-              <MarkdownViewer content={issue.description || '*No description provided.*'} theme="light" />
+              <MarkdownViewer 
+                content={issue.description || '*No description provided.*'} 
+                theme="light" 
+                baseUrl={`/${username}/${repoName}/blob/main`}
+                imageBaseUrl={`/api/repos/${username}/${repoName}/raw/main`}
+              />
             </div>
           </div>
 
@@ -110,7 +115,12 @@ const IssueDetail = ({ username, repoName, issues, user, repo, onRefresh }: any)
                 <span className="text-[10px] font-bold text-zinc-400 uppercase">{format(new Date(comment.createdAt), 'MMM d, yyyy')}</span>
               </div>
               <div className="p-6">
-                <MarkdownViewer content={comment.content} theme="light" />
+                <MarkdownViewer 
+                  content={comment.content} 
+                  theme="light" 
+                  baseUrl={`/${username}/${repoName}/blob/main`}
+                  imageBaseUrl={`/api/repos/${username}/${repoName}/raw/main`}
+                />
               </div>
             </div>
           ))}
@@ -288,7 +298,12 @@ const NewIssue = ({ username, repoName, user, getToken }: any) => {
                     <h1 className="text-2xl font-black text-black uppercase tracking-tighter italic">{title || 'Untitled_Payload'}</h1>
                   </div>
                   <div className="text-black min-h-[100px]">
-                    <MarkdownViewer content={description} theme="light" />
+                    <MarkdownViewer 
+                      content={description} 
+                      theme="light" 
+                      baseUrl={`/${username}/${repoName}/blob/main`}
+                      imageBaseUrl={`/api/repos/${username}/${repoName}/raw/main`}
+                    />
                   </div>
                 </div>
               )}
@@ -530,7 +545,11 @@ const TagDetailView = ({
             </div>
             <div className="p-6">
               {tag.message ? (
-                <MarkdownViewer content={tag.message} />
+                <MarkdownViewer 
+                  content={tag.message} 
+                  baseUrl={`/${username}/${repoName}/blob/main`}
+                  imageBaseUrl={`/api/repos/${username}/${repoName}/raw/main`}
+                />
               ) : (
                 <p className="text-sm text-zinc-500 italic">No release notes were attached to this tag.</p>
               )}
@@ -665,7 +684,11 @@ const ReleaseDetailView = ({
             </div>
             <div className="p-6">
               {release.body ? (
-                <MarkdownViewer content={release.body} />
+                <MarkdownViewer 
+                  content={release.body} 
+                  baseUrl={`/${username}/${repoName}/blob/main`}
+                  imageBaseUrl={`/api/repos/${username}/${repoName}/raw/main`}
+                />
               ) : (
                 <p className="text-sm text-zinc-500 italic">No release notes were provided.</p>
               )}
@@ -745,6 +768,8 @@ export const Repository = () => {
   const [deleteCommitMsg, setDeleteCommitMsg] = useState('Delete file');
   const [isDeletingFile, setIsDeletingFile] = useState(false);
   const [isAddFileOpen, setIsAddFileOpen] = useState(false);
+  const [isCodeMenuOpen, setIsCodeMenuOpen] = useState(false);
+  const [copiedCodeCommand, setCopiedCodeCommand] = useState('');
   const [isBranchMenuOpen, setIsBranchMenuOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzedCount, setAnalyzedCount] = useState(0);
@@ -776,6 +801,73 @@ export const Repository = () => {
   const [newReleaseAssets, setNewReleaseAssets] = useState<File[]>([]);
   const [isDraggingReleaseAsset, setIsDraggingReleaseAsset] = useState(false);
   const addFileRef = React.useRef<HTMLDivElement>(null);
+  const codeMenuRef = React.useRef<HTMLDivElement>(null);
+  const appOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://nexusvault-luohino.vercel.app';
+  const repoRemoteUrl = `${appOrigin}/${username}/${repoName}`;
+  const branchFilesUrl = `${appOrigin}/api/repos/${encodeURIComponent(username || '')}/${encodeURIComponent(repoName || '')}/files?branch=${encodeURIComponent(currentBranchName)}&limit=2000`;
+  const psQuote = (value: string) => `'${value.replace(/'/g, "''")}'`;
+  const powershellCloneScript = [
+    `$repo = ${psQuote(branchFilesUrl)}`,
+    `$out = ${psQuote(repoName || 'repository')}`,
+    `$remote = ${psQuote(repoRemoteUrl)}`,
+    `$branch = ${psQuote(currentBranchName || 'main')}`,
+    "$token = ''",
+    '$headers = @{}',
+    "if ($token) { $headers.Authorization = 'Bearer ' + $token }",
+    'New-Item -ItemType Directory -Force -Path $out | Out-Null',
+    '$root = (Resolve-Path -LiteralPath $out).Path',
+    'Invoke-RestMethod -Uri $repo -Headers $headers | ForEach-Object {',
+    '  $rel = [string]$_.path',
+    "  if ([IO.Path]::IsPathRooted($rel) -or (($rel -split '[\\\\/]') -contains '..')) { throw ('Unsafe path from server: ' + $rel) }",
+    "  $target = Join-Path $root ($rel -replace '/', [IO.Path]::DirectorySeparatorChar)",
+    '  $dir = Split-Path $target',
+    '  if ($dir) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }',
+    '  Set-Content -LiteralPath $target -Value $_.content -NoNewline -Encoding UTF8',
+    '}',
+    "$nv = Join-Path $root '.nv'",
+    "New-Item -ItemType Directory -Force -Path $nv, (Join-Path $nv 'objects'), (Join-Path $nv 'commits') | Out-Null",
+    "Set-Content -LiteralPath (Join-Path $nv 'HEAD') -Value $branch -NoNewline -Encoding UTF8",
+    "Set-Content -LiteralPath (Join-Path $nv 'index') -Value '' -NoNewline -Encoding UTF8",
+    "Set-Content -LiteralPath (Join-Path $nv 'HEAD_state') -Value '' -NoNewline -Encoding UTF8",
+    "$config = @('remote.origin.url=' + $remote)",
+    "$ifTokenConfig = if ($token) { 'auth.token=' + $token }",
+    'if ($ifTokenConfig) { $config += $ifTokenConfig }',
+    "Set-Content -LiteralPath (Join-Path $nv 'config') -Value ($config -join [Environment]::NewLine) -Encoding UTF8",
+    "if ($env:OS -eq 'Windows_NT') { attrib +h $nv 2>$null }",
+    "Write-Host ('Cloned NexusVault snapshot to ' + $out + ' and initialized .nv metadata.')",
+  ].join('; ');
+  const powershellCloneCommand = `powershell -NoProfile -ExecutionPolicy Bypass -Command "& { ${powershellCloneScript} }"`;
+  const newRepoCommand = [
+    `echo "# ${repoName}" >> README.md`,
+    'nv init',
+    'nv add .',
+    'nv commit -m "first commit"',
+    'nv branch -M main',
+    `nv remote add origin ${repoRemoteUrl}`,
+    'nv login <access-token>',
+    'nv push -u origin main',
+  ].join('\n');
+
+  const copyCodeCommand = async (label: string, value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedCodeCommand(label);
+      window.setTimeout(() => {
+        setCopiedCodeCommand((current) => current === label ? '' : current);
+      }, 1600);
+    } catch (error) {
+      console.error('Failed to copy code command:', error);
+    }
+  };
+  const existingRepoCommand = [
+    'nv init',
+    'nv add .',
+    'nv commit -m "first commit"',
+    'nv branch -M main',
+    `nv remote add origin ${repoRemoteUrl}`,
+    'nv login <access-token>',
+    'nv push -u origin main',
+  ].join('\n');
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -981,6 +1073,9 @@ export const Repository = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (addFileRef.current && !addFileRef.current.contains(event.target as Node)) {
         setIsAddFileOpen(false);
+      }
+      if (codeMenuRef.current && !codeMenuRef.current.contains(event.target as Node)) {
+        setIsCodeMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -1483,12 +1578,12 @@ export const Repository = () => {
                     </div>
                   </div>
                   
-                  <div className="flex w-full sm:w-auto items-center gap-3 relative">
+                  <div className="flex w-full sm:w-auto flex-col sm:flex-row items-stretch sm:items-center gap-3 relative">
                     {user && user.id === repo.ownerId && (
-                      <div className="relative">
+                      <div className="relative w-full sm:w-auto">
                         <button
                           onClick={() => setIsAddFileOpen(!isAddFileOpen)}
-                          className="flex items-center gap-2 bg-white text-black border-[3px] border-black px-4 py-2 text-[11px] font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"
+                          className="flex w-full sm:w-auto items-center justify-center gap-2 bg-white text-black border-[3px] border-black px-4 py-2 text-[11px] font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"
                         >
                           Add file <ChevronDown className="size-3.5" />
                         </button>
@@ -1529,9 +1624,85 @@ export const Repository = () => {
                         )}
                       </div>
                     )}
-                    <button className="neo-brutal-button flex items-center gap-2 !py-2 !px-5 !text-xs w-full sm:w-auto justify-center">
-                      <Code className="size-4" /> Code
-                    </button>
+                    <div ref={codeMenuRef} className="relative w-full sm:w-auto">
+                      <button
+                        onClick={() => {
+                          setIsCodeMenuOpen(!isCodeMenuOpen);
+                          setIsAddFileOpen(false);
+                        }}
+                        className="neo-brutal-button flex items-center gap-2 !py-2 !px-5 !text-xs w-full sm:w-auto justify-center"
+                        aria-expanded={isCodeMenuOpen}
+                      >
+                        <Code className="size-4" /> Code <ChevronDown className="size-3.5" />
+                      </button>
+                      {isCodeMenuOpen && (
+                        <>
+                          <div className="fixed inset-0 z-40 md:hidden bg-black/60 backdrop-blur-sm" onClick={() => setIsCodeMenuOpen(false)}></div>
+                          <div className="fixed md:absolute right-0 left-0 md:left-auto bottom-0 md:bottom-auto md:top-full mb-0 md:mt-3 w-full md:w-[28rem] max-h-[85vh] overflow-y-auto bg-white border-t-[4px] md:border-[4px] border-black shadow-[0px_-10px_40px_rgba(0,0,0,0.35)] md:shadow-[10px_10px_0px_0px_rgba(220,38,38,1)] z-50 animate-in slide-in-from-bottom md:slide-in-from-top duration-300 text-black">
+                            <div className="bg-red-600 px-6 py-5 border-b-[4px] border-black flex items-center justify-between">
+                              <span className="text-[11px] font-black text-white uppercase tracking-[0.2em] italic">Code_Access</span>
+                              <X className="size-6 text-white cursor-pointer md:hidden" onClick={() => setIsCodeMenuOpen(false)} />
+                            </div>
+                            <div className="p-4 sm:p-5 space-y-5">
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">NexusVault remote</span>
+                                  <button
+                                    onClick={() => copyCodeCommand('remote', repoRemoteUrl)}
+                                    className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase text-red-600 hover:text-black"
+                                  >
+                                    <Copy className="size-3.5" />
+                                    {copiedCodeCommand === 'remote' ? 'Copied' : 'Copy'}
+                                  </button>
+                                </div>
+                                <code className="block border-[3px] border-black bg-zinc-100 px-3 py-3 text-[11px] font-mono font-black break-all">
+                                  {repoRemoteUrl}
+                                </code>
+                              </div>
+
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Clone without Git</span>
+                                  <button
+                                    onClick={() => copyCodeCommand('powershell', powershellCloneCommand)}
+                                    className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase text-red-600 hover:text-black"
+                                  >
+                                    <Terminal className="size-3.5" />
+                                    {copiedCodeCommand === 'powershell' ? 'Copied' : 'Copy'}
+                                  </button>
+                                </div>
+                                <pre className="max-h-52 overflow-auto border-[3px] border-black bg-black p-4 text-[10px] leading-5 text-zinc-200 whitespace-pre-wrap break-words">
+                                  {powershellCloneCommand}
+                                </pre>
+                                <p className="mt-2 text-[10px] font-bold text-zinc-500 leading-relaxed">
+                                  Paste this into CMD or PowerShell. For private repos, replace `$token = ''` with your token first.
+                                </p>
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <a
+                                  href={branchFilesUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center justify-center gap-2 border-[3px] border-black bg-black px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white hover:bg-red-600 transition-colors"
+                                  onClick={() => setIsCodeMenuOpen(false)}
+                                >
+                                  <Download className="size-4" />
+                                  Snapshot JSON
+                                </a>
+                                <button
+                                  onClick={() => copyCodeCommand('api', branchFilesUrl)}
+                                  className="flex items-center justify-center gap-2 border-[3px] border-black bg-white px-4 py-3 text-[10px] font-black uppercase tracking-widest text-black hover:bg-red-50 transition-colors"
+                                >
+                                  <Copy className="size-4" />
+                                  {copiedCodeCommand === 'api' ? 'Copied API' : 'Copy API URL'}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -1593,9 +1764,9 @@ export const Repository = () => {
                           <div className="p-8 md:p-10">
                             <div className="flex flex-col md:flex-row gap-4 mb-8">
                               <div className="flex-1 bg-zinc-100 border-[3px] border-black p-5 flex items-center justify-between shadow-inner group">
-                                <code className="text-sm font-black text-black truncate tracking-tight">{`https://nexusvault.io/${username}/${repoName}.git`}</code>
+                                <code className="text-sm font-black text-black truncate tracking-tight">{repoRemoteUrl}</code>
                                 <button 
-                                  onClick={() => navigator.clipboard.writeText(`https://nexusvault.io/${username}/${repoName}.git`)}
+                                  onClick={() => navigator.clipboard.writeText(repoRemoteUrl)}
                                   className="p-2.5 bg-black text-white hover:bg-red-600 transition-all border-2 border-transparent active:scale-90"
                                 >
                                   <Copy className="size-4" />
@@ -1618,17 +1789,22 @@ export const Repository = () => {
                                 <h3 className="text-xs font-black text-white uppercase tracking-widest italic -skew-x-12">New repository_init</h3>
                               </div>
                               <div className="bg-black border-[3px] border-black p-8 relative group shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]">
-                                <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={() => navigator.clipboard.writeText(newRepoCommand)}
+                                  className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  aria-label="Copy new repository commands"
+                                >
                                   <Copy className="size-4 text-zinc-700 hover:text-red-500 cursor-pointer" />
-                                </div>
+                                </button>
                                 <pre className="text-[10px] font-bold text-zinc-400 leading-7">
                                   <span className="text-red-500">echo</span> "# {repoName}" <span className="text-red-500">&gt;&gt;</span> README.md<br/>
-                                  <span className="text-red-500">git</span> init<br/>
-                                  <span className="text-red-500">git</span> add README.md<br/>
-                                  <span className="text-red-500">git</span> commit -m "first commit"<br/>
-                                  <span className="text-red-500">git</span> branch -M main<br/>
-                                  <span className="text-red-500">git</span> remote add origin https://nexusvault.io/{username}/{repoName}.git<br/>
-                                  <span className="text-red-500">git</span> push -u origin main
+                                  <span className="text-red-500">nv</span> init<br/>
+                                  <span className="text-red-500">nv</span> add .<br/>
+                                  <span className="text-red-500">nv</span> commit -m "first commit"<br/>
+                                  <span className="text-red-500">nv</span> branch -M main<br/>
+                                  <span className="text-red-500">nv</span> remote add origin {repoRemoteUrl}<br/>
+                                  <span className="text-red-500">nv</span> login &lt;access-token&gt;<br/>
+                                  <span className="text-red-500">nv</span> push -u origin main
                                 </pre>
                               </div>
                            </div>
@@ -1641,13 +1817,21 @@ export const Repository = () => {
                                 <h3 className="text-xs font-black text-white uppercase tracking-widest italic -skew-x-12">Push existing_data</h3>
                               </div>
                               <div className="bg-black border-[3px] border-black p-8 relative group shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]">
-                                <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={() => navigator.clipboard.writeText(existingRepoCommand)}
+                                  className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  aria-label="Copy existing repository commands"
+                                >
                                   <Copy className="size-4 text-zinc-700 hover:text-red-500 cursor-pointer" />
-                                </div>
+                                </button>
                                 <pre className="text-[10px] font-bold text-zinc-400 leading-7">
-                                  <span className="text-red-500">git</span> remote add origin https://nexusvault.io/{username}/{repoName}.git<br/>
-                                  <span className="text-red-500">git</span> branch -M main<br/>
-                                  <span className="text-red-500">git</span> push -u origin main
+                                  <span className="text-red-500">nv</span> init<br/>
+                                  <span className="text-red-500">nv</span> add .<br/>
+                                  <span className="text-red-500">nv</span> commit -m "first commit"<br/>
+                                  <span className="text-red-500">nv</span> branch -M main<br/>
+                                  <span className="text-red-500">nv</span> remote add origin {repoRemoteUrl}<br/>
+                                  <span className="text-red-500">nv</span> login &lt;access-token&gt;<br/>
+                                  <span className="text-red-500">nv</span> push -u origin main
                                 </pre>
                               </div>
                            </div>
@@ -1824,7 +2008,11 @@ export const Repository = () => {
                       )}
                     </div>
                     <div className="p-6 md:p-8">
-                      <MarkdownViewer content={readmeFile.content} />
+                      <MarkdownViewer 
+                        content={readmeFile.content} 
+                        baseUrl={`/${username}/${repoName}/blob/${currentBranchName}`}
+                        imageBaseUrl={`/api/repos/${username}/${repoName}/raw/${currentBranchName}`}
+                      />
                     </div>
                   </div>
                 )}

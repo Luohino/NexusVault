@@ -1,6 +1,8 @@
 import express from "express";
+import compression from "compression";
 import cookieParser from "cookie-parser";
 import { setupApiRoutes } from "./api.js";
+import { setupCliAuthRoutes } from "./auth_cli.js";
 import { initializeRedis } from "./redis.js";
 import { applySecurityHeaders, createRateLimitMiddleware, createTrustedOriginMiddleware, requireJsonMutation } from "./security.js";
 
@@ -15,6 +17,7 @@ export async function createApp() {
 
   app.set("trust proxy", 1);
   app.disable("x-powered-by");
+  app.use(compression());
   app.use(applySecurityHeaders);
   app.use(express.json({ limit: requestBodyLimit }));
   app.use(express.urlencoded({ extended: true, limit: requestBodyLimit }));
@@ -32,6 +35,15 @@ export async function createApp() {
     shouldLimit: (req) => ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method),
   }));
 
+  app.get("/api/health", (_req, res) => {
+    res.json({
+      ok: true,
+      service: "nexusvault",
+      environment: process.env.NODE_ENV || "development",
+      appUrl: process.env.PUBLIC_APP_URL || process.env.APP_BASE_URL || process.env.APP_URL || "https://nexusvault-luohino.vercel.app",
+    });
+  });
+
   try {
     console.log('Sovereign Ingestion: Initializing application core...');
     if (!process.env.DATABASE_URL) {
@@ -45,6 +57,7 @@ export async function createApp() {
 
   // API routes
   setupApiRoutes(app);
+  setupCliAuthRoutes(app);
 
   return app;
 }

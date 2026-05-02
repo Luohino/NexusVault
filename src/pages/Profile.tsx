@@ -8,6 +8,7 @@ import { useUser, useAuth } from '@clerk/clerk-react';
 import { LoadingScreen } from '../components/ui/loading-states';
 import { languageColors } from '../utils/languageColors';
 import { SEO } from '../components/SEO';
+import { INPUT_LIMITS } from '../utils/inputLimits';
 
 export const Profile = () => {
   const { username } = useParams<{ username: string }>();
@@ -255,6 +256,7 @@ export const Profile = () => {
                   type="text" 
                   value={editForm.displayName}
                   onChange={(e) => setEditForm({...editForm, displayName: e.target.value})}
+                  maxLength={INPUT_LIMITS.displayName}
                   className="w-full bg-[#0d0d0d] border border-zinc-800 p-2 text-xs font-bold text-white focus:border-red-600 outline-none"
                 />
               </div>
@@ -263,6 +265,7 @@ export const Profile = () => {
                 <textarea 
                   value={editForm.bio}
                   onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
+                  maxLength={INPUT_LIMITS.bio}
                   className="w-full bg-[#0d0d0d] border border-zinc-800 p-2 text-xs font-medium text-zinc-300 focus:border-red-600 outline-none h-24 resize-none"
                   placeholder="Add a bio"
                 />
@@ -273,6 +276,7 @@ export const Profile = () => {
                   type="text" 
                   value={editForm.pronouns}
                   onChange={(e) => setEditForm({...editForm, pronouns: e.target.value})}
+                  maxLength={INPUT_LIMITS.pronouns}
                   className="w-full bg-[#0d0d0d] border border-zinc-800 p-2 text-xs font-bold text-white focus:border-red-600 outline-none"
                   placeholder="e.g. he/him"
                 />
@@ -283,6 +287,7 @@ export const Profile = () => {
                   type="text" 
                   value={editForm.location}
                   onChange={(e) => setEditForm({...editForm, location: e.target.value})}
+                  maxLength={INPUT_LIMITS.location}
                   className="w-full bg-[#0d0d0d] border border-zinc-800 p-2 text-xs font-bold text-white focus:border-red-600 outline-none"
                   placeholder="Location"
                 />
@@ -415,7 +420,11 @@ export const Profile = () => {
                          </div>
                       </div>
                       <div className="p-6 md:p-8">
-                        <MarkdownViewer content={profileUser.profileReadme} />
+                        <MarkdownViewer 
+                          content={profileUser.profileReadme} 
+                          baseUrl={`/${username}/${username}/blob/main`}
+                          imageBaseUrl={`/api/repos/${username}/${username}/raw/main`}
+                        />
                       </div>
                     </div>
                   </div>
@@ -589,6 +598,7 @@ export const Profile = () => {
                       placeholder="Find a repository..."
                       className="w-full bg-[#0d0d0d] border-2 border-zinc-900 px-12 py-3 text-sm text-white focus:border-red-600 outline-none transition-all placeholder:text-zinc-700 font-bold"
                       value={repoSearchQuery}
+                      maxLength={INPUT_LIMITS.searchQuery}
                       onChange={(e) => {
                         setRepoSearchQuery(e.target.value);
                         setRepoPage(0);
@@ -792,6 +802,7 @@ export const Profile = () => {
                   placeholder="Filter repositories"
                   className="w-full bg-black border-2 border-zinc-900 px-12 py-3 text-sm text-white focus:border-red-600 outline-none transition-all"
                   value={searchQuery}
+                  maxLength={INPUT_LIMITS.searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>

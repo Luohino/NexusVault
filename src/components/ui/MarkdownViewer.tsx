@@ -18,6 +18,8 @@ import 'prismjs/themes/prism-twilight.css'; // Fits brutalist dark mode perfectl
 interface MarkdownViewerProps {
   content: string;
   theme?: 'dark' | 'light';
+  baseUrl?: string;
+  imageBaseUrl?: string;
 }
 
 const escapeHtml = (value: string) =>
@@ -118,7 +120,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, theme =
             const isInline = !match && !className;
             
             if (isInline) {
-              return <code className={`px-1.5 py-0.5 rounded-none font-mono text-[11px] font-bold border ${theme === 'light' ? 'bg-zinc-100 text-red-600 border-zinc-200' : 'bg-zinc-900 text-red-500 border-zinc-800'}`} {...props}>{children}</code>;
+              return <code className={`px-1.5 py-0.5 rounded-none font-mono text-[11px] font-semibold border ${theme === 'light' ? 'bg-zinc-100 text-red-600 border-zinc-200' : 'bg-zinc-900 text-red-500 border-zinc-800'}`} {...props}>{children}</code>;
             }
 
             const codeString = String(children).replace(/\n$/, '');
@@ -145,12 +147,20 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, theme =
           
           // MEDIA & LINKS
           img({ node, ...props }: any) {
-            return <img className="max-w-full h-auto rounded-none inline-block my-1" loading="lazy" {...props} />;
+            let src = props.src;
+            if (src && !src.startsWith('http') && !src.startsWith('data:') && imageBaseUrl) {
+              src = `${imageBaseUrl}/${src.replace(/^\.\//, '')}`;
+            }
+            return <img className="max-w-full h-auto rounded-none inline-block my-1" loading="lazy" {...props} src={src} />;
           },
           a({ node, ...props }: any) {
+            let href = props.href;
+            if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && baseUrl) {
+              href = `${baseUrl}/${href.replace(/^\.\//, '')}`;
+            }
             if (props.className?.includes('heading-anchor')) {
               return (
-                <a {...props} className="text-inherit hover:underline decoration-transparent hover:decoration-inherit transition-all">
+                <a {...props} href={href} className="text-inherit hover:underline decoration-transparent hover:decoration-inherit transition-all">
                   <LinkIcon className="w-4 h-4 opacity-0 group-hover:opacity-100 inline-block -ml-6 mr-2 transition-opacity text-red-500" />
                   {props.children}
                 </a>
@@ -162,6 +172,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, theme =
                 target="_blank" 
                 rel="noopener noreferrer" 
                 {...props} 
+                href={href}
               />
             );
           },

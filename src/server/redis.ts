@@ -6,6 +6,12 @@ const DEFAULT_REPOSITORY_CACHE_TTL_SECONDS = Math.max(5, Number(process.env.REPO
 const REPOSITORY_CACHE_PREFIX = 'repo-cache';
 const REPOSITORY_CACHE_INDEX_PREFIX = 'repo-cache-index';
 
+// BUG FIX: Cache stampede / thundering herd prevention.
+// If N concurrent requests all miss the cache at the same moment, without this map
+// all N would execute the loader() and write to Redis. This coalesces them so only
+// the first request runs the loader; all others await the same promise.
+const pendingLoads = new Map<string, Promise<unknown>>();
+
 export const getRedisClient = () => redisClient;
 
 export const isRedisReady = () => redisReady && !!redisClient?.isOpen;
@@ -60,9 +66,23 @@ export const getOrSetCachedRepositoryJson = async <T>(
   const cached = await getCachedRepositoryJson<T>(repoId, suffix);
   if (cached !== null) return cached;
 
-  const value = await loader();
-  await setCachedRepositoryJson(repoId, suffix, value, ttlSeconds);
-  return value;
+  // BUG FIX: Coalesce concurrent cache misses. If a load for this key is already
+  // in-flight, return the existing promise instead of spawning a duplicate DB hit.
+  const coalesceKey = `${repoId}:${suffix}`;
+  const pending = pendingLoads.get(coalesceKey);
+  if (pending) return pending as Promise<T>;
+
+  const loadPromise = (async () => {
+    // Re-check cache after acquiring — a previous coalesced load may have set it.
+    const recheck = await getCachedRepositoryJson<T>(repoId, suffix);
+    if (recheck !== null) return recheck;
+    const value = await loader();
+    await setCachedRepositoryJson(repoId, suffix, value, ttlSeconds);
+    return value;
+  })().finally(() => pendingLoads.delete(coalesceKey));
+
+  pendingLoads.set(coalesceKey, loadPromise);
+  return loadPromise;
 };
 
 export const invalidateRepositoryCache = async (repoId: string) => {
@@ -115,11 +135,14 @@ export const initializeRedis = async () => {
     return redisClient;
   } catch (error) {
     console.error('Institutional Warning: Redis connection failed or timed out:', error);
-    // Ensure we don't try to use a half-connected client
+    // BUG FIX: Remove all event listeners before disconnecting to prevent orphaned
+    // listener accumulation in memory during Redis flapping / repeated reconnects.
     if (redisClient) {
+      redisClient.removeAllListeners();
       redisClient.disconnect().catch(() => {});
       redisClient = null;
     }
+    redisReady = false;
     return null;
   }
 };

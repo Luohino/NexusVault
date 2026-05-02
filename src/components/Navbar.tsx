@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react';
 import { Search, Plus, Bell, LogOut, User, Folder, Book } from 'lucide-react';
+import { INPUT_LIMITS } from '../utils/inputLimits';
 
 export const Navbar = () => {
   const { isSignedIn, user } = useUser();
@@ -117,6 +118,7 @@ export const Navbar = () => {
             placeholder="Jump to..."
             className="w-full bg-[#0d0d0d] border border-zinc-800 py-1.5 px-4 pl-10 text-[10px] font-bold text-white placeholder-zinc-600 focus:border-red-600 outline-none transition-all"
             value={searchQuery}
+            maxLength={INPUT_LIMITS.searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <Search className="w-4 h-4 absolute left-3.5 top-2 text-zinc-600" />
@@ -334,6 +336,7 @@ export const Navbar = () => {
             placeholder="Search users, repos..."
             className="w-full bg-[#0d0d0d] border-2 border-zinc-800 py-2.5 px-4 pl-10 text-xs font-bold text-white placeholder-zinc-600 focus:border-red-600 outline-none transition-all"
             value={searchQuery}
+            maxLength={INPUT_LIMITS.searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             autoFocus
           />

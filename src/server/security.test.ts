@@ -44,6 +44,29 @@ describe('security middleware', () => {
     expect(res.body.error).toBe('Blocked cross-origin request');
   });
 
+  it('allows no-origin CLI auth code requests while keeping cross-origin blocking', async () => {
+    const app = express();
+    app.use(express.json());
+    app.use('/api', createTrustedOriginMiddleware(['http://localhost:3002']));
+    app.post('/api/auth/cli/code', (_req, res) => res.json({ code: 'test-code' }));
+    app.post('/api/write', (_req, res) => res.json({ ok: true }));
+
+    const cliCode = await request(app)
+      .post('/api/auth/cli/code')
+      .set('Content-Type', 'application/json')
+      .send({});
+
+    expect(cliCode.status).toBe(200);
+    expect(cliCode.body.code).toBe('test-code');
+
+    const blocked = await request(app)
+      .post('/api/write')
+      .set('Content-Type', 'application/json')
+      .send({});
+
+    expect(blocked.status).toBe(403);
+  });
+
   it('rejects non-json mutation requests', async () => {
     const app = express();
     app.use(requireJsonMutation);

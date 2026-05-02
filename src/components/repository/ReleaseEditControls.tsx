@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { FileArchive, Pencil, Trash, Upload, X } from 'lucide-react';
+import { INPUT_LIMITS } from '../../utils/inputLimits';
 
 const fileToBase64 = (file: File) => new Promise<string>((resolve, reject) => {
   const reader = new FileReader();
@@ -75,8 +76,8 @@ export const ReleaseEditControls = ({ username, repoName, release, onChanged }: 
       </div>
       {editing ? (
         <div className="p-5 space-y-4">
-          <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border-[3px] border-black px-3 py-2 font-black" />
-          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={8} className="w-full border-[3px] border-black px-3 py-2 font-mono text-sm" />
+          <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={INPUT_LIMITS.title} className="w-full border-[3px] border-black px-3 py-2 font-black" />
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={8} maxLength={INPUT_LIMITS.markdown} className="w-full border-[3px] border-black px-3 py-2 font-mono text-sm" />
           <label className="flex items-center gap-2 text-sm font-black">
             <input type="checkbox" checked={isDraft} onChange={(e) => setIsDraft(e.target.checked)} />
             Save as draft

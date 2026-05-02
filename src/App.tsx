@@ -18,6 +18,7 @@ import { Contact } from './pages/Contact';
 import { ForkRepository } from './pages/ForkRepository';
 import { DocumentationIndex } from './pages/DocumentationIndex';
 import { DocumentViewer } from './pages/DocumentViewer';
+import CliAuth from './pages/CliAuth';
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="/:username" element={<Profile />} />
 
             <Route path="/:username/:repoName/*" element={<Repository />} />
+            <Route path="/auth/cli" element={<CliAuth />} />
           </Routes>
         </main>
       </div>

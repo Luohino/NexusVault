@@ -21,13 +21,35 @@ export const applySecurityHeaders = (_req: Request, res: Response, next: NextFun
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   
+  const isProduction = process.env.NODE_ENV === 'production';
+  const devScriptSources = isProduction ? [] : ['http://localhost:*', 'http://127.0.0.1:*'];
+  const devConnectSources = isProduction ? [] : [
+    'ws://localhost:*',
+    'wss://localhost:*',
+    'ws://127.0.0.1:*',
+    'wss://127.0.0.1:*',
+  ];
+
   // Sovereign CSP: Authorizing Clerk, Google OAuth, and Platform Assets
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.clerk.accounts.dev https://clerk.com https://accounts.google.com http://localhost:* http://127.0.0.1:*",
+    [
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
+      'https://*.clerk.accounts.dev',
+      'https://clerk.com',
+      'https://accounts.google.com',
+      ...devScriptSources,
+    ].join(' '),
     "worker-src 'self' blob:",
-    "connect-src 'self' ws://localhost:* wss://localhost:* ws://127.0.0.1:* wss://127.0.0.1:* https://*.clerk.accounts.dev https://*.supabase.co wss://*.clerk.accounts.dev https://accounts.google.com",
-    "img-src 'self' data: blob: https://*.clerk.com https://img.clerk.com https://github.com https://*.githubusercontent.com https://*.googleusercontent.com",
+    [
+      "connect-src 'self'",
+      ...devConnectSources,
+      'https://*.clerk.accounts.dev',
+      'https://*.supabase.co',
+      'wss://*.clerk.accounts.dev',
+      'https://accounts.google.com',
+    ].join(' '),
+    "img-src 'self' data: blob: https://*.clerk.com https://img.clerk.com https://github.com https://*.githubusercontent.com https://*.googleusercontent.com https://img.shields.io https://badges.frapsoft.com https://cdn.jsdelivr.net https://img.forthebadge.com https://*.github.com https://raw.githubusercontent.com https://user-images.githubusercontent.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
     "font-src 'self' https://fonts.gstatic.com",
     "frame-src 'self' https://*.clerk.accounts.dev https://accounts.google.com"
@@ -104,17 +126,25 @@ export const createRateLimitMiddleware = ({
   };
 };
 
-const defaultAllowedOrigins = () =>
-  [
+const PRODUCTION_APP_URL = 'https://nexusvault-luohino.vercel.app';
+
+const defaultAllowedOrigins = () => {
+  const configuredOrigins = [
+    PRODUCTION_APP_URL,
     process.env.APP_BASE_URL,
     process.env.APP_URL,
     process.env.PUBLIC_APP_URL,
     process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
     process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined,
     process.env.VERCEL_BRANCH_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : undefined,
-    'http://localhost:3002',
-    'http://127.0.0.1:3002',
-  ].filter((value): value is string => Boolean(value));
+  ];
+
+  const devOrigins = process.env.NODE_ENV === 'production'
+    ? []
+    : ['http://localhost:3002', 'http://127.0.0.1:3002'];
+
+  return [...configuredOrigins, ...devOrigins].filter((value): value is string => Boolean(value));
+};
 
 const normalizeOrigin = (origin: string) => {
   try {
@@ -135,8 +165,12 @@ export const createTrustedOriginMiddleware = (allowedOrigins = defaultAllowedOri
     const origin = req.headers.origin;
     const secFetchSite = req.headers['sec-fetch-site'];
     const hasAuthorization = Boolean(req.headers.authorization);
+    const isCliCodeRequest = req.method === 'POST' && req.path === '/auth/cli/code';
 
     if (!origin) {
+      if (isCliCodeRequest) {
+        return next();
+      }
       if (hasAuthorization && (!secFetchSite || secFetchSite === 'same-origin' || secFetchSite === 'same-site' || secFetchSite === 'none')) {
         return next();
       }

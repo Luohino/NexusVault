@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { GitBranch, Lock, Globe, Trash, UserPlus } from 'lucide-react';
+import { INPUT_LIMITS } from '../../utils/inputLimits';
 
 export const RepositoryAdminPanel = ({ username, repoName, branches, settings, repo, getToken, onRefresh, onRepoUpdated }: any) => {
   const [collaborators, setCollaborators] = useState<any[]>([]);
@@ -246,7 +247,7 @@ export const RepositoryAdminPanel = ({ username, repoName, branches, settings, r
           <label className="block text-sm font-bold">
             New name
             <div className="mt-2 flex gap-2">
-              <input value={renameTo} onChange={(e) => setRenameTo(e.target.value)} className="min-w-0 flex-1 border-2 border-black px-3 py-2" />
+              <input value={renameTo} onChange={(e) => setRenameTo(e.target.value)} maxLength={INPUT_LIMITS.branchName} className="min-w-0 flex-1 border-2 border-black px-3 py-2" />
               <button onClick={handleRename} className="bg-black text-white px-4 py-2 text-xs font-black">Rename</button>
             </div>
           </label>
@@ -268,7 +269,7 @@ export const RepositoryAdminPanel = ({ username, repoName, branches, settings, r
         </div>
         <div className="grid gap-3 md:grid-cols-[1fr_160px_auto]">
           <div className="relative">
-            <input value={inviteUser} onChange={(e) => setInviteUser(e.target.value)} placeholder="username" className="w-full border-2 border-black px-3 py-2 font-bold" />
+            <input value={inviteUser} onChange={(e) => setInviteUser(e.target.value)} placeholder="username" maxLength={INPUT_LIMITS.inviteUsername} className="w-full border-2 border-black px-3 py-2 font-bold" />
             {lookupState !== 'idle' && !selectedUser && (
               <div className="absolute left-0 right-0 top-full mt-2 z-20 border-[3px] border-black bg-white shadow-[7px_7px_0px_0px_rgba(220,38,38,1)]">
                 {lookupState === 'loading' && (

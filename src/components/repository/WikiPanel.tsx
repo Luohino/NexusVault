@@ -3,6 +3,7 @@ import { Link, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { Pencil, Trash } from 'lucide-react';
 import { MarkdownViewer } from '../ui/MarkdownViewer';
+import { INPUT_LIMITS } from '../../utils/inputLimits';
 
 const WikiPageDetail = ({ username, repoName, user, repo, getToken, onChanged }: any) => {
   const { slug } = useParams();
@@ -70,13 +71,17 @@ const WikiPageDetail = ({ username, repoName, user, repo, getToken, onChanged }:
       <div className="bg-[#050505] p-4 sm:p-6 md:p-8">
         {editing ? (
           <div className="space-y-4 bg-white text-black border-[3px] border-black p-4 sm:p-6">
-            <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border-[3px] border-black px-4 py-3 font-black" />
-            <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={14} className="w-full border-[3px] border-black px-4 py-3 font-mono text-sm" />
+            <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={INPUT_LIMITS.wikiTitle} className="w-full border-[3px] border-black px-4 py-3 font-black" />
+            <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={14} maxLength={INPUT_LIMITS.wikiContent} className="w-full border-[3px] border-black px-4 py-3 font-mono text-sm" />
             <button onClick={save} className="bg-red-600 text-white border-[3px] border-black px-6 py-3 text-sm font-black">Save page</button>
           </div>
         ) : (
           <div className="bg-[#080808] text-white border-[3px] border-black p-4 sm:p-6">
-            <MarkdownViewer content={page.content} />
+            <MarkdownViewer 
+              content={page.content} 
+              baseUrl={`/${username}/${repoName}/blob/main`}
+              imageBaseUrl={`/api/repos/${username}/${repoName}/raw/main`}
+            />
           </div>
         )}
       </div>

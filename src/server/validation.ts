@@ -28,7 +28,7 @@ export const INPUT_LIMITS = {
   releaseAssetName: 180,
   releaseAssetCount: 10,
   pinCount: 6,
-  fileContent: 2_000_000,
+  fileContent: 3 * 1024 * 1024,
   readmeContent: 100_000,
 } as const;
 
@@ -195,3 +195,11 @@ export const readSearchQuery = (value: unknown) =>
     field: 'search query',
     maxLength: INPUT_LIMITS.searchQuery,
   }) || '';
+
+/**
+ * Escapes SQL LIKE/ILIKE wildcard characters (%, _) in user input.
+ * Without this, attackers can inject `%` to match everything or craft
+ * expensive patterns that cause slow full-table scans.
+ */
+export const escapeLikePattern = (value: string) =>
+  value.replace(/[%_\\]/g, (ch) => `\\${ch}`);
